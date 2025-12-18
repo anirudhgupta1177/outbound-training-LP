@@ -1,0 +1,173 @@
+import { motion } from 'framer-motion';
+import { HiCheck } from 'react-icons/hi';
+import { SectionHeading, Button } from '../ui';
+
+const credentials = [
+  '12,000+ LinkedIn Followers',
+  'IIT Kharagpur Graduate',
+  '5+ years of experience',
+  'Active Community of 1000+ Members',
+];
+
+export default function Instructor() {
+
+  return (
+    <section id="instructor" className="py-12 md:py-20 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-dark" />
+      <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-64 md:w-96 h-64 md:h-96 bg-gold/10 rounded-full blur-3xl" />
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          title="I Send 60K Emails Daily for Instantly AI. Now I'm Teaching You How."
+          subtitle="(Practitioner First. Teacher Second.)"
+          gradient
+        />
+
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch mt-8 md:mt-12">
+          {/* Video */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative flex flex-col"
+          >
+            {/* Glow */}
+            <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-20 blur-2xl rounded-2xl md:rounded-3xl" />
+            
+            <div className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                <iframe 
+                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df" 
+                  frameBorder="0"
+                  allowFullScreen
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                  title="The Complete System Breakdown (6 min)"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Credentials */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col justify-between"
+          >
+            {/* Results headline */}
+            <div>
+              <h3 className="text-base md:text-lg font-display font-bold text-white mb-3 md:mb-4">
+                My Personal Background:
+              </h3>
+
+              {/* Credentials list */}
+              <ul className="space-y-2.5 md:space-y-3">
+                {credentials.map((credential, index) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start gap-2 md:gap-3"
+                  >
+                    <span className="flex-shrink-0 w-5 h-5 md:w-5 md:h-5 rounded-full bg-success/20 flex items-center justify-center mt-0.5">
+                      <HiCheck className="w-3 h-3 md:w-3 md:h-3 text-success" />
+                    </span>
+                    <span className="text-text-secondary text-sm md:text-base font-medium">{credential}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Why I'm Sharing This */}
+            <div className="glass-card rounded-lg md:rounded-xl p-4 md:p-5 border border-purple/30 mt-4 md:mt-6">
+              <h4 className="text-sm md:text-base font-display font-bold text-white mb-2 md:mb-3">
+                Why I'm Sharing This:
+              </h4>
+              <p className="text-text-secondary text-xs md:text-sm leading-relaxed">
+                I'm tired of watching freelancers struggle with problems I solved years ago while fake gurus sell theory. This isn't a course - it's the exact system I use for $5000+/month clients.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Social Proof Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          className="mt-8 md:mt-12"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {/* Card 1: Instantly AI */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">🏢</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">Instantly AI</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Heading Outbound</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">60K emails daily</p>
+            </div>
+
+            {/* Card 2: Revenue */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">📊</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">₹2.45 Cr</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Generated from</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">1.9M emails sent</p>
+            </div>
+
+            {/* Card 3: Sam Altman */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">🤝</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">Sam Altman</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Booked meetings</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">with billionaires</p>
+            </div>
+
+            {/* Card 4: Students */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">👥</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">1,132+</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Students</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">Trained</p>
+            </div>
+
+            {/* Card 5: Rating */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">⭐</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">4.9/5</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Rating from</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">180+ reviews</p>
+            </div>
+
+            {/* Card 6: Meetings */}
+            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
+              <div className="text-3xl md:text-4xl mb-2">📅</div>
+              <h5 className="text-white font-bold text-base md:text-lg mb-2">2,847</h5>
+              <p className="text-text-secondary text-sm md:text-base mb-1">Meetings booked</p>
+              <p className="text-text-secondary text-sm md:text-base mt-1">by students</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+          className="text-center mt-8 md:mt-12"
+        >
+          <Button size="lg" className="w-full sm:w-auto">
+            Learn From a Real Practitioner
+          </Button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
