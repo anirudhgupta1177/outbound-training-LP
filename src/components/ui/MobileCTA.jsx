@@ -31,7 +31,7 @@ export default function MobileCTA() {
                 <p className="text-white font-bold text-sm truncate">Get the Complete System</p>
                 <div className="flex items-center gap-2">
                   <span className="text-text-muted text-xs line-through">₹14,999</span>
-                  <span className="text-gold text-sm font-bold">₹999</span>
+                  <span className="text-gold text-sm font-bold">₹3497</span>
                 </div>
               </div>
               <Button size="md" className="flex-shrink-0 animate-pulse-gold">

@@ -109,7 +109,7 @@ export default function RiskReversal() {
           className="text-center mt-6 md:mt-8"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Start Risk-Free for ₹999
+            Start Risk-Free for ₹3497
           </Button>
         </motion.div>
       </div>

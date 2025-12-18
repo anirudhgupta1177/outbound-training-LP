@@ -12,7 +12,6 @@ import {
   RiskReversal,
   Urgency,
   FAQ,
-  FinalCTA,
   Footer 
 } from './components/sections';
 import MobileCTA from './components/ui/MobileCTA';
@@ -34,13 +33,13 @@ function App() {
         
         <SystemFunnel />
         
+        <Instructor />
+        
         <CompleteSystem />
         
         <DashboardShowcase />
         
         <Personas />
-        
-        <Instructor />
         
         <ValueStack />
         
@@ -49,8 +48,6 @@ function App() {
         <Urgency />
         
         <FAQ />
-        
-        <FinalCTA />
       </main>
       
       <Footer />

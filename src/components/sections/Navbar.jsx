@@ -19,6 +19,8 @@ export default function Navbar() {
   const navLinks = [
     { label: 'How It Works', href: '#how-it-works' },
     { label: 'What You Get', href: '#what-you-get' },
+    { label: 'Who am I', href: '#instructor' },
+    { label: 'Proof it works', href: '#proof' },
     { label: 'Testimonials', href: '#testimonials' },
     { label: 'FAQ', href: '#faq' },
   ];
@@ -39,7 +41,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a href="#" className="flex items-center gap-3">
-              <img src={logo} alt="The Organic Buzz" className="h-8 md:h-10 w-auto" />
+              <img src={logo} alt="The Organic Buzz" className="h-8 md:h-10 w-auto rounded-full" />
             </a>
 
             {/* Desktop Navigation */}

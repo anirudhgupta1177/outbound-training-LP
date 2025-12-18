@@ -48,7 +48,7 @@ export default function ValueStack() {
               {/* Price header */}
               <div className="text-center mb-4 md:mb-6">
                 <p className="text-text-muted line-through text-lg md:text-xl">₹14,999</p>
-                <p className="text-4xl md:text-5xl font-display font-bold gradient-text">₹999</p>
+                <p className="text-4xl md:text-5xl font-display font-bold gradient-text">₹3497</p>
                 <p className="text-text-muted text-xs md:text-sm mt-1">+ GST • One-time payment • Lifetime access</p>
               </div>
 
@@ -112,14 +112,14 @@ export default function ValueStack() {
               </ul>
               <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-white/10">
                 <p className="text-gold font-medium text-center text-sm md:text-base">
-                  Or learn the system once for <span className="text-xl md:text-2xl font-bold">₹999</span>
+                  Or learn the system once for <span className="text-xl md:text-2xl font-bold">₹3497</span>
                 </p>
               </div>
             </div>
 
             {/* CTA */}
             <Button size="xl" className="w-full animate-pulse-gold">
-              Get Instant Access for ₹999
+              Get Instant Access for ₹3497
             </Button>
 
             {/* Trust elements */}

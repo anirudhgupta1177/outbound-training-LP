@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useRef, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectCoverflow } from 'swiper/modules';
 import 'swiper/css';
@@ -32,8 +33,22 @@ const smallDashboards = [
 ];
 
 export default function DashboardShowcase() {
+  const swiperRef = useRef(null);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: false, margin: '-100px' });
+
+  useEffect(() => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      if (isInView) {
+        swiperRef.current.swiper.autoplay.start();
+      } else {
+        swiperRef.current.swiper.autoplay.stop();
+      }
+    }
+  }, [isInView]);
+
   return (
-    <section className="py-12 md:py-20 relative overflow-hidden">
+    <section id="proof" ref={sectionRef} className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-dark" />
       <div className="absolute inset-0">
@@ -94,11 +109,13 @@ export default function DashboardShowcase() {
             Campaign Performance Snapshots
           </h3>
           <Swiper
+            ref={swiperRef}
             modules={[Autoplay, EffectCoverflow]}
             effect="coverflow"
             grabCursor
             centeredSlides
             slidesPerView="auto"
+            loop={true}
             coverflowEffect={{
               rotate: 0,
               stretch: 0,
@@ -107,9 +124,11 @@ export default function DashboardShowcase() {
               slideShadows: false,
             }}
             autoplay={{
-              delay: 3000,
+              delay: 2500,
               disableOnInteraction: false,
+              pauseOnMouseEnter: true,
             }}
+            speed={800}
             breakpoints={{
               320: { slidesPerView: 1.2 },
               480: { slidesPerView: 1.5 },
@@ -169,7 +188,7 @@ export default function DashboardShowcase() {
           className="text-center mt-8 md:mt-12"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Get These Results for ₹999
+            Get These Results for ₹3497
           </Button>
         </motion.div>
       </div>

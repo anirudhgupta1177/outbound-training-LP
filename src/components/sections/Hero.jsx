@@ -116,7 +116,7 @@ export default function Hero() {
             {/* CTAs - Primary action area */}
             <div className="flex flex-col sm:flex-row gap-3 items-center lg:items-start mb-4">
               <Button size="lg" className="animate-pulse-gold w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-                Get Instant Access for ₹999
+                Get Instant Access for ₹3497
               </Button>
               <Button variant="outline" size="lg" href="#instructor" className="w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
                 Watch 6-Min Breakdown

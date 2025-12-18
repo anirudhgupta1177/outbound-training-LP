@@ -11,7 +11,9 @@ export { default as ValueStack } from './ValueStack';
 export { default as RiskReversal } from './RiskReversal';
 export { default as Urgency } from './Urgency';
 export { default as FAQ } from './FAQ';
-export { default as FinalCTA } from './FinalCTA';
+// FinalCTA removed
 export { default as Footer } from './Footer';
+
+
 
 

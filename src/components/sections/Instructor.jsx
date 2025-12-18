@@ -4,11 +4,11 @@ import { HiPlay, HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 
 const credentials = [
-  'Booked 1000+ qualified appointments in 2025',
-  'Generated ₹1.5Cr+ in pipeline using these systems',
-  'Built 40+ automation systems for paying clients',
-  'Cut prospecting time from 20 hours to 30 minutes/week',
-  'Manage outbound for 20+ active clients simultaneously',
+  'Heading Outbound for Instantly AI (one of the biggest outbound companies) — sending 60K emails/day for them',
+  'Studied from IIT Kharagpur',
+  'Sent 1.9M Emails in 2025 and generated over ₹2.45 CR in direct Revenue',
+  'Booked calls with billionaires like Sam Altman from Cold Emails',
+  'Run a community of over 1132+ cold emailers',
 ];
 
 export default function Instructor() {
@@ -96,7 +96,7 @@ export default function Instructor() {
           >
             {/* Results headline */}
             <h3 className="text-lg md:text-xl font-display font-bold text-white mb-4 md:mb-6">
-              Results I've Achieved:
+              My Credentials:
             </h3>
 
             {/* Credentials list */}

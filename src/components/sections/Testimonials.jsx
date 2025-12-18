@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useRef, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -24,8 +25,22 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const swiperRef = useRef(null);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: false, margin: '-100px' });
+
+  useEffect(() => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      if (isInView) {
+        swiperRef.current.swiper.autoplay.start();
+      } else {
+        swiperRef.current.swiper.autoplay.stop();
+      }
+    }
+  }, [isInView]);
+
   return (
-    <section id="testimonials" className="py-12 md:py-20 relative overflow-hidden">
+    <section id="testimonials" ref={sectionRef} className="py-12 md:py-20 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-dark-secondary via-dark to-dark-secondary" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple to-transparent opacity-30" />
@@ -44,13 +59,17 @@ export default function Testimonials() {
           className="mt-8 md:mt-12"
         >
           <Swiper
+            ref={swiperRef}
             modules={[Autoplay, Pagination, Navigation]}
             spaceBetween={16}
             slidesPerView={1}
+            loop={true}
             autoplay={{
-              delay: 4000,
+              delay: 2500,
               disableOnInteraction: false,
+              pauseOnMouseEnter: true,
             }}
+            speed={800}
             pagination={{
               clickable: true,
               el: '.testimonial-pagination',
