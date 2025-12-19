@@ -35,7 +35,6 @@ const stages = [
       { name: 'Apollo', logo: apolloLogo },
       { name: 'Phantombuster', logo: phantombusterLogo },
       { name: 'Ocean.io', logo: oceanioLogo },
-      { name: 'Storeleads', logo: storeleadsLogo },
     ],
     outcome: '10,000+ verified leads identified in 24 hours',
     color: 'from-blue-500 to-purple',
@@ -50,7 +49,6 @@ const stages = [
       { name: 'Claude', logo: anthropicLogo },
       { name: 'Perplexity', logo: perplexityLogo },
       { name: 'Zenrows', logo: zenrowsLogo },
-      { name: 'LinkedIn', logo: linkedinLogo },
     ],
     outcome: '1000+ unique emails written daily - zero copy-paste templates',
     color: 'from-purple to-purple-light',
@@ -65,7 +63,6 @@ const stages = [
       { name: 'Scalemail', logo: scaledmailLogo },
       { name: 'Instantly', logo: instantlyLogo },
       { name: 'Smartlead', logo: smartleadLogo },
-      { name: 'ZapMail', logo: zapmailLogo },
     ],
     outcome: '1000+ emails daily without hitting spam, 8% reply rate',
     color: 'from-purple-light to-gold',
@@ -78,7 +75,6 @@ const stages = [
     technicalLogos: [
       { name: 'Make.com', logo: makeLogo },
       { name: 'n8n', logo: n8nLogo },
-      { name: 'Calendly', logo: calendlyLogo },
       { name: 'Zapier', logo: zapierLogo },
       { name: 'Cal.com', logo: calcomLogo },
     ],
@@ -139,61 +135,31 @@ export default function SystemFunnel() {
                     {stage.title}
                   </h3>
 
-                  {/* What Happens */}
+                  {/* Technical Part - Logos only, no heading */}
                   <div className="mb-3 md:mb-4">
-                    <p className="text-gold text-xs font-semibold uppercase tracking-wider mb-1">What Happens</p>
-                    <p className="text-text-secondary text-xs md:text-sm">{stage.whatHappens}</p>
-                  </div>
-
-                  {/* Technical Part */}
-                  <div className="mb-3 md:mb-4">
-                    <p className="text-purple-light text-xs font-semibold uppercase tracking-wider mb-3 md:mb-4">The Technical Part</p>
-                    <div className="flex flex-col gap-2.5 md:gap-3">
-                      {/* First row - 3 logos */}
-                      <div className="flex gap-2.5 md:gap-3 justify-start">
-                        {stage.technicalLogos.slice(0, 3).map((tool, idx) => (
-                          <div
-                            key={idx}
-                            className="w-8 h-8 md:w-10 md:h-10 bg-white/5 rounded-md p-1 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10"
-                            title={tool.name}
-                          >
-                            {tool.logo ? (
-                              <img 
-                                src={tool.logo} 
-                                alt={tool.name} 
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <span className="text-text-muted text-[8px] md:text-xs text-center leading-tight">{tool.name}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      {/* Second row - 2 logos */}
-                      <div className="flex gap-2.5 md:gap-3 justify-start">
-                        {stage.technicalLogos.slice(3, 5).map((tool, idx) => (
-                          <div
-                            key={idx + 3}
-                            className="w-8 h-8 md:w-10 md:h-10 bg-white/5 rounded-md p-1 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10"
-                            title={tool.name}
-                          >
-                            {tool.logo ? (
-                              <img 
-                                src={tool.logo} 
-                                alt={tool.name} 
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <span className="text-text-muted text-[8px] md:text-xs text-center leading-tight">{tool.name}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="flex gap-2 md:gap-2.5 justify-start flex-wrap">
+                      {stage.technicalLogos.map((tool, idx) => (
+                        <div
+                          key={idx}
+                          className="w-8 h-8 md:w-10 md:h-10 bg-white/5 rounded-md p-1 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10 flex-shrink-0"
+                          title={tool.name}
+                        >
+                          {tool.logo ? (
+                            <img 
+                              src={tool.logo} 
+                              alt={tool.name} 
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <span className="text-text-muted text-[8px] md:text-xs text-center leading-tight">{tool.name}</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   {/* Outcome */}
-                  <div className="mb-3 md:mb-4 mt-3 md:mt-4">
+                  <div className="mb-3 md:mb-4">
                     <p className="text-success text-xs font-semibold uppercase tracking-wider mb-1">The Outcome</p>
                     <p className="text-white text-xs md:text-sm font-medium">{stage.outcome}</p>
                   </div>

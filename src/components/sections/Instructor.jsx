@@ -104,7 +104,7 @@ export default function Instructor() {
           transition={{ delay: 0.5 }}
           className="mt-8 md:mt-12"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Card 1: Instantly AI */}
             <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
               <div className="text-3xl md:text-4xl mb-2">🏢</div>

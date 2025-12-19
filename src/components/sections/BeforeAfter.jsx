@@ -82,7 +82,6 @@ export default function BeforeAfter() {
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl font-display font-bold text-white">The Old Broken Way</h3>
-                  <p className="text-text-muted text-xs md:text-sm">What most people are stuck doing</p>
                 </div>
               </div>
 
@@ -103,7 +102,6 @@ export default function BeforeAfter() {
                       </span>
                       <div>
                         <p className="text-white font-medium text-sm md:text-base">{item.main}</p>
-                        <p className="text-text-muted text-xs md:text-sm mt-1">{item.sub}</p>
                       </div>
                     </div>
                   </motion.li>
@@ -145,7 +143,6 @@ export default function BeforeAfter() {
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl font-display font-bold gradient-text">The AI-Powered System</h3>
-                  <p className="text-text-muted text-xs md:text-sm">What top performers are using</p>
                 </div>
               </div>
 
@@ -166,7 +163,6 @@ export default function BeforeAfter() {
                       </span>
                       <div>
                         <p className="text-white font-medium text-sm md:text-base">{item.main}</p>
-                        <p className="text-text-muted text-xs md:text-sm mt-1">{item.sub}</p>
                       </div>
                     </div>
                   </motion.li>
@@ -190,22 +186,6 @@ export default function BeforeAfter() {
               <span className="gradient-text font-bold">30+ meetings a month</span> on autopilot.
             </p>
           </div>
-        </motion.div>
-
-        {/* Reflection */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.65 }}
-          className="text-center mt-6 md:mt-8"
-        >
-          <p className="text-lg md:text-xl text-text-secondary font-medium">
-            The question isn't "Can I afford this system?"
-          </p>
-          <p className="text-lg md:text-xl text-white font-bold mt-2">
-            It's "Can I afford to keep wasting 40+ hours per week?"
-          </p>
         </motion.div>
 
         {/* CTA */}

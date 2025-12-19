@@ -9,8 +9,6 @@ import {
   Personas,
   Instructor,
   ValueStack,
-  RiskReversal,
-  Urgency,
   FAQ,
   Footer 
 } from './components/sections';
@@ -31,21 +29,21 @@ function App() {
         
         <Testimonials />
         
-        <SystemFunnel />
+        <div className="hidden md:block">
+          <SystemFunnel />
+        </div>
         
         <Instructor />
         
         <CompleteSystem />
         
-        <DashboardShowcase />
-        
-        <Personas />
+        <div className="hidden md:block">
+          <DashboardShowcase />
+        </div>
         
         <ValueStack />
         
-        <RiskReversal />
-        
-        <Urgency />
+        <Personas />
         
         <FAQ />
       </main>

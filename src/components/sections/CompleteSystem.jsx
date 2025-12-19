@@ -107,7 +107,7 @@ const items = [
   },
   {
     icon: HiOutlineUserGroup,
-    title: 'Private WhatsApp Community',
+    title: 'Private WhatsApp Community Access',
     description: 'Join 1132+ active members who are closing deals daily using this exact system',
     details: 'Get instant help when stuck, share your wins with the community, and network with successful operators',
     modules: ['Strategy discussions', 'Deliverability troubleshooting', 'Live support', 'Lifetime access'],
@@ -161,7 +161,7 @@ export default function CompleteSystem() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mt-8 md:mt-12"
         >
           {/* Flowchart Card - First */}
           <motion.div
@@ -171,7 +171,8 @@ export default function CompleteSystem() {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-gold to-gold-light opacity-0 group-hover:opacity-20 blur-xl rounded-xl md:rounded-2xl transition-opacity duration-500" />
             
-            <div className="relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col">
+            {/* Desktop: Original vertical layout */}
+            <div className="hidden md:block relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col">
               {/* Flowchart Image */}
               <div className="aspect-video bg-white overflow-hidden">
                 <img
@@ -184,33 +185,40 @@ export default function CompleteSystem() {
               
               {/* Content */}
               <div className="p-4 md:p-6 flex-1 flex flex-col">
-                {/* Icon */}
-                <div className="flex items-start justify-between mb-3 md:mb-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r from-gold to-gold-light flex items-center justify-center group-hover:scale-110 transition-transform">
+                {/* Icon and Title */}
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r from-gold to-gold-light flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
                     <HiOutlineTemplate className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
+                  <div className="flex-1">
+                    {/* Title */}
+                    <h3 className="text-base md:text-lg font-display font-bold text-white group-hover:text-gold transition-colors leading-tight">
+                      Training Program Overview
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile: Horizontal layout - Content left, Image right */}
+            <div className="md:hidden relative glass-card rounded-lg overflow-hidden flex flex-row">
+              {/* Content left side */}
+              <div className="flex-1 flex items-center p-3">
+                <div className="flex-1 flex flex-col justify-center">
+                  {/* Title */}
+                  <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight">
+                    Training Program Overview
+                  </h3>
                 </div>
                 
-                {/* Title - 1 line */}
-                <h3 className="text-base md:text-lg font-display font-bold text-white mb-2 group-hover:text-gold transition-colors leading-tight">
-                  Training Program Overview
-                </h3>
-                
-                {/* Description - 2 lines */}
-                <p className="text-text-secondary text-xs md:text-sm mb-2 leading-relaxed">
-                  High-level flowchart showing everything covered in the course
-                </p>
-                
-                {/* Details - 2 lines */}
-                <p className="text-text-muted text-xs mb-3 leading-relaxed">
-                  See how all pieces connect - from ICP creation to automated meeting booking
-                </p>
-                
-                {/* Modules - 2 lines total, bullet points */}
-                <div className="mt-auto pt-3 border-t border-white/10">
-                  <p className="text-xs text-purple-light leading-relaxed">
-                    • System architecture • Module progression • Tool integrations • Automation workflows
-                  </p>
+                {/* Image rightmost */}
+                <div className="w-20 h-20 bg-white overflow-hidden flex-shrink-0 ml-2">
+                  <img
+                    src={flowchart}
+                    alt="Complete Training Program Overview"
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -230,7 +238,8 @@ export default function CompleteSystem() {
                 {/* Glow effect on hover */}
                 <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-20 blur-xl rounded-xl md:rounded-2xl transition-opacity duration-500`} />
                 
-                <div className="relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col">
+                {/* Desktop: Original vertical layout */}
+                <div className="hidden md:block relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col">
                   {/* Image preview if available */}
                   {item.image && (
                     <div className="aspect-video bg-dark-tertiary overflow-hidden">
@@ -245,43 +254,47 @@ export default function CompleteSystem() {
                   
                   {/* Content */}
                   <div className="p-4 md:p-6 flex-1 flex flex-col">
-                    {/* Icon & Value */}
-                    <div className="flex items-start justify-between mb-3 md:mb-4">
-                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    {/* Icon, Title, and Value */}
+                    <div className="flex items-start gap-3 md:gap-4">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0`}>
                         <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
-                      <span className="text-text-secondary text-xs md:text-sm font-medium">Value: {item.value}</span>
+                      <div className="flex-1">
+                        {/* Title */}
+                        <h3 className="text-base md:text-lg font-display font-bold text-white group-hover:text-gold transition-colors leading-tight mb-1 md:mb-2">
+                          {item.title}
+                        </h3>
+                        {/* Value */}
+                        <span className="text-text-secondary text-xs md:text-sm font-medium">Value: {item.value}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Mobile: Horizontal layout - Content left, Image right */}
+                <div className="md:hidden relative glass-card rounded-lg overflow-hidden flex flex-row">
+                  {/* Content left side */}
+                  <div className="flex-1 flex items-center p-3">
+                    <div className="flex-1 flex flex-col justify-center">
+                      {/* Title */}
+                      <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight mb-1">
+                        {item.title}
+                      </h3>
+                      {/* Value */}
+                      <span className="text-text-secondary text-xs font-medium">Value: {item.value}</span>
                     </div>
                     
-                    {/* Title - 1 line */}
-                    <h3 className="text-base md:text-lg font-display font-bold text-white mb-2 group-hover:text-gold transition-colors leading-tight">
-                      {item.title}
-                    </h3>
-                    
-                    {/* Description - 2 lines */}
-                    <p className="text-text-secondary text-xs md:text-sm mb-2 leading-relaxed">
-                      {item.description}
-                    </p>
-                    
-                    {/* Details - 2 lines */}
-                    <p className="text-text-muted text-xs mb-3 leading-relaxed">
-                      {item.details}
-                    </p>
-                    
-                    {/* Modules - 2 lines total, bullet points */}
-                    <div className="mt-auto pt-3 border-t border-white/10">
-                      <p className="text-xs text-purple-light leading-relaxed">
-                        {Array.isArray(item.modules) ? (
-                          item.modules.map((module, idx) => (
-                            <span key={idx}>
-                              • {module}{idx < item.modules.length - 1 ? ' ' : ''}
-                            </span>
-                          ))
-                        ) : (
-                          item.modules
-                        )}
-                      </p>
-                    </div>
+                    {/* Image rightmost */}
+                    {item.image && (
+                      <div className="w-20 h-20 bg-dark-tertiary overflow-hidden flex-shrink-0 ml-2">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -296,42 +309,71 @@ export default function CompleteSystem() {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-purple to-purple-light opacity-0 group-hover:opacity-20 blur-xl rounded-xl md:rounded-2xl transition-opacity duration-500" />
             
-            <div className="relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col border border-purple/30">
+            {/* Desktop: Original layout */}
+            <div className="hidden md:block relative glass-card rounded-xl md:rounded-2xl overflow-hidden h-full flex flex-col border border-purple/30">
               <div className="p-4 md:p-6 flex-1 flex flex-col">
-                {/* Icon */}
-                <div className="flex items-start justify-between mb-3 md:mb-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r from-purple to-purple-light flex items-center justify-center group-hover:scale-110 transition-transform">
+                {/* Icon, Title, and Description */}
+                <div className="flex items-start gap-3 md:gap-4 mb-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-r from-purple to-purple-light flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
                     <HiOutlineChip className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    {/* Title */}
+                    <h3 className="text-base md:text-lg font-display font-bold text-white group-hover:text-gold transition-colors leading-tight mb-2">
+                      Tools You'll Master in This Course
+                    </h3>
+                    {/* Description */}
+                    <p className="text-text-secondary text-xs md:text-sm">
+                      Master 20+ industry-leading tools for outbound automation
+                    </p>
                   </div>
                 </div>
                 
-                {/* Title */}
-                <h3 className="text-base md:text-lg font-display font-bold text-white mb-2 group-hover:text-gold transition-colors">
-                  Tools You'll Master in This Course
-                </h3>
+                {/* Tech Stack Logos - Starting from extreme left, all in one line (no scroll) */}
+                <div className="flex flex-nowrap gap-1.5 md:gap-2 justify-start items-center">
+                  {techStackLogos.slice(0, 18).map((tool, idx) => (
+                    <div
+                      key={idx}
+                      className="w-7 h-7 md:w-9 md:h-9 bg-white/10 rounded-lg p-1 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0"
+                      title={tool.name}
+                    >
+                      <img 
+                        src={tool.logo} 
+                        alt={tool.name} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile: Horizontal layout - Content left, Logos right */}
+            <div className="md:hidden relative glass-card rounded-lg overflow-hidden flex flex-row border border-purple/30">
+              {/* Content left side */}
+              <div className="flex-1 flex items-center p-3">
+                <div className="flex-1 flex flex-col justify-center">
+                  {/* Title */}
+                  <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight">
+                    Tools You'll Master in This Course
+                  </h3>
+                </div>
                 
-                {/* Description */}
-                <p className="text-text-secondary text-xs md:text-sm mb-4">
-                  Master 20+ industry-leading tools for outbound automation
-                </p>
-                
-                {/* Tech Stack Logos */}
-                <div className="mt-auto pt-3 border-t border-white/10">
-                  <div className="flex flex-wrap gap-2 md:gap-3 justify-start">
-                    {techStackLogos.map((tool, idx) => (
-                      <div
-                        key={idx}
-                        className="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-lg p-1.5 flex items-center justify-center hover:bg-white/20 transition-colors"
-                        title={tool.name}
-                      >
-                        <img 
-                          src={tool.logo} 
-                          alt={tool.name} 
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ))}
-                  </div>
+                {/* Logos right - compact */}
+                <div className="flex flex-nowrap gap-1 items-center flex-shrink-0">
+                  {techStackLogos.slice(0, 6).map((tool, idx) => (
+                    <div
+                      key={idx}
+                      className="w-6 h-6 bg-white/10 rounded p-0.5 flex items-center justify-center flex-shrink-0"
+                      title={tool.name}
+                    >
+                      <img 
+                        src={tool.logo} 
+                        alt={tool.name} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
