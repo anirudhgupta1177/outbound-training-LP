@@ -73,7 +73,7 @@ export default function Hero() {
                 ₹2.45 Cr generated
               </span>
               <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-purple/20 to-gold/20 border border-purple/30 text-white text-xs md:text-sm font-medium">
-                Sending 60K/day for Instantly
+                Built Outbound systems for Instantly AI, Expandi.io, etc
               </span>
             </div>
 
