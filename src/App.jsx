@@ -1,58 +1,15 @@
-import { 
-  Navbar, 
-  Hero, 
-  BeforeAfter, 
-  Testimonials, 
-  SystemFunnel, 
-  CompleteSystem, 
-  DashboardShowcase,
-  Personas,
-  Instructor,
-  ValueStack,
-  FAQ,
-  Footer 
-} from './components/sections';
-import MobileCTA from './components/ui/MobileCTA';
+import { Routes, Route } from 'react-router-dom';
+import LandingPage from './components/pages/LandingPage';
+import Checkout from './components/pages/Checkout';
+import ThankYou from './components/pages/ThankYou';
 
 function App() {
   return (
-    <div className="min-h-screen bg-dark">
-      <Navbar />
-      
-      <main>
-        <Hero />
-        
-        {/* Section divider */}
-        <div className="section-divider" />
-        
-        <BeforeAfter />
-        
-        <Testimonials />
-        
-        <div className="hidden md:block">
-          <SystemFunnel />
-        </div>
-        
-        <Instructor />
-        
-        <CompleteSystem />
-        
-        <div className="hidden md:block">
-          <DashboardShowcase />
-        </div>
-        
-        <ValueStack />
-        
-        <Personas />
-        
-        <FAQ />
-      </main>
-      
-      <Footer />
-      
-      {/* Mobile sticky CTA */}
-      <MobileCTA />
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/thank-you" element={<ThankYou />} />
+    </Routes>
   );
 }
 

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-const PAYMENT_URL = 'https://anirudhgupta1177.systeme.io/payment';
+const PAYMENT_URL = '/checkout';
 
 export default function Button({ 
   children, 
@@ -28,19 +29,35 @@ export default function Button({
 
   // Default to payment URL for checkout links
   const finalHref = href === '#checkout' || !href ? PAYMENT_URL : href;
-  const isExternal = finalHref.startsWith('http');
+  const isExternal = finalHref && finalHref.startsWith('http');
+  const isInternal = finalHref && finalHref.startsWith('/');
+  const isHash = finalHref && finalHref.startsWith('#');
   
-  const Component = finalHref ? motion.a : motion.button;
-  const externalProps = isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+  // Use Link for internal routes, anchor for external/hash links, button if no href
+  let Component;
+  let componentProps = {};
+  
+  if (!finalHref) {
+    Component = motion.button;
+  } else if (isInternal) {
+    Component = Link;
+    componentProps = { to: finalHref };
+  } else {
+    Component = motion.a;
+    componentProps = { href: finalHref };
+    if (isExternal) {
+      componentProps.target = '_blank';
+      componentProps.rel = 'noopener noreferrer';
+    }
+  }
 
   return (
     <Component
-      href={finalHref}
+      {...componentProps}
       onClick={onClick}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.98 }}
-      {...externalProps}
       {...props}
     >
       {children}
