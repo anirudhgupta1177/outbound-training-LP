@@ -147,13 +147,15 @@ export default function Hero() {
               <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-30 blur-2xl rounded-3xl" />
               
               <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
-                <div style={{ position: 'relative', paddingBottom: '158.61111111111111%', height: 0 }}>
+                <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
                   <iframe 
-                    src="https://www.loom.com/embed/649d1e8b49104645917aac152f2467c7" 
+                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726" 
                     frameBorder="0"
+                    webkitallowfullscreen
+                    mozallowfullscreen
                     allowFullScreen
                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    title="60-Second VSL"
+                    title="Video"
                   />
                 </div>
               </div>
