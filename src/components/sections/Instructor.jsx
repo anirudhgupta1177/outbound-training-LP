@@ -7,6 +7,12 @@ const credentials = [
   'IIT Kharagpur Graduate',
   '5+ years of experience',
   'Active Community of 1000+ Members',
+  'Heading Outbound for Instantly AI — sending 60K emails daily',
+  '₹2.45 Cr generated from 1.9M emails sent',
+  'Booked meetings with billionaires like Sam Altman',
+  '1,132+ Students Trained',
+  '4.9/5 Rating from 180+ reviews',
+  '2,847 Meetings booked by students',
 ];
 
 export default function Instructor() {
@@ -95,65 +101,6 @@ export default function Instructor() {
             </div>
           </motion.div>
         </div>
-
-        {/* Social Proof Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="mt-8 md:mt-12"
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {/* Card 1: Instantly AI */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">🏢</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">Instantly AI</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Heading Outbound</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">60K emails daily</p>
-            </div>
-
-            {/* Card 2: Revenue */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">📊</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">₹2.45 Cr</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Generated from</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">1.9M emails sent</p>
-            </div>
-
-            {/* Card 3: Sam Altman */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">🤝</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">Sam Altman</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Booked meetings</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">with billionaires</p>
-            </div>
-
-            {/* Card 4: Students */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">👥</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">1,132+</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Students</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">Trained</p>
-            </div>
-
-            {/* Card 5: Rating */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">⭐</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">4.9/5</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Rating from</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">180+ reviews</p>
-            </div>
-
-            {/* Card 6: Meetings */}
-            <div className="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-white/10">
-              <div className="text-3xl md:text-4xl mb-2">📅</div>
-              <h5 className="text-white font-bold text-base md:text-lg mb-2">2,847</h5>
-              <p className="text-text-secondary text-sm md:text-base mb-1">Meetings booked</p>
-              <p className="text-text-secondary text-sm md:text-base mt-1">by students</p>
-            </div>
-          </div>
-        </motion.div>
 
         {/* CTA */}
         <motion.div

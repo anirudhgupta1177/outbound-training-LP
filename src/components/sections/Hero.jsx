@@ -55,24 +55,12 @@ export default function Hero() {
                 <HiStar className="w-3 h-3 md:w-4 md:h-4" />
                 4.9/5 rating
               </span>
-            </div>
-
-            {/* Stats Tiles - In 2025 */}
-            <div className="mb-4 md:mb-6">
-              <p className="text-gold text-xs md:text-sm font-medium mb-2 text-center lg:text-left">In 2025:</p>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-2 md:gap-3">
-                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30">
-                  <p className="text-white text-sm md:text-base font-display font-bold">1.9M <span className="text-text-secondary font-normal">Emails Sent</span></p>
-                </div>
-                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30">
-                  <p className="text-white text-sm md:text-base font-display font-bold">₹4.2Cr+ <span className="text-text-secondary font-normal">generated</span></p>
-                </div>
-                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30 max-w-full sm:max-w-xs">
-                  <p className="text-white text-sm md:text-base font-display font-bold leading-snug">
-                    Worked with <span className="text-text-secondary font-normal">8 figure brands like Instantly AI, Expandi, etc</span>
-                  </p>
-                </div>
-              </div>
+              <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
+                🎓 Learn from IITian
+              </span>
+              <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
+                📧 1.9M Emails Sent in 2025
+              </span>
             </div>
 
             {/* Main Headline - Second scan line (MOST IMPORTANT) */}
