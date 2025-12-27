@@ -3,16 +3,13 @@ import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 
 const credentials = [
-  '12,000+ LinkedIn Followers',
-  'IIT Kharagpur Graduate',
-  '5+ years of experience',
-  'Active Community of 1000+ Members',
-  'Heading Outbound for Instantly AI — sending 60K emails daily',
-  '₹2.45 Cr generated from 1.9M emails sent',
+  'Heading Outbound for Instantly AI - sending 60K emails daily',
+  '₹4.2 Cr generated from 1.9M emails sent in 2025',
   'Booked meetings with billionaires like Sam Altman',
+  'Active Community of 1000+ Members',
+  '13,000+ LinkedIn Followers',
+  'IIT Kharagpur Graduate',
   '1,132+ Students Trained',
-  '4.9/5 Rating from 180+ reviews',
-  '2,847 Meetings booked by students',
 ];
 
 export default function Instructor() {
