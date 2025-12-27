@@ -4,7 +4,7 @@ import { SectionHeading, Button } from '../ui';
 
 export default function RiskReversal() {
   return (
-    <section id="refund" className="py-12 md:py-20 relative overflow-hidden">
+    <section id="risk-reversal" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-dark" />
       

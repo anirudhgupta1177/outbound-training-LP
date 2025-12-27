@@ -3,12 +3,10 @@ import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 
 const credentials = [
-  'Heading Outbound for Instantly AI (one of the biggest outbound companies) — sending 60K emails/day for them',
-  'Studied from IIT Kharagpur',
-  'Sent 1.9M Emails in 2025 and generated over ₹4.2 CR+ in direct Revenue',
-  'Booked calls with billionaires like Sam Altman from Cold Emails',
-  'Run a community of over 1132+ cold emailers',
-  '4.9/5 rating from 180+ student reviews',
+  '12,000+ LinkedIn Followers',
+  'IIT Kharagpur Graduate',
+  '5+ years of experience',
+  'Active Community of 1000+ Members',
 ];
 
 export default function Instructor() {

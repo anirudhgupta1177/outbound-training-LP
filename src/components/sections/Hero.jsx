@@ -82,7 +82,6 @@ export default function Hero() {
               <span className="text-white">Every Month. On Complete Autopilot.</span>
             </h1>
 
-
             {/* Subheadline - Third scan line */}
             <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-4 md:mb-6 max-w-xl mx-auto lg:mx-0">
               The AI-powered system filling calendars for 1132+ companies and freelancers - without cold calling, without ads, without burning out
