@@ -31,7 +31,7 @@ export default function Footer() {
               {[
                 { label: 'Who I Am', href: '#instructor' },
                 { label: 'Testimonials', href: '#testimonials' },
-                { label: 'Refund Policy', href: '#risk-reversal' },
+                { label: 'Refund Policy', href: '#refund' },
                 { label: 'Contact Support', href: 'mailto:anirudh@theorganicbuzz.com' },
               ].map((link, index) => (
                 <li key={index}>

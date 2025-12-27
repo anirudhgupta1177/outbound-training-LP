@@ -57,6 +57,24 @@ export default function Hero() {
               </span>
             </div>
 
+            {/* Stats Tiles - In 2025 */}
+            <div className="mb-4 md:mb-6">
+              <p className="text-gold text-xs md:text-sm font-medium mb-2 text-center lg:text-left">In 2025:</p>
+              <div className="flex flex-wrap justify-center lg:justify-start gap-2 md:gap-3">
+                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30">
+                  <p className="text-white text-sm md:text-base font-display font-bold">1.9M <span className="text-text-secondary font-normal">Emails Sent</span></p>
+                </div>
+                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30">
+                  <p className="text-white text-sm md:text-base font-display font-bold">₹4.2Cr+ <span className="text-text-secondary font-normal">generated</span></p>
+                </div>
+                <div className="glass-card px-3 md:px-4 py-2 md:py-2.5 rounded-lg border border-purple/30 max-w-full sm:max-w-xs">
+                  <p className="text-white text-sm md:text-base font-display font-bold leading-snug">
+                    Worked with <span className="text-text-secondary font-normal">8 figure brands like Instantly AI, Expandi, etc</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Main Headline - Second scan line (MOST IMPORTANT) */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold leading-tight mb-3 md:mb-4">
               <span className="gradient-text">30+ Qualified Sales Meetings</span>
@@ -64,18 +82,6 @@ export default function Hero() {
               <span className="text-white">Every Month. On Complete Autopilot.</span>
             </h1>
 
-            {/* Power Stats Bar */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-2 md:gap-3 mb-3 md:mb-4">
-              <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-purple/20 to-gold/20 border border-purple/30 text-white text-xs md:text-sm font-medium">
-                1.9M emails sent
-              </span>
-              <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-purple/20 to-gold/20 border border-purple/30 text-white text-xs md:text-sm font-medium">
-                ₹2.45 Cr generated
-              </span>
-              <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-gradient-to-r from-purple/20 to-gold/20 border border-purple/30 text-white text-xs md:text-sm font-medium">
-                Built Outbound systems for Instantly AI, Expandi.io, etc
-              </span>
-            </div>
 
             {/* Subheadline - Third scan line */}
             <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-4 md:mb-6 max-w-xl mx-auto lg:mx-0">

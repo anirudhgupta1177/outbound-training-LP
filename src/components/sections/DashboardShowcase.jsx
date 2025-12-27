@@ -167,7 +167,7 @@ export default function DashboardShowcase() {
         >
           {[
             { value: '1000+', label: 'Emails Daily', sub: '(Fully Automated)' },
-            { value: '23%', label: 'Average Reply Rate', sub: '(Industry Avg: 3%)' },
+            { value: '4-5%', label: 'Average Reply Rate', sub: '(Industry Avg: 1%)' },
             { value: '30+', label: 'Meetings/Month', sub: '(After 30 days)' },
             { value: '$10K+', label: 'Revenue', sub: '(In Pipeline)' },
           ].map((stat, index) => (

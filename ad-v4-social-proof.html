@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad V4 - Social Proof Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      width: 1080px;
+      height: 1080px;
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+    
+    .container {
+      width: 1080px;
+      height: 1080px;
+      position: relative;
+      background: #f8fafc;
+      display: flex;
+    }
+    
+    /* Left side - Dark */
+    .left {
+      width: 50%;
+      background: linear-gradient(160deg, #0f0f1a 0%, #0a0a0f 100%);
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .left::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 60%);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .left::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 60%);
+      bottom: -50px;
+      left: -50px;
+    }
+    
+    .header {
+      position: relative;
+      z-index: 10;
+    }
+    
+    .eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+    }
+    
+    .heading {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    
+    .heading .gold {
+      background: linear-gradient(135deg, #FFD700 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subheading {
+      font-size: 20px;
+      color: #9ca3af;
+      line-height: 1.5;
+      margin-bottom: 40px;
+    }
+    
+    .subheading strong {
+      color: #c4b5fd;
+    }
+    
+    .logos {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .logo-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      border-radius: 12px;
+    }
+    
+    .logo-item img {
+      height: 24px;
+    }
+    
+    /* Right side - Light with notifications */
+    .right {
+      width: 50%;
+      background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Subtle pattern */
+    .right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 2px 2px, rgba(107, 70, 193, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    
+    .notifications-stack {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transform: rotate(-3deg);
+    }
+    
+    .notification {
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+      transform: translateX(var(--offset, 0));
+      transition: transform 0.3s;
+    }
+    
+    .notification:nth-child(1) { --offset: -20px; }
+    .notification:nth-child(2) { --offset: 10px; transform: scale(1.05) translateX(10px); box-shadow: 0 20px 60px rgba(107, 70, 193, 0.15), 0 0 0 1px rgba(107, 70, 193, 0.1); }
+    .notification:nth-child(3) { --offset: -10px; }
+    .notification:nth-child(4) { --offset: 20px; }
+    
+    .cal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #4285F4 0%, #4285F4 30%, #34A853 30%, #34A853 50%, #FBBC04 50%, #FBBC04 75%, #EA4335 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    
+    .cal-icon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: #4285F4;
+      border-radius: 14px 14px 0 0;
+    }
+    
+    .cal-icon span {
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+      margin-top: 5px;
+    }
+    
+    .notif-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .notif-label {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    
+    .notif-value {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #111;
+    }
+    
+    /* Bottom bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(135deg, #FFD700 0%, #fbbf24 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .bottom-bar span {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #000;
+    }
+    
+    .bottom-bar svg {
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="header">
+        <div class="eyebrow">🔥 Students are winning</div>
+        <h1 class="heading">
+          Steal this<br><span class="gold">Outbound</span><br>system
+        </h1>
+        <p class="subheading">
+          which builds your lead list<br><strong>while you sleep</strong>
+        </p>
+        
+        <div class="logos">
+          <div class="logo-item">
+            <img src="src/assets/tech-stack/Clay-Logo-Light-1024x548.png" alt="Clay">
+          </div>
+          <div class="logo-item">
+            <img src="src/assets/tech-stack/Apollo.Io-Logo.png" alt="Apollo">
+          </div>
+          <div class="logo-item">
+            <img src="src/assets/tech-stack/n8n-logo.png" alt="n8n">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="right">
+      <div class="notifications-stack">
+        <div class="notification">
+          <div class="cal-icon"><span>31</span></div>
+          <div class="notif-content">
+            <span class="notif-label">Google Calendar</span>
+            <span class="notif-value">12 Calls Booked!</span>
+          </div>
+        </div>
+        
+        <div class="notification">
+          <div class="cal-icon"><span>31</span></div>
+          <div class="notif-content">
+            <span class="notif-label">Google Calendar</span>
+            <span class="notif-value">22 Calls Booked!</span>
+          </div>
+        </div>
+        
+        <div class="notification">
+          <div class="cal-icon"><span>31</span></div>
+          <div class="notif-content">
+            <span class="notif-label">Google Calendar</span>
+            <span class="notif-value">16 Calls Booked!</span>
+          </div>
+        </div>
+        
+        <div class="notification">
+          <div class="cal-icon"><span>31</span></div>
+          <div class="notif-content">
+            <span class="notif-label">Google Calendar</span>
+            <span class="notif-value">14 Calls Booked!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bottom-bar">
+      <span>Get the System →</span>
+    </div>
+  </div>
+</body>
+</html>
+
+
+

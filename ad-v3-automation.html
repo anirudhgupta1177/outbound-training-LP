@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad V3 - Automation Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      width: 1080px;
+      height: 1080px;
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+    
+    .container {
+      width: 1080px;
+      height: 1080px;
+      position: relative;
+      background: linear-gradient(135deg, #0f0f1a 0%, #0a0a0f 50%, #0d0a14 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+    }
+    
+    /* Grid lines */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(107, 70, 193, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(107, 70, 193, 0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    
+    /* Glows */
+    .glow-center {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 60%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-bottom: 28px;
+    }
+    
+    .heading {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 64px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    
+    .heading .gold {
+      background: linear-gradient(135deg, #FFD700 0%, #fbbf24 50%, #FFD700 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subheading {
+      font-size: 24px;
+      color: #9ca3af;
+    }
+    
+    .subheading strong {
+      color: #c4b5fd;
+    }
+    
+    /* Automation flow */
+    .flow {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 40px 0;
+    }
+    
+    .tool-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .tool-icon {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.3s;
+    }
+    
+    .tool-icon::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, transparent 50%, rgba(255, 215, 0, 0.3) 100%);
+      z-index: -1;
+      opacity: 0.5;
+    }
+    
+    .tool-icon img {
+      width: 60px;
+      height: auto;
+    }
+    
+    .tool-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    /* Connector arrows */
+    .connector {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+    
+    .arrow-line {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.5), rgba(255, 215, 0, 0.5));
+      position: relative;
+    }
+    
+    .arrow-line::after {
+      content: '';
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 8px solid transparent;
+      border-left: 12px solid rgba(255, 215, 0, 0.6);
+    }
+    
+    /* Plus sign between tools */
+    .plus {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #6b7280;
+      font-weight: 300;
+    }
+    
+    /* Result node */
+    .result-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .calendar-result {
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    
+    .cal-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #4285F4 0%, #4285F4 30%, #34A853 30%, #34A853 50%, #FBBC04 50%, #FBBC04 75%, #EA4335 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .cal-icon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: #4285F4;
+      border-radius: 14px 14px 0 0;
+    }
+    
+    .cal-icon span {
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      font-size: 26px;
+      color: #fff;
+      margin-top: 6px;
+    }
+    
+    .result-text small {
+      font-size: 14px;
+      color: #6b7280;
+      display: block;
+    }
+    
+    .result-text strong {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 28px;
+      color: #111;
+      font-weight: 700;
+    }
+    
+    .result-label {
+      font-size: 14px;
+      color: #22c55e;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Bottom */
+    .bottom {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-top: 50px;
+    }
+    
+    .tagline {
+      font-size: 20px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+    
+    .tagline span {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+    
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #FFD700 0%, #fbbf24 100%);
+      color: #000;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 18px 40px;
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="grid"></div>
+    <div class="glow-center"></div>
+    
+    <div class="header">
+      <div class="pill">⚡ Fully Automated</div>
+      <h1 class="heading">
+        Steal this <span class="gold">Outbound</span> system
+      </h1>
+      <p class="subheading">which builds your lead list <strong>while you sleep</strong></p>
+    </div>
+    
+    <div class="flow">
+      <div class="tool-node">
+        <div class="tool-icon">
+          <img src="src/assets/tech-stack/Clay-Logo-Light-1024x548.png" alt="Clay">
+        </div>
+        <span class="tool-name">Clay</span>
+      </div>
+      
+      <div class="plus">+</div>
+      
+      <div class="tool-node">
+        <div class="tool-icon">
+          <img src="src/assets/tech-stack/Apollo.Io-Logo.png" alt="Apollo">
+        </div>
+        <span class="tool-name">Apollo</span>
+      </div>
+      
+      <div class="plus">+</div>
+      
+      <div class="tool-node">
+        <div class="tool-icon">
+          <img src="src/assets/tech-stack/n8n-logo.png" alt="n8n">
+        </div>
+        <span class="tool-name">n8n</span>
+      </div>
+      
+      <div class="connector">
+        <div class="arrow-line"></div>
+      </div>
+      
+      <div class="result-node">
+        <div class="calendar-result">
+          <div class="cal-icon"><span>31</span></div>
+          <div class="result-text">
+            <small>Google Calendar</small>
+            <strong>22 Calls Booked!</strong>
+          </div>
+        </div>
+        <div class="result-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          On autopilot
+        </div>
+      </div>
+    </div>
+    
+    <div class="bottom">
+      <p class="tagline">Join <span>1132+ students</span> already booking calls on autopilot</p>
+      <div class="cta-btn">Get the System →</div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad V1 - System Focus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      width: 1080px;
+      height: 1080px;
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0a;
+      overflow: hidden;
+    }
+    
+    .container {
+      width: 1080px;
+      height: 1080px;
+      position: relative;
+      background: linear-gradient(160deg, #0d0d12 0%, #0a0a0a 40%, #0f0a15 100%);
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Glow effects */
+    .glow-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(107, 70, 193, 0.3) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+    
+    .glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+      bottom: 200px;
+      left: -100px;
+      pointer-events: none;
+    }
+    
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      margin-bottom: 30px;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(107, 70, 193, 0.3) 0%, rgba(107, 70, 193, 0.1) 100%);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    
+    .heading {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 68px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+    
+    .heading .gold {
+      background: linear-gradient(135deg, #FFD700 0%, #FDE68A 50%, #FFD700 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subheading {
+      font-size: 26px;
+      color: #9ca3af;
+      font-weight: 400;
+    }
+    
+    .subheading strong {
+      color: #c4b5fd;
+      font-weight: 600;
+    }
+    
+    /* Dashboard container */
+    .dashboard-wrapper {
+      flex: 1;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px -50px 0 -50px;
+    }
+    
+    .dashboard-frame {
+      background: linear-gradient(180deg, #2a2a2e 0%, #1a1a1e 100%);
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 
+        0 50px 100px -20px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 80px rgba(107, 70, 193, 0.2);
+      transform: perspective(1000px) rotateX(2deg);
+      width: 95%;
+    }
+    
+    .dashboard-screen {
+      background: #1a1a2e;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .dashboard-screen img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* Floating notification */
+    .floating-notification {
+      position: absolute;
+      top: 60px;
+      right: 80px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      z-index: 20;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    .calendar-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #4285F4 0%, #4285F4 30%, #34A853 30%, #34A853 50%, #FBBC04 50%, #FBBC04 75%, #EA4335 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .calendar-icon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: #4285F4;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .calendar-icon span {
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+      margin-top: 6px;
+    }
+    
+    .notif-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .notif-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .notif-value {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+    }
+    
+    /* Bottom section */
+    .bottom {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+    }
+    
+    .logos {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    
+    .logo-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 18px;
+      border-radius: 12px;
+    }
+    
+    .logo-pill img {
+      height: 28px;
+      width: auto;
+    }
+    
+    .cta-hint {
+      font-size: 16px;
+      color: #6b7280;
+    }
+    
+    .cta-hint span {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+    
+    <div class="header">
+      <div class="badge">🔥 The Exact System</div>
+      <h1 class="heading">
+        Steal this <span class="gold">Outbound</span><br>system
+      </h1>
+      <p class="subheading">which builds your lead list <strong>while you sleep</strong></p>
+    </div>
+    
+    <div class="dashboard-wrapper">
+      <div class="dashboard-frame">
+        <div class="dashboard-screen">
+          <img src="src/assets/flowchart/flowchart.png" alt="System">
+        </div>
+      </div>
+      
+      <div class="floating-notification">
+        <div class="calendar-icon"><span>31</span></div>
+        <div class="notif-content">
+          <span class="notif-label">Google Calendar</span>
+          <span class="notif-value">22 Calls Booked!</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bottom">
+      <div class="logos">
+        <div class="logo-pill">
+          <img src="src/assets/tech-stack/Clay-Logo-Light-1024x548.png" alt="Clay">
+        </div>
+        <div class="logo-pill">
+          <img src="src/assets/tech-stack/Apollo.Io-Logo.png" alt="Apollo">
+        </div>
+        <div class="logo-pill">
+          <img src="src/assets/tech-stack/n8n-logo.png" alt="n8n">
+        </div>
+      </div>
+      <p class="cta-hint">Join <span>1132+ students</span> →</p>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
