@@ -43,8 +43,10 @@ export default function Instructor() {
             <div className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
               <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                 <iframe 
-                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df" 
+                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hide_speed=true" 
                   frameBorder="0"
+                  webkitallowfullscreen
+                  mozallowfullscreen
                   allowFullScreen
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
                   title="The Complete System Breakdown (6 min)"
