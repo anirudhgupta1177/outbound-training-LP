@@ -50,31 +50,93 @@ export default async function handler(req, res) {
     }
 
     // Create contact in Systeme.io
-    const systemeResponse = await fetch('https://api.systeme.io/api/contacts', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SYSTEME_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: customer_email,
-        first_name: customer_first_name || '',
-        last_name: customer_last_name || '',
-        phone: customer_phone || '',
-        tags: ['Course']
-      })
-    });
+    const contactPayload = {
+      email: customer_email,
+      first_name: customer_first_name || '',
+      last_name: customer_last_name || '',
+    };
+    
+    // Add phone if provided
+    if (customer_phone) {
+      contactPayload.phone = customer_phone;
+    }
+    
+    // Add tags - Systeme.io might require tags in a different format
+    // Try as array first, if that fails we'll try as string
+    contactPayload.tags = ['Course'];
+    
+    console.log('Creating contact in Systeme.io with payload:', JSON.stringify(contactPayload, null, 2));
+    console.log('Using API Key (first 10 chars):', SYSTEME_API_KEY.substring(0, 10) + '...');
+    
+    // Try the endpoint - Systeme.io uses /api/contacts
+    // If that fails with 400/404, try /contacts (without /api)
+    let systemeResponse;
+    let responseText;
+    let endpoint = 'https://api.systeme.io/api/contacts';
+    
+    try {
+      systemeResponse = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SYSTEME_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactPayload)
+      });
 
-    if (!systemeResponse.ok) {
-      const errorData = await systemeResponse.text();
-      console.error('Systeme.io API error:', errorData);
-      return res.status(500).json({ 
-        error: 'Failed to create contact in Systeme.io',
-        details: errorData
+      responseText = await systemeResponse.text();
+      console.log('Systeme.io response status:', systemeResponse.status);
+      console.log('Systeme.io response:', responseText);
+      
+      // If 404 or 400 with "not found", try alternative endpoint
+      if (systemeResponse.status === 404 || (systemeResponse.status === 400 && responseText.toLowerCase().includes('not found'))) {
+        console.log('Trying alternative endpoint: https://api.systeme.io/contacts');
+        endpoint = 'https://api.systeme.io/contacts';
+        systemeResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SYSTEME_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(contactPayload)
+        });
+        responseText = await systemeResponse.text();
+        console.log('Alternative endpoint response status:', systemeResponse.status);
+        console.log('Alternative endpoint response:', responseText);
+      }
+      
+    } catch (fetchError) {
+      console.error('Fetch error:', fetchError);
+      return res.status(500).json({
+        error: 'Network error contacting Systeme.io',
+        details: fetchError.message
       });
     }
 
-    const contactData = await systemeResponse.json();
+    if (!systemeResponse.ok) {
+      console.error('Systeme.io API error:', {
+        status: systemeResponse.status,
+        statusText: systemeResponse.statusText,
+        response: responseText,
+        endpoint: endpoint,
+        payload: contactPayload
+      });
+      return res.status(500).json({ 
+        error: 'Failed to create contact in Systeme.io',
+        status: systemeResponse.status,
+        statusText: systemeResponse.statusText,
+        details: responseText,
+        endpoint: endpoint
+      });
+    }
+
+    let contactData;
+    try {
+      contactData = JSON.parse(responseText);
+    } catch (e) {
+      console.warn('Could not parse Systeme.io response as JSON:', e);
+      contactData = { message: 'Contact created successfully', raw: responseText };
+    }
 
     // Return success response
     return res.status(200).json({
