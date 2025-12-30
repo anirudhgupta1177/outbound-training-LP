@@ -56,6 +56,11 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
+  // Calculate GST and total amount
+  const GST_RATE = 0.18; // 18% GST
+  const gstAmount = Math.round(packagePrice * GST_RATE);
+  const totalAmount = packagePrice + gstAmount;
+
   // Load Razorpay script
   useEffect(() => {
     const loadRazorpay = () => {
@@ -141,10 +146,10 @@ export default function Checkout() {
 
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb',
-      amount: packagePrice * 100, // in paise
+      amount: totalAmount * 100, // in paise (including GST)
       currency: 'INR',
       name: 'The Organic Buzz',
-      description: 'Complete AI-Powered Outbound System',
+      description: `Complete AI-Powered Outbound System (₹${packagePrice} + ₹${gstAmount} GST)`,
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -396,13 +401,23 @@ export default function Checkout() {
                   <span className="text-text-secondary text-sm">Original Price:</span>
                   <span className="text-text-muted text-sm line-through">₹{originalPrice.toLocaleString()}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="space-y-1.5 pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-text-secondary text-sm">Base Price:</span>
+                    <span className="text-text-secondary text-sm">₹{packagePrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-text-secondary text-sm">GST (18%):</span>
+                    <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="text-white font-medium">Total:</span>
                   <div className="text-right">
                     <p className="text-2xl md:text-3xl font-display font-bold gradient-text">
-                      ₹{packagePrice.toLocaleString()}
+                      ₹{totalAmount.toLocaleString()}
                     </p>
-                    <p className="text-text-muted text-xs">+ GST</p>
+                    <p className="text-text-muted text-xs">(Including GST)</p>
                   </div>
                 </div>
               </div>
