@@ -57,9 +57,13 @@ export default function Checkout() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   // Calculate GST and total amount
+  // Test mode: Use ₹1 for testing (enable via VITE_TEST_MODE=true)
+  const isTestMode = import.meta.env.VITE_TEST_MODE === 'true';
+  const testPrice = 1;
+  const basePrice = isTestMode ? testPrice : packagePrice;
   const GST_RATE = 0.18; // 18% GST
-  const gstAmount = Math.round(packagePrice * GST_RATE);
-  const totalAmount = packagePrice + gstAmount;
+  const gstAmount = Math.round(basePrice * GST_RATE);
+  const totalAmount = basePrice + gstAmount;
 
   // Load Razorpay script
   useEffect(() => {
@@ -149,7 +153,9 @@ export default function Checkout() {
       amount: totalAmount * 100, // in paise (including GST)
       currency: 'INR',
       name: 'The Organic Buzz',
-      description: `Complete AI-Powered Outbound System (₹${packagePrice} + ₹${gstAmount} GST)`,
+      description: isTestMode 
+        ? `Test Payment - Complete AI-Powered Outbound System (₹${basePrice})`
+        : `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -432,23 +438,25 @@ export default function Checkout() {
                   <span className="text-text-secondary text-sm">Original Price:</span>
                   <span className="text-text-muted text-sm line-through">₹{originalPrice.toLocaleString()}</span>
                 </div>
-                <div className="space-y-1.5 pt-2 border-t border-white/10">
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-secondary text-sm">Base Price:</span>
-                    <span className="text-text-secondary text-sm">₹{packagePrice.toLocaleString()}</span>
+                {!isTestMode ? (
+                  <div className="space-y-1.5 pt-2 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-secondary text-sm">Base Price:</span>
+                      <span className="text-text-secondary text-sm">₹{basePrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-secondary text-sm">GST (18%):</span>
+                      <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-secondary text-sm">GST (18%):</span>
-                    <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
-                  </div>
-                </div>
+                ) : null}
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                  <span className="text-white font-medium">Total:</span>
+                  <span className="text-white font-medium">{isTestMode ? 'Test Price:' : 'Total:'}</span>
                   <div className="text-right">
                     <p className="text-2xl md:text-3xl font-display font-bold gradient-text">
                       ₹{totalAmount.toLocaleString()}
                     </p>
-                    <p className="text-text-muted text-xs">(Including GST)</p>
+                    <p className="text-text-muted text-xs">{isTestMode ? '(Test Mode)' : '(Including GST)'}</p>
                   </div>
                 </div>
               </div>
