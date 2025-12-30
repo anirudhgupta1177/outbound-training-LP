@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
@@ -23,8 +24,6 @@ const formatComparisonCost = (inrCost, currency) => {
   }
   return inrCost;
 };
-
-import { useEffect } from 'react';
 
 export default function ValueStack() {
   const { pricing, isIndia, country } = usePricing();
