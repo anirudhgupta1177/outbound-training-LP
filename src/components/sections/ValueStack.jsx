@@ -25,7 +25,12 @@ const formatComparisonCost = (inrCost, currency) => {
 };
 
 export default function ValueStack() {
-  const { pricing, isIndia } = usePricing();
+  const { pricing, isIndia, country } = usePricing();
+  
+  // Debug logging
+  if (window.location.search.includes('country=')) {
+    console.log('ValueStack - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country);
+  }
   
   // Format "One Client at" price based on currency
   const oneClientPrice = isIndia ? '₹50,000' : '$500';

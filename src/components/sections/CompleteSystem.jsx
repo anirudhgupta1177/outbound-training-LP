@@ -146,13 +146,22 @@ const itemVariants = {
 };
 
 export default function CompleteSystem() {
-  const { pricing, isIndia } = usePricing();
+  const { pricing, isIndia, country } = usePricing();
+  
+  // Debug logging
+  if (window.location.search.includes('country=')) {
+    console.log('CompleteSystem - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country);
+  }
   
   // Convert item values based on currency
   const getItemValue = (inrValue) => {
-    return isIndia 
+    const value = isIndia 
       ? `₹${inrValue.toLocaleString('en-IN')}`
       : `$${convertINRToUSD(inrValue).toLocaleString('en-US')}`;
+    if (window.location.search.includes('country=')) {
+      console.log('CompleteSystem - Converting:', inrValue, 'to', value, 'isIndia:', isIndia);
+    }
+    return value;
   };
   
   // Create dynamic items array with currency-aware values

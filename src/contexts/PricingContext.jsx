@@ -18,7 +18,7 @@ export const PricingProvider = ({ children }) => {
       
       // Check for test country override in URL (e.g., ?country=US or ?country=IN)
       const urlParams = new URLSearchParams(window.location.search);
-      const testCountry = urlParams.get('country');
+      const testCountry = urlParams.get('country')?.toUpperCase();
       
       // Check for test country in localStorage (for manual testing)
       const storedTestCountry = localStorage.getItem('testCountry');
@@ -26,7 +26,9 @@ export const PricingProvider = ({ children }) => {
       if (testCountry && (testCountry === 'IN' || testCountry === 'US')) {
         // URL parameter override (for testing)
         console.log('🌍 TEST MODE: Using country from URL parameter:', testCountry);
+        console.log('🌍 Current URL:', window.location.href);
         const pricingConfig = getPricingByCountry(testCountry);
+        console.log('💰 Pricing Config:', pricingConfig);
         setCountry(testCountry);
         setPricing(pricingConfig);
         setIsLoading(false);
@@ -67,6 +69,29 @@ export const PricingProvider = ({ children }) => {
     };
 
     fetchCountry();
+    
+    // Watch for URL changes (for testing with ?country=US)
+    const handlePopState = () => {
+      fetchCountry();
+    };
+    window.addEventListener('popstate', handlePopState);
+    
+    // Also check URL on any navigation (for React Router)
+    const checkUrl = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const testCountry = urlParams.get('country');
+      if (testCountry && (testCountry === 'IN' || testCountry === 'US')) {
+        fetchCountry();
+      }
+    };
+    
+    // Check URL every second (for testing purposes)
+    const interval = setInterval(checkUrl, 1000);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      clearInterval(interval);
+    };
   }, []);
 
   const value = {
