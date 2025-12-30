@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiOutlineAcademicCap, HiOutlineBookOpen, HiOutlineMap, HiOutlineDatabase, HiOutlineUserGroup, HiOutlineGift, HiOutlineChip, HiOutlineTemplate } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 // Import resource screenshots
 import emailFrameworks from '../../assets/Screenshot for the Email Copywriting Frameworks.png';

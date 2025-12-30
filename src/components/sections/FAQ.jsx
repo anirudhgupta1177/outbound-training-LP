@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiChevronDown } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 const faqs = [
   {
