@@ -212,15 +212,15 @@ export default async function handler(req, res) {
     
     try {
       // Step 1: Create the contact
-      // Systeme.io uses Bearer token authentication
+      // Systeme.io uses X-API-Key header (not Authorization: Bearer)
       // Trim any whitespace from the API key
       const cleanApiKey = SYSTEME_API_KEY.trim();
-      console.log('Auth header format check:', `Bearer ${cleanApiKey.substring(0, 10)}...`);
+      console.log('Auth header format check:', `X-API-Key: ${cleanApiKey.substring(0, 10)}...`);
       
       systemeResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${cleanApiKey}`,
+          'X-API-Key': cleanApiKey,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
