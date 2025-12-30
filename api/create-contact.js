@@ -61,20 +61,19 @@ export default async function handler(req, res) {
       contactPayload.phone = customer_phone;
     }
     
-    // Add tags - Systeme.io might require tags in a different format
-    // Try as array first, if that fails we'll try as string
-    contactPayload.tags = ['Course'];
+    // Note: Tags cannot be included in contact creation - they must be assigned separately
+    // See: https://developer.systeme.io/reference/post_contact-1
     
     console.log('Creating contact in Systeme.io with payload:', JSON.stringify(contactPayload, null, 2));
     console.log('Using API Key (first 10 chars):', SYSTEME_API_KEY.substring(0, 10) + '...');
     
-    // Try the endpoint - Systeme.io uses /api/contacts
-    // If that fails with 400/404, try /contacts (without /api)
+    // Systeme.io API endpoint: https://api.systeme.io/api/contacts
+    const endpoint = 'https://api.systeme.io/api/contacts';
     let systemeResponse;
     let responseText;
-    let endpoint = 'https://api.systeme.io/api/contacts';
     
     try {
+      // Step 1: Create the contact
       systemeResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -85,28 +84,11 @@ export default async function handler(req, res) {
       });
 
       responseText = await systemeResponse.text();
-      console.log('Systeme.io response status:', systemeResponse.status);
-      console.log('Systeme.io response:', responseText);
-      
-      // If 404 or 400 with "not found", try alternative endpoint
-      if (systemeResponse.status === 404 || (systemeResponse.status === 400 && responseText.toLowerCase().includes('not found'))) {
-        console.log('Trying alternative endpoint: https://api.systeme.io/contacts');
-        endpoint = 'https://api.systeme.io/contacts';
-        systemeResponse = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${SYSTEME_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(contactPayload)
-        });
-        responseText = await systemeResponse.text();
-        console.log('Alternative endpoint response status:', systemeResponse.status);
-        console.log('Alternative endpoint response:', responseText);
-      }
+      console.log('Systeme.io create contact response status:', systemeResponse.status);
+      console.log('Systeme.io create contact response:', responseText);
       
     } catch (fetchError) {
-      console.error('Fetch error:', fetchError);
+      console.error('Fetch error creating contact:', fetchError);
       return res.status(500).json({
         error: 'Network error contacting Systeme.io',
         details: fetchError.message
@@ -114,7 +96,7 @@ export default async function handler(req, res) {
     }
 
     if (!systemeResponse.ok) {
-      console.error('Systeme.io API error:', {
+      console.error('Systeme.io API error creating contact:', {
         status: systemeResponse.status,
         statusText: systemeResponse.statusText,
         response: responseText,
@@ -130,12 +112,66 @@ export default async function handler(req, res) {
       });
     }
 
+    // Parse the created contact data to get the contact ID
     let contactData;
     try {
       contactData = JSON.parse(responseText);
     } catch (e) {
-      console.warn('Could not parse Systeme.io response as JSON:', e);
-      contactData = { message: 'Contact created successfully', raw: responseText };
+      console.error('Could not parse Systeme.io response as JSON:', e);
+      return res.status(500).json({
+        error: 'Failed to parse contact creation response',
+        details: responseText
+      });
+    }
+
+    // Step 2: Assign the "Course" tag to the contact
+    // API endpoint: https://api.systeme.io/api/contacts/{id}/tags
+    // See: https://developer.systeme.io/reference/post_contact_tag-1
+    const contactId = contactData.id || contactData.data?.id;
+    if (!contactId) {
+      console.error('Contact ID not found in response:', contactData);
+      // Contact was created but we can't assign tag - return success anyway
+      return res.status(200).json({
+        success: true,
+        message: 'Contact created successfully, but could not assign tag (ID missing)',
+        contact: contactData
+      });
+    }
+
+    try {
+      const tagEndpoint = `https://api.systeme.io/api/contacts/${contactId}/tags`;
+      console.log('Assigning tag "Course" to contact:', contactId);
+      
+      const tagResponse = await fetch(tagEndpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SYSTEME_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tag: 'Course'  // Tag name as string
+        })
+      });
+
+      const tagResponseText = await tagResponse.text();
+      console.log('Systeme.io tag assignment response status:', tagResponse.status);
+      console.log('Systeme.io tag assignment response:', tagResponseText);
+
+      if (!tagResponse.ok) {
+        console.warn('Failed to assign tag to contact:', {
+          status: tagResponse.status,
+          response: tagResponseText,
+          contactId: contactId
+        });
+        // Contact was created, but tag assignment failed - still return success
+        // as the main goal (contact creation) was achieved
+      } else {
+        console.log('Tag "Course" successfully assigned to contact:', contactId);
+      }
+      
+    } catch (tagError) {
+      console.error('Error assigning tag to contact:', tagError);
+      // Contact was created, but tag assignment failed - still return success
     }
 
     // Return success response
