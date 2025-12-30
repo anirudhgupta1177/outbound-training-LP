@@ -245,8 +245,22 @@ export default async function handler(req, res) {
         statusText: systemeResponse.statusText,
         response: responseText,
         endpoint: endpoint,
-        payload: contactPayload
+        payload: contactPayload,
+        apiKeyLength: cleanApiKey.length,
+        apiKeyPrefix: cleanApiKey.substring(0, 10)
       });
+      
+      // Provide helpful error message for 401
+      if (systemeResponse.status === 401) {
+        return res.status(500).json({ 
+          error: 'Systeme.io authentication failed',
+          details: 'The API key is invalid or expired. Please verify the SYSTEME_API_KEY in Vercel environment variables.',
+          suggestion: '1. Go to Systeme.io Settings → Public API keys. 2. Verify the key is active. 3. Generate a new key if needed. 4. Update SYSTEME_API_KEY in Vercel.',
+          status: systemeResponse.status,
+          response: responseText
+        });
+      }
+      
       return res.status(500).json({ 
         error: 'Failed to create contact in Systeme.io',
         status: systemeResponse.status,
