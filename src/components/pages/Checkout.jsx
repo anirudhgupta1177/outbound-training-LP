@@ -58,7 +58,8 @@ export default function Checkout() {
 
   // Calculate GST and total amount
   // Test mode: Use ₹1 for testing (enable via VITE_TEST_MODE=true)
-  const isTestMode = import.meta.env.VITE_TEST_MODE === 'true';
+  // TEMPORARY: Hardcode test mode to true for testing - REMOVE AFTER TESTING
+  const isTestMode = true; // import.meta.env.VITE_TEST_MODE === 'true';
   const testPrice = 1;
   const basePrice = isTestMode ? testPrice : packagePrice;
   const GST_RATE = 0.18; // 18% GST
