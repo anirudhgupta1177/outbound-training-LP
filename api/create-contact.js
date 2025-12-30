@@ -192,7 +192,18 @@ export default async function handler(req, res) {
     // See: https://developer.systeme.io/reference/post_contact-1
     
     console.log('Creating contact in Systeme.io with payload:', JSON.stringify(contactPayload, null, 2));
-    console.log('Using API Key (first 10 chars):', SYSTEME_API_KEY.substring(0, 10) + '...');
+    console.log('Using API Key (first 10 chars):', SYSTEME_API_KEY ? SYSTEME_API_KEY.substring(0, 10) + '...' : 'MISSING');
+    console.log('API Key length:', SYSTEME_API_KEY ? SYSTEME_API_KEY.length : 0);
+    console.log('API Key source:', process.env.SYSTEME_API_KEY ? 'Environment variable' : 'Fallback');
+    
+    // Verify API key is present
+    if (!SYSTEME_API_KEY || SYSTEME_API_KEY.trim().length === 0) {
+      console.error('Systeme.io API key is missing!');
+      return res.status(500).json({
+        error: 'Systeme.io API key not configured',
+        details: 'Please set SYSTEME_API_KEY environment variable in Vercel'
+      });
+    }
     
     // Systeme.io API endpoint: https://api.systeme.io/api/contacts
     const endpoint = 'https://api.systeme.io/api/contacts';
@@ -201,11 +212,17 @@ export default async function handler(req, res) {
     
     try {
       // Step 1: Create the contact
+      // Systeme.io uses Bearer token authentication
+      // Trim any whitespace from the API key
+      const cleanApiKey = SYSTEME_API_KEY.trim();
+      console.log('Auth header format check:', `Bearer ${cleanApiKey.substring(0, 10)}...`);
+      
       systemeResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${SYSTEME_API_KEY}`,
+          'Authorization': `Bearer ${cleanApiKey}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(contactPayload)
       });
