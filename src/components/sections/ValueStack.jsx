@@ -42,7 +42,7 @@ export default function ValueStack() {
   const items = getCartItems(pricing.currency);
   
   // Format comparison costs
-  const comparison = [
+const comparison = [
     { 
       what: 'Hiring a BDR', 
       cost: formatComparisonCost('₹25,000/month', pricing.currency), 

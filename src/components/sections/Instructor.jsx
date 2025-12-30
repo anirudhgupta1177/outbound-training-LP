@@ -58,7 +58,7 @@ export default function Instructor() {
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
                   title="The Complete System Breakdown (6 min)"
                 />
-              </div>
+                  </div>
             </div>
           </motion.div>
 
@@ -74,26 +74,26 @@ export default function Instructor() {
             <div>
               <h3 className="text-base md:text-lg font-display font-bold text-white mb-3 md:mb-4">
                 My Personal Background:
-              </h3>
+            </h3>
 
-              {/* Credentials list */}
+            {/* Credentials list */}
               <ul className="space-y-2.5 md:space-y-3">
-                {credentials.map((credential, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-start gap-2 md:gap-3"
-                  >
+              {credentials.map((credential, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start gap-2 md:gap-3"
+                >
                     <span className="flex-shrink-0 w-5 h-5 md:w-5 md:h-5 rounded-full bg-success/20 flex items-center justify-center mt-0.5">
                       <HiCheck className="w-3 h-3 md:w-3 md:h-3 text-success" />
-                    </span>
+                  </span>
                     <span className="text-text-secondary text-sm md:text-base font-medium">{credential}</span>
-                  </motion.li>
-                ))}
-              </ul>
+                </motion.li>
+              ))}
+            </ul>
             </div>
 
             {/* Why I'm Sharing This */}
