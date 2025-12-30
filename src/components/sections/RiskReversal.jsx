@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { HiShieldCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 export default function RiskReversal() {
+  const { pricing } = usePricing();
   return (
     <section id="risk-reversal" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}
@@ -67,7 +69,7 @@ export default function RiskReversal() {
           className="text-center mt-6 md:mt-8"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Try It Risk-Free for 30 Days - ₹3,497
+            Try It Risk-Free for 30 Days - {pricing.displayPrice}
           </Button>
         </motion.div>
       </div>

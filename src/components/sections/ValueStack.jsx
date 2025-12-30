@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
+import { formatPrice } from '../../constants/pricing';
 
 const items = [
   { name: '30+ hours of video training', value: '₹15,000' },
@@ -51,9 +53,9 @@ export default function ValueStack() {
             <div className="relative glass-card rounded-xl md:rounded-2xl p-5 md:p-8 border border-gold/30">
               {/* Price header */}
               <div className="text-center mb-4 md:mb-6">
-                <p className="text-text-muted line-through text-lg md:text-xl">₹43,999</p>
+                <p className="text-text-muted line-through text-lg md:text-xl">{pricing.displayOriginalPrice}</p>
                 <p className="text-4xl md:text-5xl font-display font-bold gradient-text">
-                  ₹3497 <span className="text-text-muted text-sm md:text-base font-normal">+ GST</span>
+                  {pricing.displayPrice} {isIndia && <span className="text-text-muted text-sm md:text-base font-normal">+ GST</span>}
                 </p>
                 <p className="text-text-secondary text-xs md:text-sm mt-1">• One-time payment • Lifetime access</p>
               </div>
@@ -121,7 +123,7 @@ export default function ValueStack() {
               </ul>
               <div className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-white/10">
                 <p className="text-gold font-medium text-center text-sm md:text-base">
-                  Or learn the system once for <span className="text-xl md:text-2xl font-bold">₹3497</span>
+                  Or learn the system once for <span className="text-xl md:text-2xl font-bold">{pricing.displayPrice}</span>
                 </p>
               </div>
             </div>

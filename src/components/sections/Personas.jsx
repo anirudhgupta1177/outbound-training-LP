@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { HiOutlineUser, HiOutlineOfficeBuilding, HiOutlineBriefcase, HiOutlineTrendingUp, HiShieldCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
+import { formatPrice } from '../../constants/pricing';
 
 const personas = [
   {
@@ -189,7 +191,7 @@ export default function Personas() {
               className="text-center mt-6 md:mt-8 mt-auto"
         >
           <Button size="lg" className="w-full sm:w-auto">
-                Try It Risk-Free for 30 Days - ₹3,497
+                Try It Risk-Free for 30 Days - {pricing.displayPrice}
           </Button>
         </motion.div>
           </motion.div>

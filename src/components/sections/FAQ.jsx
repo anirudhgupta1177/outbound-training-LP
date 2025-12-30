@@ -250,7 +250,7 @@ export default function FAQ() {
             </a>
           </p>
           <Button size="lg" className="w-full sm:w-auto">
-            Get Started for ₹3497
+            Get Started for {pricing.displayPrice}
           </Button>
         </motion.div>
       </div>

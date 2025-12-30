@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiCheck, HiX } from 'react-icons/hi';
-import { cartItems, packagePrice, originalPrice } from '../../constants/cartItems';
+import { cartItems } from '../../constants/cartItems';
 import { validateCoupon } from '../../constants/coupons';
+import { usePricing } from '../../contexts/PricingContext';
+import { formatPrice } from '../../constants/pricing';
 
 // Country list - common countries first, then alphabetical
 const countries = [
@@ -44,6 +46,7 @@ const countries = [
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const { pricing, isIndia, isLoading: pricingLoading } = usePricing();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -60,15 +63,23 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
 
+  // Wait for pricing to load
+  if (pricingLoading || !pricing) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
   // Calculate pricing with coupon discount
-  const basePrice = packagePrice;
+  const basePrice = pricing.basePrice;
   const discountPercent = appliedCoupon?.discount || 0;
   const discountAmount = Math.round((basePrice * discountPercent) / 100);
   const discountedPrice = basePrice - discountAmount;
   
-  // Calculate GST on discounted price
-  const GST_RATE = 0.18; // 18% GST
-  const gstAmount = Math.round(discountedPrice * GST_RATE);
+  // Calculate GST on discounted price (only for India)
+  const gstAmount = isIndia ? Math.round(discountedPrice * pricing.gstRate) : 0;
   const totalAmount = discountedPrice + gstAmount;
 
   // Load Razorpay script
@@ -534,37 +545,41 @@ export default function Checkout() {
               <div className="space-y-2 mb-6">
                 <div className="flex items-center justify-between">
                   <span className="text-text-secondary text-sm">Original Price:</span>
-                  <span className="text-text-muted text-sm line-through">₹{originalPrice.toLocaleString()}</span>
+                  <span className="text-text-muted text-sm line-through">{pricing.displayOriginalPrice}</span>
                 </div>
                 <div className="space-y-1.5 pt-2 border-t border-white/10">
                   <div className="flex items-center justify-between">
                     <span className="text-text-secondary text-sm">Base Price:</span>
-                    <span className="text-text-secondary text-sm">₹{basePrice.toLocaleString()}</span>
+                    <span className="text-text-secondary text-sm">{formatPrice(basePrice, pricing.currency)}</span>
                   </div>
                   {appliedCoupon && discountAmount > 0 && (
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-text-secondary text-sm">Discount ({appliedCoupon.discount}%):</span>
-                        <span className="text-success text-sm">-₹{discountAmount.toLocaleString()}</span>
+                        <span className="text-success text-sm">-{formatPrice(discountAmount, pricing.currency)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-text-secondary text-sm">Price after discount:</span>
-                        <span className="text-text-secondary text-sm">₹{discountedPrice.toLocaleString()}</span>
+                        <span className="text-text-secondary text-sm">{formatPrice(discountedPrice, pricing.currency)}</span>
                       </div>
                     </>
                   )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-secondary text-sm">GST (18%):</span>
-                    <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
-                  </div>
+                  {isIndia && gstAmount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-secondary text-sm">GST (18%):</span>
+                      <span className="text-text-secondary text-sm">{formatPrice(gstAmount, pricing.currency)}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="text-white font-medium">Total:</span>
                   <div className="text-right">
                     <p className="text-2xl md:text-3xl font-display font-bold gradient-text">
-                      ₹{totalAmount.toLocaleString()}
+                      {formatPrice(totalAmount, pricing.currency)}
                     </p>
-                    <p className="text-text-muted text-xs">(Including GST)</p>
+                    <p className="text-text-muted text-xs">
+                      {isIndia && gstAmount > 0 ? '(Including GST)' : ''}
+                    </p>
                   </div>
                 </div>
               </div>
