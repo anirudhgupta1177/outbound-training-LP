@@ -110,6 +110,44 @@ export default function Checkout() {
     }
   };
 
+  const handleCouponChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    setCouponCode(value);
+    // Clear error when user starts typing
+    if (couponError) {
+      setCouponError('');
+    }
+  };
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim()) {
+      setCouponError('');
+      return;
+    }
+
+    const result = validateCoupon(couponCode);
+    
+    if (result.valid) {
+      setAppliedCoupon(result);
+      setCouponError('');
+    } else {
+      setCouponError('Invalid coupon code');
+      setAppliedCoupon(null);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode('');
+    setAppliedCoupon(null);
+    setCouponError('');
+  };
+
+  const handleCouponKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleApplyCoupon();
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
