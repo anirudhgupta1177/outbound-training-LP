@@ -300,6 +300,9 @@ export default async function handler(req, res) {
       const tagEndpoint = `https://api.systeme.io/api/contacts/${contactId}/tags`;
       console.log('Assigning tag "Course" to contact:', contactId);
       
+      // Tag ID for "Course" tag: 1800620
+      const tagId = 1800620;
+      
       const tagResponse = await fetch(tagEndpoint, {
         method: 'POST',
         headers: {
@@ -308,7 +311,7 @@ export default async function handler(req, res) {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          tag: 'Course'  // Tag name as string
+          tagId: tagId  // Use tagId instead of tag name
         })
       });
 
