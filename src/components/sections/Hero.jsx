@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 const benefits = [
   'Wake up to booked meetings in your calendar',
@@ -11,6 +12,7 @@ const benefits = [
 ];
 
 export default function Hero() {
+  const { pricing } = usePricing();
   // Calculate dynamic urgency text - spots filled increases gradually and resets every 2 weeks
   const getUrgencyText = () => {
     const now = new Date();
@@ -96,7 +98,7 @@ export default function Hero() {
             {/* CTAs - Primary action area */}
             <div className="flex flex-col sm:flex-row gap-3 items-center lg:items-start mb-4">
               <Button size="lg" className="animate-pulse-gold w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-                Start Filling Your Calendar for {pricing?.displayPrice || '₹3,497'}
+                Start Filling Your Calendar for {pricing.displayPrice}
               </Button>
               <Button variant="outline" size="lg" href="#instructor" className="w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
                 Watch 6-Min Breakdown
