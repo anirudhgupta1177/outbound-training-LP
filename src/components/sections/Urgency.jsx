@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { SectionHeading, CountdownTimer, ProgressBar, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 export default function Urgency() {
+  const { pricing } = usePricing();
   // Calculate dynamic urgency text - spots filled increases gradually and resets every 2 weeks (matching Hero section)
   const getSpotsFilled = () => {
     const now = new Date();
@@ -79,8 +81,8 @@ export default function Urgency() {
               {/* Price increase - Right */}
               <div className="text-center flex flex-col items-center justify-center w-full min-w-0">
                 <div className="flex items-center justify-center gap-2 max-w-[200px] mx-auto">
-                  <span className="text-text-muted line-through text-sm">₹43,999</span>
-                  <span className="text-xl md:text-2xl font-bold text-purple">₹3497</span>
+                  <span className="text-text-muted line-through text-sm">{pricing.displayOriginalPrice}</span>
+                  <span className="text-xl md:text-2xl font-bold text-purple">{pricing.displayPrice}</span>
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiCheck, HiLightningBolt } from 'react-icons/hi';
 import { Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
 
 const steps = [
   'Click button above → Secure checkout page',
@@ -11,6 +12,8 @@ const steps = [
 ];
 
 export default function FinalCTA() {
+  const { pricing } = usePricing();
+  
   return (
     <section className="py-12 md:py-24 relative overflow-hidden">
       {/* Background with premium feel */}
@@ -47,7 +50,7 @@ export default function FinalCTA() {
           className="mb-6 md:mb-8"
         >
           <Button size="xl" className="animate-pulse-gold text-base md:text-xl px-8 md:px-12 py-4 md:py-6 w-full sm:w-auto">
-            Get Instant Access for ₹999
+            Get Instant Access for {pricing.displayPrice}
           </Button>
           <p className="text-text-muted text-xs md:text-sm mt-2 md:mt-3">
             ⚡ Instant access | 💳 All payment methods | 🔒 Secure checkout

@@ -33,6 +33,7 @@ const faqs = [
     question: "Does this only work for Indian companies targeting Indian clients?",
     answer: "No - this is designed for Indian freelancers and agencies to target GLOBAL markets. The 500K+ lead database includes companies from US, UK, Europe, Australia, and more. Most of my students (and my own clients) are targeting international markets where budgets are higher. If you want to charge $2,000-5,000 per project instead of ₹20,000, this system helps you reach those international decision-makers.",
     defaultOpen: false,
+    dynamicAmount: true, // Flag to indicate this needs currency conversion
   },
   {
     question: "I've tried cold email before. It never works.",
@@ -140,7 +141,7 @@ const faqs = [
 ];
 
 export default function FAQ() {
-  const { pricing } = usePricing();
+  const { pricing, isIndia } = usePricing();
   const [openIndices, setOpenIndices] = useState(
     faqs.map((faq, index) => faq.defaultOpen ? index : null).filter(i => i !== null)
   );
@@ -153,10 +154,23 @@ export default function FAQ() {
     );
   };
 
+  // Process FAQs to replace dynamic amounts
+  const processedFAQs = faqs.map(faq => {
+    if (faq.dynamicAmount && typeof faq.answer === 'string') {
+      // Replace ₹20,000 with currency-appropriate amount (20000 INR = ~240 USD at 83 INR/USD)
+      const amount = isIndia ? '₹20,000' : '$240';
+      return {
+        ...faq,
+        answer: faq.answer.replace('₹20,000', amount)
+      };
+    }
+    return faq;
+  });
+
   // Split FAQs into two columns
-  const midPoint = Math.ceil(faqs.length / 2);
-  const leftColumn = faqs.slice(0, midPoint);
-  const rightColumn = faqs.slice(midPoint);
+  const midPoint = Math.ceil(processedFAQs.length / 2);
+  const leftColumn = processedFAQs.slice(0, midPoint);
+  const rightColumn = processedFAQs.slice(midPoint);
 
   const FAQItem = ({ faq, index }) => (
     <motion.div
