@@ -72,6 +72,9 @@ export default function Checkout() {
     );
   }
 
+  // Get cart items with correct currency
+  const cartItems = getCartItems(pricing.currency);
+
   // Calculate pricing with coupon discount
   const basePrice = pricing.basePrice;
   const discountPercent = appliedCoupon?.discount || 0;
