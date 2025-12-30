@@ -27,6 +27,8 @@ export const PricingProvider = ({ children }) => {
         // URL parameter override (for testing)
         console.log('🌍 TEST MODE: Using country from URL parameter:', testCountry);
         console.log('🌍 Current URL:', window.location.href);
+        // Clear sessionStorage cache when URL parameter is used
+        sessionStorage.removeItem('detectedCountry');
         const pricingConfig = getPricingByCountry(testCountry);
         console.log('💰 Pricing Config:', pricingConfig);
         setCountry(testCountry);
