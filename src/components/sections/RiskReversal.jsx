@@ -4,7 +4,13 @@ import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 
 export default function RiskReversal() {
-  const { pricing } = usePricing();
+  const { pricing, isLoading } = usePricing();
+  
+  // Show loading state if pricing is not loaded yet
+  if (isLoading || !pricing) {
+    return null;
+  }
+  
   return (
     <section id="risk-reversal" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}

@@ -59,6 +59,13 @@ const cardVariants = {
 };
 
 export default function Personas() {
+  const { pricing, isLoading } = usePricing();
+  
+  // Show loading state or default to India pricing if not loaded yet
+  if (isLoading || !pricing) {
+    return null; // Or return a loading skeleton
+  }
+  
   return (
     <section id="risk-reversal" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}

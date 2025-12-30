@@ -143,7 +143,13 @@ const itemVariants = {
 };
 
 export default function CompleteSystem() {
-  const { pricing, isIndia } = usePricing();
+  const { pricing, isIndia, isLoading } = usePricing();
+  
+  // Show loading state if pricing is not loaded yet
+  if (isLoading || !pricing) {
+    return null;
+  }
+  
   return (
     <section id="what-you-get" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}

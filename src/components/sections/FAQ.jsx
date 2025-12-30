@@ -139,9 +139,15 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  const { pricing, isLoading } = usePricing();
   const [openIndices, setOpenIndices] = useState(
     faqs.map((faq, index) => faq.defaultOpen ? index : null).filter(i => i !== null)
   );
+
+  // Show loading state if pricing is not loaded yet
+  if (isLoading || !pricing) {
+    return null;
+  }
 
   const toggleFAQ = (index) => {
     setOpenIndices(prev => 

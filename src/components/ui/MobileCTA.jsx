@@ -4,8 +4,13 @@ import { Button } from './index';
 import { usePricing } from '../../contexts/PricingContext';
 
 export default function MobileCTA() {
-  const { pricing } = usePricing();
+  const { pricing, isLoading } = usePricing();
   const [isVisible, setIsVisible] = useState(false);
+  
+  // Don't show if pricing is not loaded yet
+  if (isLoading || !pricing) {
+    return null;
+  }
 
   useEffect(() => {
     const handleScroll = () => {
