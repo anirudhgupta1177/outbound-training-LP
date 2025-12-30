@@ -143,6 +143,7 @@ const itemVariants = {
 };
 
 export default function CompleteSystem() {
+  const { pricing, isIndia } = usePricing();
   return (
     <section id="what-you-get" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}
@@ -397,7 +398,9 @@ export default function CompleteSystem() {
               <div className="text-2xl md:text-4xl text-gold">→</div>
               <div>
                 <p className="text-text-muted text-xs md:text-sm">You Pay Today</p>
-                <p className="text-3xl md:text-4xl font-display font-bold gradient-text">₹3497 + GST</p>
+                <p className="text-3xl md:text-4xl font-display font-bold gradient-text">
+                  {pricing.displayPrice}{isIndia && ' + GST'}
+                </p>
               </div>
               <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-success/20 border border-success/30">
                 <p className="text-success font-bold text-sm md:text-base">Save 79%</p>
@@ -415,7 +418,7 @@ export default function CompleteSystem() {
           className="text-center mt-8 md:mt-12"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Get Everything for ₹3497
+            Get Everything for {pricing.displayPrice}
           </Button>
         </motion.div>
       </div>
