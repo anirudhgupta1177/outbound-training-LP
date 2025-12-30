@@ -24,13 +24,17 @@ const formatComparisonCost = (inrCost, currency) => {
   return inrCost;
 };
 
+import { useEffect } from 'react';
+
 export default function ValueStack() {
   const { pricing, isIndia, country } = usePricing();
   
-  // Debug logging
-  if (window.location.search.includes('country=')) {
-    console.log('ValueStack - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country);
-  }
+  // Debug logging - runs on every render when pricing changes
+  useEffect(() => {
+    if (window.location.search.includes('country=')) {
+      console.log('✅ ValueStack rendered - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country, 'displayPrice:', pricing.displayPrice);
+    }
+  }, [pricing, isIndia, country]);
   
   // Format "One Client at" price based on currency
   const oneClientPrice = isIndia ? '₹50,000' : '$500';

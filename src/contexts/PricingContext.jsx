@@ -96,13 +96,20 @@ export const PricingProvider = ({ children }) => {
     };
   }, []);
 
-  const value = {
+  // Use useMemo to ensure value object reference changes when pricing changes
+  // This forces React components to re-render when pricing updates
+  const value = useMemo(() => ({
     country,
     pricing,
     isLoading,
     error,
     isIndia: country === 'IN',
-  };
+  }), [country, pricing, isLoading, error]);
+
+  // Debug logging when pricing changes
+  useEffect(() => {
+    console.log('💰 PricingContext updated - Currency:', pricing.currency, 'Price:', pricing.displayPrice, 'Country:', country);
+  }, [pricing, country]);
 
   return (
     <PricingContext.Provider value={value}>

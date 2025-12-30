@@ -148,10 +148,12 @@ const itemVariants = {
 export default function CompleteSystem() {
   const { pricing, isIndia, country } = usePricing();
   
-  // Debug logging
-  if (window.location.search.includes('country=')) {
-    console.log('CompleteSystem - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country);
-  }
+  // Debug logging - runs on every render when pricing changes
+  useEffect(() => {
+    if (window.location.search.includes('country=')) {
+      console.log('✅ CompleteSystem rendered - Currency:', pricing.currency, 'isIndia:', isIndia, 'country:', country, 'displayPrice:', pricing.displayPrice);
+    }
+  }, [pricing, isIndia, country]);
   
   // Convert item values based on currency
   const getItemValue = (inrValue) => {
