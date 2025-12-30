@@ -433,25 +433,23 @@ export default function Checkout() {
                   <span className="text-text-secondary text-sm">Original Price:</span>
                   <span className="text-text-muted text-sm line-through">₹{originalPrice.toLocaleString()}</span>
                 </div>
-                {!isTestMode ? (
-                  <div className="space-y-1.5 pt-2 border-t border-white/10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-secondary text-sm">Base Price:</span>
-                      <span className="text-text-secondary text-sm">₹{basePrice.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-secondary text-sm">GST (18%):</span>
-                      <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
-                    </div>
+                <div className="space-y-1.5 pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-text-secondary text-sm">Base Price:</span>
+                    <span className="text-text-secondary text-sm">₹{basePrice.toLocaleString()}</span>
                   </div>
-                ) : null}
+                  <div className="flex items-center justify-between">
+                    <span className="text-text-secondary text-sm">GST (18%):</span>
+                    <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
+                  </div>
+                </div>
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                  <span className="text-white font-medium">{isTestMode ? 'Test Price:' : 'Total:'}</span>
+                  <span className="text-white font-medium">Total:</span>
                   <div className="text-right">
                     <p className="text-2xl md:text-3xl font-display font-bold gradient-text">
                       ₹{totalAmount.toLocaleString()}
                     </p>
-                    <p className="text-text-muted text-xs">{isTestMode ? '(Test Mode)' : '(Including GST)'}</p>
+                    <p className="text-text-muted text-xs">(Including GST)</p>
                   </div>
                 </div>
               </div>
