@@ -303,8 +303,9 @@ export default async function handler(req, res) {
       const tagResponse = await fetch(tagEndpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${SYSTEME_API_KEY}`,
+          'X-API-Key': SYSTEME_API_KEY.trim(),
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({
           tag: 'Course'  // Tag name as string
