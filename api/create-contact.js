@@ -65,6 +65,11 @@ export default async function handler(req, res) {
     
     console.log('=== VALIDATION PASSED ===');
     
+    // Get environment variables (must be before they're used)
+    const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
+    const SYSTEME_API_KEY = process.env.SYSTEME_API_KEY || 'aeesw3ifk1lkefyqi87uke4cpyswnppvvb86at3firzx2vhh1cq8a7u85ul8jyao';
+    
     // Verify payment with Razorpay API (more reliable than client-side signature)
     // For Razorpay Checkout, signature might not be present, so we verify server-side
     if (razorpay_payment_id) {
@@ -114,11 +119,7 @@ export default async function handler(req, res) {
     
     // Note: order_id might not be present when using Razorpay Checkout without Orders API
     // We'll handle signature verification accordingly
-
-    // Get environment variables
-    const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
-    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
-    const SYSTEME_API_KEY = process.env.SYSTEME_API_KEY || 'aeesw3ifk1lkefyqi87uke4cpyswnppvvb86at3firzx2vhh1cq8a7u85ul8jyao';
+    // Environment variables already declared above
 
     // Verify Razorpay payment signature
     // Standard Razorpay signature format: order_id|payment_id
