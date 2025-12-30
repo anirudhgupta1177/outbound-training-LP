@@ -1,15 +1,24 @@
 import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
+import { formatLargeAmount, convertINRToUSD } from '../../constants/pricing';
 
-const credentials = [
-  'Heading Outbound for Instantly AI - sending 60K emails daily',
-  '₹4.2 Cr generated from 1.9M emails sent in 2025',
-  'Booked meetings with billionaires like Sam Altman',
-  'Active Community of 1000+ Members',
-  '13,000+ LinkedIn Followers',
-  'IIT Kharagpur Graduate',
-  '1,132+ Students Trained',
+export default function Instructor() {
+  const { pricing, isIndia } = usePricing();
+  
+  // Convert 4.2 Cr to appropriate currency
+  const revenueAmount = isIndia ? 42000000 : convertINRToUSD(42000000); // 4.2 Cr INR
+  const revenueDisplay = formatLargeAmount(revenueAmount, pricing.currency);
+  
+  const credentials = [
+    'Heading Outbound for Instantly AI - sending 60K emails daily',
+    `${revenueDisplay} generated from 1.9M emails sent in 2025`,
+    'Booked meetings with billionaires like Sam Altman',
+    'Active Community of 1000+ Members',
+    '13,000+ LinkedIn Followers',
+    'IIT Kharagpur Graduate',
+    '1,132+ Students Trained',
   ];
 
   return (
