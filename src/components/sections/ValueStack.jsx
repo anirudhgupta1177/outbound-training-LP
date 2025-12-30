@@ -2,23 +2,27 @@ import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
-import { formatPrice } from '../../constants/pricing';
+import { formatPrice, convertINRToUSD } from '../../constants/pricing';
+import { getCartItems } from '../../constants/cartItems';
 
-const items = [
-  { name: '30+ hours of video training', value: '₹15,000' },
-  { name: '78-page Outbound guide', value: '₹3,000' },
-  { name: 'All automation workflow maps', value: '₹5,000' },
-  { name: '500K verified lead database', value: '₹15,000' },
-  { name: 'Private community access', value: '₹2,000' },
-  { name: 'Bonus: Complete system setup guide', value: '₹4,000' },
-];
-
-const comparison = [
-  { what: 'Hiring a BDR', cost: '₹25,000/month', note: 'You still have to train them and manage them' },
-  { what: 'Sales agency retainer', cost: '₹40,000/month', note: 'Lock-in contracts and they own your process' },
-  { what: 'Similar courses', cost: '₹30,000-₹100,000', note: 'Only few hours of content' },
-  { what: 'Building this yourself', cost: '200+ hours', note: 'Trial and error, broken integrations, wasted time' },
-];
+// Helper function to format comparison costs
+const formatComparisonCost = (inrCost, currency) => {
+  if (currency === 'INR') {
+    return inrCost;
+  }
+  // Convert INR to USD (approximate rate: 1 USD = 83 INR)
+  if (inrCost.includes('month')) {
+    const num = parseInt(inrCost.replace(/[^0-9]/g, ''));
+    const usdNum = convertINRToUSD(num);
+    return `$${usdNum.toLocaleString('en-US')}/month`;
+  } else if (inrCost.includes('-')) {
+    const [min, max] = inrCost.split('-').map(s => parseInt(s.replace(/[^0-9]/g, '')));
+    const usdMin = convertINRToUSD(min);
+    const usdMax = convertINRToUSD(max);
+    return `$${usdMin.toLocaleString('en-US')}-$${usdMax.toLocaleString('en-US')}`;
+  }
+  return inrCost;
+};
 
 export default function ValueStack() {
   const { pricing, isIndia } = usePricing();

@@ -2,25 +2,33 @@ import { motion } from 'framer-motion';
 import { HiOutlineUser, HiOutlineOfficeBuilding, HiOutlineBriefcase, HiOutlineTrendingUp, HiShieldCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
-import { formatPrice } from '../../constants/pricing';
+import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
-const personas = [
-  {
-    icon: HiOutlineUser,
-    title: 'Freelancers',
-    pain: 'Competing on Upwork/Fiverr and tired of irregular income',
-    promise: 'Predictable pipeline monthly - enough to charge ₹50K+ instead of competing at ₹5K',
-    technical: 'No coding needed - drag-and-drop automation tools',
-    ideal: 'Ideal if you want to charge ₹50K+ per client',
-    color: 'from-blue-500 to-purple',
-  },
-  {
-    icon: HiOutlineOfficeBuilding,
-    title: 'Agency Owners',
-    pain: 'Revenue drops 30% for every client churn. Referrals aren\'t enough.',
-    promise: 'System generating 40+ opportunities monthly - no panic about churn again',
-    technical: 'System handles 10X volume without hiring more BDRs',
-    ideal: 'Ideal if you want to scale over ₹1 Cr instead of getting stuck',
+export default function Personas() {
+  const { pricing, isIndia } = usePricing();
+  
+  // Format currency-aware amounts
+  const fiftyK = isIndia ? '₹50K+' : `$${convertINRToUSD(50000).toLocaleString('en-US')}+`;
+  const fiveK = isIndia ? '₹5K' : `$${convertINRToUSD(5000).toLocaleString('en-US')}`;
+  const oneCr = isIndia ? '₹1 Cr' : formatLargeAmount(convertINRToUSD(10000000), pricing.currency);
+  
+  const personas = [
+    {
+      icon: HiOutlineUser,
+      title: 'Freelancers',
+      pain: 'Competing on Upwork/Fiverr and tired of irregular income',
+      promise: `Predictable pipeline monthly - enough to charge ${fiftyK} instead of competing at ${fiveK}`,
+      technical: 'No coding needed - drag-and-drop automation tools',
+      ideal: `Ideal if you want to charge ${fiftyK} per client`,
+      color: 'from-blue-500 to-purple',
+    },
+    {
+      icon: HiOutlineOfficeBuilding,
+      title: 'Agency Owners',
+      pain: 'Revenue drops 30% for every client churn. Referrals aren\'t enough.',
+      promise: 'System generating 40+ opportunities monthly - no panic about churn again',
+      technical: 'System handles 10X volume without hiring more BDRs',
+      ideal: `Ideal if you want to scale over ${oneCr} instead of getting stuck`,
     color: 'from-purple to-purple-light',
   },
   {

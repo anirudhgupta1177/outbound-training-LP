@@ -25,8 +25,13 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const { pricing, isIndia } = usePricing();
   const swiperRef = useRef(null);
   const sectionRef = useRef(null);
+  
+  // Convert 4.2 Cr to appropriate currency
+  const revenueAmount = isIndia ? 42000000 : convertINRToUSD(42000000); // 4.2 Cr INR
+  const revenueDisplay = formatLargeAmount(revenueAmount, pricing.currency);
   const isInView = useInView(sectionRef, { once: false, margin: '-100px' });
 
   useEffect(() => {
@@ -138,7 +143,7 @@ export default function Testimonials() {
             <p className="text-text-muted text-xs md:text-sm">Meetings Booked</p>
           </div>
           <div>
-            <p className="text-2xl md:text-3xl font-display font-bold gradient-text">₹4.2Cr+</p>
+            <p className="text-2xl md:text-3xl font-display font-bold gradient-text">{revenueDisplay}+</p>
             <p className="text-text-muted text-xs md:text-sm">Pipeline Generated</p>
           </div>
         </motion.div>

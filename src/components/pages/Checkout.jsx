@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiCheck, HiX } from 'react-icons/hi';
-import { cartItems } from '../../constants/cartItems';
+import { getCartItems } from '../../constants/cartItems';
 import { validateCoupon } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
@@ -203,14 +203,22 @@ export default function Checkout() {
 
     setIsSubmitting(true);
 
+    // Convert amount to smallest currency unit (paise for INR, cents for USD)
+    const amountInSmallestUnit = pricing.currency === 'INR' 
+      ? totalAmount * 100  // INR: paise
+      : Math.round(totalAmount * 100); // USD: cents
+
+    // Build description with correct currency
+    const gstText = isIndia && gstAmount > 0 ? ` + ${formatPrice(gstAmount, pricing.currency)} GST` : '';
+    const baseDescription = `Complete AI-Powered Outbound System (${formatPrice(discountedPrice, pricing.currency)}${gstText})`;
+    const couponText = appliedCoupon ? ` - Coupon: ${appliedCoupon.code} (${appliedCoupon.discount}% off)` : '';
+
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb',
-      amount: totalAmount * 100, // in paise (including GST)
-      currency: 'INR',
+      amount: amountInSmallestUnit,
+      currency: pricing.currency, // Use dynamic currency (INR or USD)
       name: 'The Organic Buzz',
-      description: appliedCoupon
-        ? `Complete AI-Powered Outbound System (₹${discountedPrice} + ₹${gstAmount} GST) - Coupon: ${appliedCoupon.code} (${appliedCoupon.discount}% off)`
-        : `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
+      description: baseDescription + couponText,
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,

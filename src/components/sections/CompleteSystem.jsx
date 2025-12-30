@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineAcademicCap, HiOutlineBookOpen, HiOutlineMap, HiOutlineDatabase, HiOutlineUserGroup, HiOutlineGift, HiOutlineChip, HiOutlineTemplate } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
+import { formatPrice, convertINRToUSD } from '../../constants/pricing';
 
 // Import resource screenshots
 import emailFrameworks from '../../assets/Screenshot for the Email Copywriting Frameworks.png';
@@ -395,7 +396,7 @@ export default function CompleteSystem() {
             <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 md:gap-8">
               <div>
                 <p className="text-text-muted text-xs md:text-sm">Total Value</p>
-                <p className="text-xl md:text-2xl font-display font-bold text-text-muted line-through">₹44,000+</p>
+                <p className="text-xl md:text-2xl font-display font-bold text-text-muted line-through">{originalTotalDisplay}+</p>
               </div>
               <div className="text-2xl md:text-4xl text-gold">→</div>
               <div>
