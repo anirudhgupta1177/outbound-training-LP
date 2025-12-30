@@ -30,6 +30,33 @@ export default function ValueStack() {
   // Format "One Client at" price based on currency
   const oneClientPrice = isIndia ? '₹50,000' : '$500';
   
+  // Get cart items with correct currency
+  const items = getCartItems(pricing.currency);
+  
+  // Format comparison costs
+  const comparison = [
+    { 
+      what: 'Hiring a BDR', 
+      cost: formatComparisonCost('₹25,000/month', pricing.currency), 
+      note: 'You still have to train them and manage them' 
+    },
+    { 
+      what: 'Sales agency retainer', 
+      cost: formatComparisonCost('₹40,000/month', pricing.currency), 
+      note: 'Lock-in contracts and they own your process' 
+    },
+    { 
+      what: 'Similar courses', 
+      cost: formatComparisonCost('₹30,000-₹100,000', pricing.currency), 
+      note: 'Only few hours of content' 
+    },
+    { 
+      what: 'Building this yourself', 
+      cost: '200+ hours', 
+      note: 'Trial and error, broken integrations, wasted time' 
+    },
+  ];
+  
   return (
     <section className="py-12 md:py-20 relative overflow-hidden">
       {/* Background */}
@@ -41,7 +68,7 @@ export default function ValueStack() {
           title="Get the Complete AI-Powered Outbound System"
           subtitle={
             <>
-              One Client at ₹50,000 Pays for This <span className="text-gold font-bold">14X</span> Over
+              One Client at {oneClientPrice} Pays for This <span className="text-gold font-bold">14X</span> Over
             </>
           }
           gradient
