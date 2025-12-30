@@ -21,12 +21,7 @@ const comparison = [
 ];
 
 export default function ValueStack() {
-  const { pricing, isIndia, isLoading } = usePricing();
-  
-  // Show loading state or default to India pricing if not loaded yet
-  if (isLoading || !pricing) {
-    return null; // Or return a loading skeleton
-  }
+  const { pricing, isIndia } = usePricing();
   
   // Format "One Client at" price based on currency
   const oneClientPrice = isIndia ? '₹50,000' : '$500';

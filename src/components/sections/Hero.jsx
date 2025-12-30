@@ -12,12 +12,8 @@ const benefits = [
 ];
 
 export default function Hero() {
-  const { pricing, isLoading } = usePricing();
+  const { pricing } = usePricing();
   
-  // Show loading state if pricing is not loaded yet
-  if (isLoading || !pricing) {
-    return null;
-  }
   // Calculate dynamic urgency text - spots filled increases gradually and resets every 2 weeks
   const getUrgencyText = () => {
     const now = new Date();
