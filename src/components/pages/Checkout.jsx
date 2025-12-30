@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiCheck } from 'react-icons/hi';
+import { HiCheck, HiX } from 'react-icons/hi';
 import { cartItems, packagePrice, originalPrice } from '../../constants/cartItems';
+import { validateCoupon } from '../../constants/coupons';
 
 // Country list - common countries first, then alphabetical
 const countries = [
@@ -55,12 +56,20 @@ export default function Checkout() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
 
-  // Calculate GST and total amount
+  // Calculate pricing with coupon discount
   const basePrice = packagePrice;
+  const discountPercent = appliedCoupon?.discount || 0;
+  const discountAmount = Math.round((basePrice * discountPercent) / 100);
+  const discountedPrice = basePrice - discountAmount;
+  
+  // Calculate GST on discounted price
   const GST_RATE = 0.18; // 18% GST
-  const gstAmount = Math.round(basePrice * GST_RATE);
-  const totalAmount = basePrice + gstAmount;
+  const gstAmount = Math.round(discountedPrice * GST_RATE);
+  const totalAmount = discountedPrice + gstAmount;
 
   // Load Razorpay script
   useEffect(() => {
@@ -150,7 +159,9 @@ export default function Checkout() {
       amount: totalAmount * 100, // in paise (including GST)
       currency: 'INR',
       name: 'The Organic Buzz',
-      description: `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
+      description: appliedCoupon
+        ? `Complete AI-Powered Outbound System (₹${discountedPrice} + ₹${gstAmount} GST) - Coupon: ${appliedCoupon.code} (${appliedCoupon.discount}% off)`
+        : `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -438,6 +449,18 @@ export default function Checkout() {
                     <span className="text-text-secondary text-sm">Base Price:</span>
                     <span className="text-text-secondary text-sm">₹{basePrice.toLocaleString()}</span>
                   </div>
+                  {appliedCoupon && discountAmount > 0 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-text-secondary text-sm">Discount ({appliedCoupon.discount}%):</span>
+                        <span className="text-success text-sm">-₹{discountAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-text-secondary text-sm">Price after discount:</span>
+                        <span className="text-text-secondary text-sm">₹{discountedPrice.toLocaleString()}</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-text-secondary text-sm">GST (18%):</span>
                     <span className="text-text-secondary text-sm">₹{gstAmount.toLocaleString()}</span>
