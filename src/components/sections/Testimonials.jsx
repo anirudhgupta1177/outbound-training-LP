@@ -6,6 +6,8 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { SectionHeading, Button } from '../ui';
+import { usePricing } from '../../contexts/PricingContext';
+import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
 // Import testimonial images
 import testimonial1 from '../../assets/testimonials/testimonial1.png';
