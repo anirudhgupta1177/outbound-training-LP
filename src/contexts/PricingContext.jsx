@@ -5,8 +5,9 @@ import { getPricingByCountry } from '../constants/pricing';
 const PricingContext = createContext(null);
 
 export const PricingProvider = ({ children }) => {
+  // Initialize with India pricing immediately so components can render
   const [country, setCountry] = useState('IN'); // Default to India
-  const [pricing, setPricing] = useState(null);
+  const [pricing, setPricing] = useState(getPricingByCountry('IN')); // Start with India pricing
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
