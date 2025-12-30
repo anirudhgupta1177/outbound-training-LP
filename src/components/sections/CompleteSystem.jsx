@@ -66,14 +66,15 @@ const techStackLogos = [
   { name: 'Phantombuster', logo: phantombusterLogo },
 ];
 
-const items = [
+// Base items with INR values - will be converted dynamically
+const itemsBase = [
   {
     icon: HiOutlineAcademicCap,
     title: '30+ Hours Video Training',
     description: 'Every tool, every setting, every automation - recorded in 1080p quality',
     details: 'Watch me build the entire system from scratch, including ready-to-deploy automation agents',
     modules: ['ICP & Offer Creation', 'Email Deliverability', 'LinkedIn Outreach', 'Lead Scraping', 'Clay Mastery', 'Automation'],
-    value: '₹15,000',
+    valueINR: 15000,
     image: card2Image,
     color: 'from-purple to-purple-light',
   },
@@ -83,7 +84,7 @@ const items = [
     description: 'Copy-paste scripts, email templates, and ready-to-use frameworks',
     details: 'Everything you need to implement - deliverability checklists, ICP frameworks, and tested copy templates',
     modules: ['Tool setup checklists', 'Deliverability Guides', 'Copy Templates', 'ICP & Offer frameworks', 'Compliance'],
-    value: '₹3,000',
+    valueINR: 3000,
     image: emailFrameworks,
     color: 'from-purple-light to-gold',
   },
@@ -93,7 +94,7 @@ const items = [
     description: 'All my automation templates and whimsical blueprints ready to use',
     details: 'Don\'t build from scratch. Duplicate my proven workflows that work immediately',
     modules: ['Lead enrichment flows', 'AI personalization workflows', 'Email sequences', 'Meeting booking'],
-    value: '₹5,000',
+    valueINR: 5000,
     image: card4Image,
     color: 'from-gold to-gold-light',
   },
@@ -103,7 +104,7 @@ const items = [
     description: 'Ready-to-import lead lists organized by industry for immediate use',
     details: 'Skip months of prospecting work. All contacts are verified and ready to reach out',
     modules: ['Ecommerce', 'Marketing Agencies', 'SaaS', 'Software Dev Agencies', 'D2C Brands'],
-    value: '₹15,000',
+    valueINR: 15000,
     image: card5Image,
     color: 'from-gold-light to-success',
   },
@@ -113,7 +114,7 @@ const items = [
     description: 'Join 1132+ active members who are closing deals daily using this exact system',
     details: 'Get instant help when stuck, share your wins with the community, and network with successful operators',
     modules: ['Strategy discussions', 'Deliverability troubleshooting', 'Live support', 'Lifetime access'],
-    value: '₹2,000',
+    valueINR: 2000,
     image: whatsappCommunity,
     color: 'from-success to-purple',
   },
@@ -123,7 +124,7 @@ const items = [
     description: 'Exactly what tools I use daily and how they\'re all connected together',
     details: 'Save 40+ hours of trial and error by following my exact setup process',
     modules: ['Tool recommendations', 'Setup tutorials', 'Integration guides', 'Best practices'],
-    value: '₹4,000',
+    valueINR: 4000,
     image: null,
     color: 'from-purple to-gold',
   },
@@ -146,6 +147,23 @@ const itemVariants = {
 
 export default function CompleteSystem() {
   const { pricing, isIndia } = usePricing();
+  
+  // Convert item values based on currency
+  const getItemValue = (inrValue) => {
+    return isIndia 
+      ? `₹${inrValue.toLocaleString('en-IN')}`
+      : `$${convertINRToUSD(inrValue).toLocaleString('en-US')}`;
+  };
+  
+  // Create dynamic items array with currency-aware values
+  const items = itemsBase.map(item => ({
+    ...item,
+    value: getItemValue(item.valueINR)
+  }));
+  
+  // Calculate original total value
+  const originalTotalValue = isIndia ? 44000 : convertINRToUSD(44000);
+  const originalTotalDisplay = formatPrice(originalTotalValue, pricing.currency);
   
   return (
     <section id="what-you-get" className="py-12 md:py-20 relative overflow-hidden">
