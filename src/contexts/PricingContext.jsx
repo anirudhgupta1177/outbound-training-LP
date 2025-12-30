@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { detectCountry } from '../services/geolocation';
 import { getPricingByCountry } from '../constants/pricing';
 

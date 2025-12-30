@@ -4,6 +4,21 @@ import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
 export default function Personas() {
   const { pricing, isIndia } = usePricing();
   
@@ -29,45 +44,27 @@ export default function Personas() {
       promise: 'System generating 40+ opportunities monthly - no panic about churn again',
       technical: 'System handles 10X volume without hiring more BDRs',
       ideal: `Ideal if you want to scale over ${oneCr} instead of getting stuck`,
-    color: 'from-purple to-purple-light',
-  },
-  {
-    icon: HiOutlineBriefcase,
-    title: 'Consultants & Coaches',
-    pain: 'Spending more time hunting clients than serving them',
-    promise: 'Calendar booked 3 weeks out- spend 95% of time on delivery, not prospecting',
-    technical: 'AI does all the research and personalisation for you',
-    ideal: 'Ideal if you hate prospecting manually for hours',
-    color: 'from-purple-light to-gold',
-  },
-  {
-    icon: HiOutlineTrendingUp,
-    title: 'Sales Reps',
-    pain: 'Expected to hit quota with zero tools, training, or support',
-    promise: 'Your own AI-powered prospecting machine - become the top performer',
-    technical: 'Set it up in 2 weeks, runs forever with 30 min/week maintenance',
-    ideal: 'Ideal if you want to hit 150% of quota without burning out',
-    color: 'from-gold to-gold-light',
-  },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
+      color: 'from-purple to-purple-light',
     },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-export default function Personas() {
-  const { pricing } = usePricing();
+    {
+      icon: HiOutlineBriefcase,
+      title: 'Consultants & Coaches',
+      pain: 'Spending more time hunting clients than serving them',
+      promise: 'Calendar booked 3 weeks out- spend 95% of time on delivery, not prospecting',
+      technical: 'AI does all the research and personalisation for you',
+      ideal: 'Ideal if you hate prospecting manually for hours',
+      color: 'from-purple-light to-gold',
+    },
+    {
+      icon: HiOutlineTrendingUp,
+      title: 'Sales Reps',
+      pain: 'Expected to hit quota with zero tools, training, or support',
+      promise: 'Your own AI-powered prospecting machine - become the top performer',
+      technical: 'Set it up in 2 weeks, runs forever with 30 min/week maintenance',
+      ideal: 'Ideal if you want to hit 150% of quota without burning out',
+      color: 'from-gold to-gold-light',
+    },
+  ];
   
   return (
     <section id="risk-reversal" className="py-12 md:py-20 relative overflow-hidden">
