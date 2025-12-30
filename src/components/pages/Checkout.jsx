@@ -438,6 +438,60 @@ export default function Checkout() {
               {/* Divider */}
               <div className="h-px bg-gradient-to-r from-transparent via-gold to-transparent my-4 md:my-6" />
 
+              {/* Coupon Code Section */}
+              <div className="mb-6">
+                {!appliedCoupon ? (
+                  <div>
+                    <label htmlFor="couponCode" className="block text-sm font-medium text-text-secondary mb-2">
+                      Coupon Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="couponCode"
+                        value={couponCode}
+                        onChange={handleCouponChange}
+                        onKeyPress={handleCouponKeyPress}
+                        placeholder="Enter coupon code"
+                        className="flex-1 px-4 py-2 bg-dark-secondary border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white placeholder:text-text-muted"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        className="px-4 py-2 bg-gold text-dark font-display font-bold rounded-lg hover:bg-gold-light transition-colors"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {couponError && (
+                      <p className="text-error text-xs mt-2">{couponError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-success/10 border border-success/30 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-success text-sm font-medium">
+                          Coupon Applied: {appliedCoupon.code}
+                        </p>
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          {appliedCoupon.discount}% discount applied
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="p-1 text-text-secondary hover:text-white transition-colors"
+                        aria-label="Remove coupon"
+                      >
+                        <HiX className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gold to-transparent my-4 md:my-6" />
+
               {/* Price Summary */}
               <div className="space-y-2 mb-6">
                 <div className="flex items-center justify-between">
