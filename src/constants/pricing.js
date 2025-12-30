@@ -22,10 +22,12 @@ export const PRICING = {
 /**
  * Get pricing configuration based on country code
  * @param {string} countryCode - ISO country code (e.g., 'IN' for India)
- * @returns {Object} Pricing configuration object
+ * @returns {Object} Pricing configuration object (new object each time to ensure React detects changes)
  */
 export const getPricingByCountry = (countryCode) => {
-  return countryCode === 'IN' ? PRICING.INDIA : PRICING.INTERNATIONAL;
+  // Return a new object each time to ensure React detects state changes
+  const source = countryCode === 'IN' ? PRICING.INDIA : PRICING.INTERNATIONAL;
+  return { ...source }; // Spread to create new object reference
 };
 
 /**
