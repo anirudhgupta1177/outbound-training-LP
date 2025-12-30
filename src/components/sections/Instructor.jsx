@@ -43,7 +43,7 @@ export default function Instructor() {
             <div className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
               <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                 <iframe 
-                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&speed=1.2" 
+                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&speed=1.5" 
                   frameBorder="0"
                   webkitallowfullscreen
                   mozallowfullscreen
