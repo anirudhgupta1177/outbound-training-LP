@@ -155,7 +155,38 @@ export default function Checkout() {
         email: formData.email,
         contact: formData.contactNumber,
       },
-      handler: (response) => {
+      handler: async (response) => {
+        // Call serverless function to create contact in Systeme.io
+        try {
+          const enrollResponse = await fetch('/api/create-contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: totalAmount * 100, // Amount in paise
+              customer_email: formData.email,
+              customer_first_name: formData.firstName,
+              customer_last_name: formData.lastName,
+              customer_phone: formData.contactNumber,
+            })
+          });
+
+          const enrollData = await enrollResponse.json();
+
+          if (!enrollResponse.ok) {
+            console.error('Failed to create contact:', enrollData);
+            // Still redirect to thank you page even if enrollment fails
+            // The user has paid, so we'll handle enrollment separately if needed
+          }
+        } catch (error) {
+          console.error('Error creating contact:', error);
+          // Still redirect to thank you page even if API call fails
+        }
+
         // Redirect to thank you page on success
         navigate('/thank-you');
       },
