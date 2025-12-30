@@ -10,9 +10,7 @@ const credentials = [
   '13,000+ LinkedIn Followers',
   'IIT Kharagpur Graduate',
   '1,132+ Students Trained',
-];
-
-export default function Instructor() {
+  ];
 
   return (
     <section id="instructor" className="py-12 md:py-20 relative overflow-hidden">
