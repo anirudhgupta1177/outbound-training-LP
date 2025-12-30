@@ -57,11 +57,7 @@ export default function Checkout() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   // Calculate GST and total amount
-  // Test mode: Use ₹1 for testing (enable via VITE_TEST_MODE=true)
-  // TEMPORARY: Hardcode test mode to true for testing - REMOVE AFTER TESTING
-  const isTestMode = true; // import.meta.env.VITE_TEST_MODE === 'true';
-  const testPrice = 1;
-  const basePrice = isTestMode ? testPrice : packagePrice;
+  const basePrice = packagePrice;
   const GST_RATE = 0.18; // 18% GST
   const gstAmount = Math.round(basePrice * GST_RATE);
   const totalAmount = basePrice + gstAmount;
@@ -154,9 +150,7 @@ export default function Checkout() {
       amount: totalAmount * 100, // in paise (including GST)
       currency: 'INR',
       name: 'The Organic Buzz',
-      description: isTestMode 
-        ? `Test Payment - Complete AI-Powered Outbound System (₹${basePrice})`
-        : `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
+      description: `Complete AI-Powered Outbound System (₹${basePrice} + ₹${gstAmount} GST)`,
       prefill: {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,

@@ -155,7 +155,7 @@ export default function SystemFunnel() {
                           )}
                         </div>
                       ))}
-                    </div>
+                  </div>
                   </div>
 
                   {/* Outcome */}

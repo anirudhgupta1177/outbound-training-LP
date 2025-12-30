@@ -197,18 +197,18 @@ export default function CompleteSystem() {
                     </h3>
                   </div>
                 </div>
-              </div>
-            </div>
-            
+                  </div>
+                </div>
+                
             {/* Mobile: Horizontal layout - Content left, Image right */}
             <div className="md:hidden relative glass-card rounded-lg overflow-hidden flex flex-row">
               {/* Content left side */}
               <div className="flex-1 flex items-center p-3">
                 <div className="flex-1 flex flex-col justify-center">
-                  {/* Title */}
+                {/* Title */}
                   <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight">
-                    Training Program Overview
-                  </h3>
+                  Training Program Overview
+                </h3>
                 </div>
                 
                 {/* Image rightmost */}
@@ -269,17 +269,17 @@ export default function CompleteSystem() {
                       </div>
                     </div>
                   </div>
-                </div>
-                
+                    </div>
+                    
                 {/* Mobile: Horizontal layout - Content left, Image right */}
                 <div className="md:hidden relative glass-card rounded-lg overflow-hidden flex flex-row">
                   {/* Content left side */}
                   <div className="flex-1 flex items-center p-3">
                     <div className="flex-1 flex flex-col justify-center">
-                      {/* Title */}
+                    {/* Title */}
                       <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight mb-1">
-                        {item.title}
-                      </h3>
+                      {item.title}
+                    </h3>
                       {/* Value */}
                       <span className="text-text-secondary text-xs font-medium">Value: {item.value}</span>
                     </div>
@@ -293,7 +293,7 @@ export default function CompleteSystem() {
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
-                      </div>
+                    </div>
                     )}
                   </div>
                 </div>
@@ -353,27 +353,27 @@ export default function CompleteSystem() {
               {/* Content left side */}
               <div className="flex-1 flex items-center p-3">
                 <div className="flex-1 flex flex-col justify-center">
-                  {/* Title */}
+                {/* Title */}
                   <h3 className="text-sm font-display font-bold text-white group-hover:text-gold transition-colors leading-tight">
-                    Tools You'll Master in This Course
-                  </h3>
+                  Tools You'll Master in This Course
+                </h3>
                 </div>
                 
                 {/* Logos right - compact */}
                 <div className="flex flex-nowrap gap-1 items-center flex-shrink-0">
                   {techStackLogos.slice(0, 6).map((tool, idx) => (
-                    <div
-                      key={idx}
+                      <div
+                        key={idx}
                       className="w-6 h-6 bg-white/10 rounded p-0.5 flex items-center justify-center flex-shrink-0"
-                      title={tool.name}
-                    >
-                      <img 
-                        src={tool.logo} 
-                        alt={tool.name} 
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  ))}
+                        title={tool.name}
+                      >
+                        <img 
+                          src={tool.logo} 
+                          alt={tool.name} 
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>

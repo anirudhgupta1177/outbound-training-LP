@@ -62,7 +62,7 @@ export default function ThankYou() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold text-xl mt-0.5">2.</span>
-                <span>Check your inbox (and spam folder) for an email from <span className="text-gold">anirudh@theorganicbuzz.com</span>.</span>
+                <span>Check your inbox (and spam folder) for an email.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold text-xl mt-0.5">3.</span>

@@ -55,7 +55,7 @@ export default function Urgency() {
               <div className="text-center">
                 <p className="text-gold text-sm md:text-base font-medium">⏰ Bonuses expire</p>
               </div>
-              <div className="text-center">
+            <div className="text-center">
                 <p className="text-gold text-sm md:text-base font-medium">📈 Price increases soon</p>
               </div>
             </div>
@@ -74,7 +74,7 @@ export default function Urgency() {
                 <div className="w-full max-w-[200px] mx-auto">
                   <CountdownTimer hours={timerHours} />
                 </div>
-              </div>
+            </div>
 
               {/* Price increase - Right */}
               <div className="text-center flex flex-col items-center justify-center w-full min-w-0">

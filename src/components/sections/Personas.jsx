@@ -78,51 +78,51 @@ export default function Personas() {
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white mb-6 md:mb-8 text-center">
               This Works Best For :
             </h2>
-            
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-100px' }}
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
               className="grid grid-cols-2 gap-4 md:gap-6"
-            >
-              {personas.map((persona, index) => {
-                const Icon = persona.icon;
-                
-                return (
-                  <motion.div
-                    key={index}
-                    variants={cardVariants}
+        >
+          {personas.map((persona, index) => {
+            const Icon = persona.icon;
+            
+            return (
+              <motion.div
+                key={index}
+                variants={cardVariants}
                     whileHover={{ y: -5, scale: 1.02 }}
-                    className="group relative"
-                  >
-                    {/* Glow effect */}
+                className="group relative"
+              >
+                {/* Glow effect */}
                     <div className={`absolute -inset-1 bg-gradient-to-r ${persona.color} opacity-0 group-hover:opacity-20 blur-xl rounded-xl transition-opacity duration-500`} />
-                    
+                
                     <div className="relative glass-card rounded-xl p-4 md:p-6 h-full flex flex-col items-center text-center">
-                      {/* Icon */}
+                  {/* Icon */}
                       <div className={`w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl bg-gradient-to-r ${persona.color} flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform`}>
                         <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
-                      </div>
-                      
-                      {/* Title */}
+                  </div>
+                  
+                  {/* Title */}
                       <h3 className="text-base md:text-lg font-display font-bold text-white">
-                        {persona.title}
-                      </h3>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+                    {persona.title}
+                  </h3>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
 
             {/* Bottom CTA text */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
               transition={{ delay: 0.3 }}
               className="mt-auto"
-            >
+        >
               <div className="glass-card rounded-xl p-4 md:p-6 text-center border border-gold/30">
                 <p className="text-sm md:text-base text-white">
                   Recognize yourself? Stop prospecting manually. <span className="text-gold font-bold">Start Building</span>
@@ -176,22 +176,22 @@ export default function Personas() {
 
                 <p className="text-text-secondary text-xs md:text-sm mb-4 leading-relaxed">
                   Why am I this confident? Because 1,132+ students have implemented this exact system successfully. If it worked for them, it'll work for you.
-                </p>
-              </div>
-            </motion.div>
+            </p>
+          </div>
+        </motion.div>
 
-            {/* CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
               transition={{ delay: 0.4 }}
               className="text-center mt-6 md:mt-8 mt-auto"
-            >
-              <Button size="lg" className="w-full sm:w-auto">
+        >
+          <Button size="lg" className="w-full sm:w-auto">
                 Try It Risk-Free for 30 Days - ₹3,497
-              </Button>
-            </motion.div>
+          </Button>
+        </motion.div>
           </motion.div>
         </div>
       </div>

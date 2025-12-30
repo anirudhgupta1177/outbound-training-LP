@@ -113,7 +113,7 @@ export default function ValueStack() {
                   <li key={index} className="text-xs md:text-sm">
                     <div className="flex items-start justify-between mb-1">
                       <span className="text-text-secondary font-medium">{item.what}:</span>
-                      <span className="text-gold/80 font-medium">{item.cost}</span>
+                    <span className="text-gold/80 font-medium">{item.cost}</span>
                     </div>
                     <p className="text-text-muted text-xs italic">{item.note}</p>
                   </li>
