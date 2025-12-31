@@ -230,7 +230,8 @@ export default function Checkout() {
             amount: amountInSmallestUnit,
             currency: pricing.currency,
             couponCode: appliedCoupon?.code || null,
-            receipt: `receipt_${Date.now()}_${formData.email}`
+            // Receipt must be max 40 chars - use timestamp + random suffix
+            receipt: `rcpt_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
           })
         });
       } catch (fetchError) {
