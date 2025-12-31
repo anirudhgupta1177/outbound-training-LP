@@ -1,6 +1,7 @@
 // Hard-coded coupon codes and their discount percentages
 export const coupons = {
   'ALLBOUND': 40,  // 40% discount
+  'TESTSARANSH': 99,  // 99% discount (Testing only)
   // Add more coupons here as needed
 };
 
