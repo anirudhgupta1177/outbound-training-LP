@@ -93,14 +93,27 @@ export default async function handler(req, res) {
             currency: paymentData.currency
           });
           
-          // Verify payment status is 'captured' or 'authorized'
-          if (paymentData.status !== 'captured' && paymentData.status !== 'authorized') {
-            console.warn('Payment status is not captured/authorized:', paymentData.status);
+          // Verify payment status is 'captured' (required for auto-capture orders)
+          // With payment_capture: 1, payments should be captured immediately
+          if (paymentData.status !== 'captured') {
+            console.error('Payment status is not captured:', {
+              status: paymentData.status,
+              payment_id: razorpay_payment_id,
+              order_id: razorpay_order_id
+            });
             return res.status(400).json({
-              error: 'Payment not successful',
-              status: paymentData.status
+              error: 'Payment not captured',
+              status: paymentData.status,
+              message: 'Payment must be captured before granting course access. Please contact support if payment was successful.'
             });
           }
+          
+          console.log('Payment verified as captured:', {
+            payment_id: razorpay_payment_id,
+            amount: paymentData.amount,
+            currency: paymentData.currency,
+            status: paymentData.status
+          });
         } else {
           const errorText = await verifyResponse.text();
           console.error('Payment verification failed:', {

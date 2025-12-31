@@ -206,77 +206,109 @@ export default function Checkout() {
 
     setIsSubmitting(true);
 
-    // Convert amount to smallest currency unit (paise for INR, cents for USD)
-    const amountInSmallestUnit = pricing.currency === 'INR' 
-      ? totalAmount * 100  // INR: paise
-      : Math.round(totalAmount * 100); // USD: cents
-
-    // Build description with correct currency
-    const gstText = isIndia && gstAmount > 0 ? ` + ${formatPrice(gstAmount, pricing.currency)} GST` : '';
-    const baseDescription = `Complete AI-Powered Outbound System (${formatPrice(discountedPrice, pricing.currency)}${gstText})`;
-    const couponText = appliedCoupon ? ` - Coupon: ${appliedCoupon.code} (${appliedCoupon.discount}% off)` : '';
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb',
-      amount: amountInSmallestUnit,
-      currency: pricing.currency, // Use dynamic currency (INR or USD)
-      name: 'The Organic Buzz',
-      description: baseDescription + couponText,
-      prefill: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        contact: formData.contactNumber,
-      },
-      handler: async (response) => {
-        // Call serverless function to create contact in Systeme.io
-        try {
-          const enrollResponse = await fetch('/api/create-contact', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-              amount: totalAmount * 100, // Amount in paise
-              customer_email: formData.email,
-              customer_first_name: formData.firstName,
-              customer_last_name: formData.lastName,
-              customer_phone: formData.contactNumber,
-            })
-          });
-
-          const enrollData = await enrollResponse.json();
-
-          if (!enrollResponse.ok) {
-            console.error('Failed to create contact:', enrollData);
-            // Still redirect to thank you page even if enrollment fails
-            // The user has paid, so we'll handle enrollment separately if needed
-          }
-        } catch (error) {
-          console.error('Error creating contact:', error);
-          // Still redirect to thank you page even if API call fails
-        }
-
-        // Redirect to thank you page on success
-        navigate('/thank-you');
-      },
-      modal: {
-        ondismiss: () => {
-          setIsSubmitting(false);
-        }
-      },
-      theme: {
-        color: '#FFD700'
-      }
-    };
-
     try {
+      // Step 1: Convert amount to smallest currency unit (paise for INR, cents for USD)
+      const amountInSmallestUnit = pricing.currency === 'INR' 
+        ? totalAmount * 100  // INR: paise
+        : Math.round(totalAmount * 100); // USD: cents
+
+      // Step 2: Create Razorpay order with auto-capture
+      console.log('Creating Razorpay order...', {
+        amount: amountInSmallestUnit,
+        currency: pricing.currency,
+        coupon: appliedCoupon?.code
+      });
+
+      const orderResponse = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amountInSmallestUnit,
+          currency: pricing.currency,
+          couponCode: appliedCoupon?.code || null,
+          receipt: `receipt_${Date.now()}_${formData.email}`
+        })
+      });
+
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok) {
+        console.error('Failed to create order:', orderData);
+        alert(orderData.error || 'Failed to create payment order. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      console.log('Order created successfully:', orderData.order_id);
+
+      // Step 3: Build description with correct currency
+      const gstText = isIndia && gstAmount > 0 ? ` + ${formatPrice(gstAmount, pricing.currency)} GST` : '';
+      const baseDescription = `Complete AI-Powered Outbound System (${formatPrice(discountedPrice, pricing.currency)}${gstText})`;
+      const couponText = appliedCoupon ? ` - Coupon: ${appliedCoupon.code} (${appliedCoupon.discount}% off)` : '';
+
+      // Step 4: Open Razorpay checkout with order_id (auto-capture enabled)
+      const options = {
+        key: orderData.key_id, // Use key_id from order response
+        order_id: orderData.order_id, // Use order_id instead of amount/currency
+        name: 'The Organic Buzz',
+        description: baseDescription + couponText,
+        prefill: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          contact: formData.contactNumber,
+        },
+        handler: async (response) => {
+          // Call serverless function to create contact in Systeme.io
+          try {
+            const enrollResponse = await fetch('/api/create-contact', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: amountInSmallestUnit, // Amount in smallest currency unit
+                currency: pricing.currency,
+                customer_email: formData.email,
+                customer_first_name: formData.firstName,
+                customer_last_name: formData.lastName,
+                customer_phone: formData.contactNumber,
+              })
+            });
+
+            const enrollData = await enrollResponse.json();
+
+            if (!enrollResponse.ok) {
+              console.error('Failed to create contact:', enrollData);
+              // Still redirect to thank you page even if enrollment fails
+              // The user has paid, so we'll handle enrollment separately if needed
+            }
+          } catch (error) {
+            console.error('Error creating contact:', error);
+            // Still redirect to thank you page even if API call fails
+          }
+
+          // Redirect to thank you page on success
+          navigate('/thank-you');
+        },
+        modal: {
+          ondismiss: () => {
+            setIsSubmitting(false);
+          }
+        },
+        theme: {
+          color: '#FFD700'
+        }
+      };
+
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error) {
-      console.error('Error opening Razorpay:', error);
+      console.error('Error in payment flow:', error);
       alert('Error initiating payment. Please try again.');
       setIsSubmitting(false);
     }
