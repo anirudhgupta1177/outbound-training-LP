@@ -99,9 +99,16 @@ export default async function handler(req, res) {
         errorDetails = { message: responseText };
       }
 
+      // Return detailed error info for debugging
       return res.status(orderResponse.status).json({
         error: 'Failed to create Razorpay order',
-        details: errorDetails
+        razorpay_status: orderResponse.status,
+        razorpay_error: errorDetails,
+        request_info: {
+          amount: amount,
+          currency: currency,
+          couponCode: couponCode || null
+        }
       });
     }
 

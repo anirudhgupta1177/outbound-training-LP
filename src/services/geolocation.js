@@ -3,6 +3,11 @@
  * Uses ip-api.com free tier (45 requests/min)
  * @returns {Promise<string>} Country code (e.g., 'IN', 'US')
  */
+/**
+ * Detects user's country using IP geolocation
+ * Uses multiple APIs with fallback chain for reliability
+ * @returns {Promise<string>} Country code (e.g., 'IN', 'US', 'FR')
+ */
 export const detectCountry = async () => {
   // Check cache first
   const cachedCountry = sessionStorage.getItem('detectedCountry');
@@ -10,49 +15,54 @@ export const detectCountry = async () => {
     return cachedCountry;
   }
 
-  try {
-    // Use ip-api.com free tier
-    // fields=countryCode returns just the country code to minimize response
-    // Note: Free tier may have CORS restrictions, try with no-cors mode as fallback
-    let response;
+  // Try multiple geolocation APIs with fallback chain
+  // 1. ipapi.co (HTTPS, good CORS, 1000/day free)
+  // 2. ipinfo.io (HTTPS, good CORS, 50k/month free)
+  // 3. Default to India if all fail
+  
+  const apis = [
+    {
+      name: 'ipapi.co',
+      url: 'https://ipapi.co/json/',
+      parseCountry: (data) => data.country_code
+    },
+    {
+      name: 'ipinfo.io',
+      url: 'https://ipinfo.io/json',
+      parseCountry: (data) => data.country
+    }
+  ];
+
+  for (const api of apis) {
     try {
-      response = await fetch('https://ip-api.com/json/?fields=countryCode', {
+      const response = await fetch(api.url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        // Don't use no-cors mode as it prevents reading response
-        // If CORS fails, we'll catch and default to India
       });
-    } catch (fetchError) {
-      // Network error or CORS issue
-      console.warn('Geolocation fetch failed (CORS/network), defaulting to India:', fetchError);
-      const defaultCountry = 'IN';
-      sessionStorage.setItem('detectedCountry', defaultCountry);
-      return defaultCountry;
+
+      if (response.ok) {
+        const data = await response.json();
+        const countryCode = api.parseCountry(data);
+
+        if (countryCode) {
+          console.log(`🌍 Detected country via ${api.name}:`, countryCode);
+          sessionStorage.setItem('detectedCountry', countryCode);
+          return countryCode;
+        }
+      } else {
+        console.warn(`${api.name} returned ${response.status}, trying next...`);
+      }
+    } catch (error) {
+      console.warn(`${api.name} failed:`, error.message, '- trying next...');
     }
-
-    if (!response.ok) {
-      // 403 Forbidden or other HTTP errors
-      console.warn(`Geolocation API returned ${response.status}, defaulting to India`);
-      const defaultCountry = 'IN';
-      sessionStorage.setItem('detectedCountry', defaultCountry);
-      return defaultCountry;
-    }
-
-    const data = await response.json();
-    const countryCode = data.countryCode || 'IN'; // Default to India if missing
-
-    // Cache the result for the session
-    sessionStorage.setItem('detectedCountry', countryCode);
-    
-    return countryCode;
-  } catch (error) {
-    console.warn('Failed to detect country, defaulting to India:', error);
-    // Default to India on error
-    const defaultCountry = 'IN';
-    sessionStorage.setItem('detectedCountry', defaultCountry);
-    return defaultCountry;
   }
+
+  // All APIs failed, default to India
+  console.warn('All geolocation APIs failed, defaulting to India');
+  const defaultCountry = 'IN';
+  sessionStorage.setItem('detectedCountry', defaultCountry);
+  return defaultCountry;
 };
 

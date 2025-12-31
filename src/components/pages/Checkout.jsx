@@ -219,24 +219,36 @@ export default function Checkout() {
         coupon: appliedCoupon?.code
       });
 
-      const orderResponse = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: amountInSmallestUnit,
-          currency: pricing.currency,
-          couponCode: appliedCoupon?.code || null,
-          receipt: `receipt_${Date.now()}_${formData.email}`
-        })
-      });
+      let orderResponse;
+      try {
+        orderResponse = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: amountInSmallestUnit,
+            currency: pricing.currency,
+            couponCode: appliedCoupon?.code || null,
+            receipt: `receipt_${Date.now()}_${formData.email}`
+          })
+        });
+      } catch (fetchError) {
+        console.error('Network error creating order:', fetchError);
+        alert('Network error. Please check your connection and try again.');
+        setIsSubmitting(false);
+        return;
+      }
 
       const orderData = await orderResponse.json();
 
       if (!orderResponse.ok) {
         console.error('Failed to create order:', orderData);
-        alert(orderData.error || 'Failed to create payment order. Please try again.');
+        const errorMsg = orderData?.razorpay_error?.error?.description 
+          || orderData?.razorpay_error?.message 
+          || orderData?.error 
+          || 'Failed to create payment order. Please try again.';
+        alert(`Payment Error: ${errorMsg}`);
         setIsSubmitting(false);
         return;
       }
