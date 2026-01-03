@@ -145,7 +145,7 @@ export default function Hero() {
               <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
                 <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
                   <iframe 
-                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&speed=1.5" 
+                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hide_captions=true" 
                     frameBorder="0"
                     webkitallowfullscreen
                     mozallowfullscreen
