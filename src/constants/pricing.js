@@ -1,3 +1,6 @@
+// SAARC countries that get regional pricing (same affordability as India)
+export const SAARC_COUNTRIES = ['BD', 'PK', 'NP', 'LK', 'BT']; // Bangladesh, Pakistan, Nepal, Sri Lanka, Bhutan
+
 export const PRICING = {
   INDIA: {
     currency: 'INR',
@@ -7,6 +10,15 @@ export const PRICING = {
     originalPrice: 43999,
     displayPrice: '₹3,497',
     displayOriginalPrice: '₹43,999'
+  },
+  SAARC: {
+    currency: 'USD',
+    symbol: '$',
+    basePrice: 47,
+    gstRate: 0, // No GST for SAARC
+    originalPrice: 1499, // Similar discount ratio (~97% off)
+    displayPrice: '$47',
+    displayOriginalPrice: '$1,499'
   },
   INTERNATIONAL: {
     currency: 'USD',
@@ -26,7 +38,14 @@ export const PRICING = {
  */
 export const getPricingByCountry = (countryCode) => {
   // Return a new object each time to ensure React detects state changes
-  const source = countryCode === 'IN' ? PRICING.INDIA : PRICING.INTERNATIONAL;
+  let source;
+  if (countryCode === 'IN') {
+    source = PRICING.INDIA;
+  } else if (SAARC_COUNTRIES.includes(countryCode)) {
+    source = PRICING.SAARC;
+  } else {
+    source = PRICING.INTERNATIONAL;
+  }
   return { ...source }; // Spread to create new object reference
 };
 
