@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { HiCheckCircle, HiMail, HiHome } from 'react-icons/hi';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function ThankYou() {
   const navigate = useNavigate();
@@ -101,6 +102,15 @@ export default function ThankYou() {
             transition={{ delay: 0.7 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
+            <a
+              href="https://chat.whatsapp.com/FLdWkFfBRVOIiQgPSqdO62"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#25D366] hover:bg-[#128C7E] text-white font-display font-bold rounded-xl px-8 py-4 text-lg transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2"
+            >
+              <FaWhatsapp className="w-6 h-6" />
+              <span>Join WhatsApp Community</span>
+            </a>
             <button
               onClick={() => navigate('/')}
               className="btn-gold text-dark font-display font-bold rounded-xl px-8 py-4 text-lg transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2"
