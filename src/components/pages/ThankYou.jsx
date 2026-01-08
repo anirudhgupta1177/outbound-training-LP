@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { HiCheckCircle, HiMail, HiHome } from 'react-icons/hi';
+import { HiCheckCircle, HiMail, HiAcademicCap } from 'react-icons/hi';
 import { FaWhatsapp } from 'react-icons/fa';
 
 export default function ThankYou() {
@@ -112,11 +112,11 @@ export default function ThankYou() {
               <span>Join WhatsApp Community</span>
             </a>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/login')}
               className="btn-gold text-dark font-display font-bold rounded-xl px-8 py-4 text-lg transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2"
             >
-              <HiHome className="w-5 h-5" />
-              <span>Back to Home</span>
+              <HiAcademicCap className="w-5 h-5" />
+              <span>Go to Course</span>
             </button>
           </motion.div>
         </div>
