@@ -1,4 +1,14 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/((?!assets|favicon|vite).*)",
+      "destination": "/index.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/home",
@@ -7,4 +17,3 @@
     }
   ]
 }
-
