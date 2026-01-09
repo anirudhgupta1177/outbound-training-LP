@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { Button } from '../ui';
 
@@ -55,6 +56,12 @@ export default function Navbar() {
                   {link.label}
                 </a>
               ))}
+              <Link
+                to="/login"
+                className="text-text-secondary hover:text-gold transition-colors text-sm font-medium"
+              >
+                Member Login
+              </Link>
               <Button size="sm" className="ml-2 lg:ml-4">
                 Get Access Now
               </Button>
@@ -101,6 +108,13 @@ export default function Navbar() {
                     {link.label}
                   </a>
                 ))}
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-text-secondary hover:text-gold transition-colors text-base py-2 border-b border-white/10"
+                >
+                  Member Login
+                </Link>
                 <Button size="md" className="mt-3 w-full">
                   Get Access Now
                 </Button>
