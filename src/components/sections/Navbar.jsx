@@ -56,15 +56,15 @@ export default function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <Link
-                to="/login"
-                className="text-text-secondary hover:text-gold transition-colors text-sm font-medium"
-              >
-                Member Login
-              </Link>
               <Button size="sm" className="ml-2 lg:ml-4">
                 Get Access Now
               </Button>
+              <Link
+                to="/login"
+                className="btn-gold text-dark font-display font-bold rounded-lg px-4 py-2 text-sm transition-all duration-300 hover:scale-105"
+              >
+                Login
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -108,16 +108,16 @@ export default function Navbar() {
                     {link.label}
                   </a>
                 ))}
-                <Link
-                  to="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-text-secondary hover:text-gold transition-colors text-base py-2 border-b border-white/10"
-                >
-                  Member Login
-                </Link>
                 <Button size="md" className="mt-3 w-full">
                   Get Access Now
                 </Button>
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="btn-gold text-dark font-display font-bold rounded-lg px-4 py-3 text-base text-center transition-all duration-300 hover:scale-105 w-full"
+                >
+                  Login
+                </Link>
               </div>
             </motion.div>
           </motion.div>
