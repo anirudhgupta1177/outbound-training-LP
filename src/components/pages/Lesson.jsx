@@ -4,33 +4,39 @@ import CourseLayout from '../course/CourseLayout';
 import VideoPlayer from '../course/VideoPlayer';
 import ResourceLinks from '../course/ResourceLinks';
 import LessonNavigation from '../course/LessonNavigation';
-import { courseData } from '../../constants/courseData';
+import { getCourseData } from '../../services/courseService';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Lesson() {
   const { moduleId, lessonId } = useParams();
   const { user, getProgress, saveProgress } = useAuth();
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [courseData, setCourseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load progress on mount
+  // Load course data and progress on mount
   useEffect(() => {
-    const loadProgress = async () => {
-      if (user) {
-        try {
+    const loadData = async () => {
+      try {
+        // Fetch course data from Supabase
+        const data = await getCourseData();
+        setCourseData(data);
+
+        // Load user progress
+        if (user) {
           const progress = await getProgress();
           if (progress?.completed_lessons) {
             setCompletedLessons(progress.completed_lessons);
           }
-        } catch (error) {
-          console.error('Error loading progress:', error);
+        } else {
           const stored = localStorage.getItem('completedLessons');
           if (stored) {
             setCompletedLessons(JSON.parse(stored));
           }
         }
-      } else {
+      } catch (error) {
+        console.error('Error loading data:', error);
         const stored = localStorage.getItem('completedLessons');
         if (stored) {
           setCompletedLessons(JSON.parse(stored));
@@ -38,7 +44,7 @@ export default function Lesson() {
       }
       setIsLoading(false);
     };
-    loadProgress();
+    loadData();
   }, [user, getProgress]);
 
   // Save progress to localStorage as backup
@@ -48,18 +54,17 @@ export default function Lesson() {
     }
   }, [completedLessons]);
 
-  const module = courseData.modules.find((m) => m.id === moduleId);
-  const lesson = module?.lessons.find((l) => l.id === lessonId);
-
-  if (isLoading) {
+  // Loading state
+  if (isLoading || !courseData) {
     return (
-      <CourseLayout course={courseData} completedLessons={completedLessons}>
-        <div className="w-full flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </CourseLayout>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
+
+  const module = courseData.modules.find((m) => m.id === moduleId);
+  const lesson = module?.lessons.find((l) => l.id === lessonId);
 
   if (!module || !lesson) {
     return (

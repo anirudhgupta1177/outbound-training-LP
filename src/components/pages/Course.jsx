@@ -3,7 +3,7 @@ import CourseLayout from '../course/CourseLayout';
 import VideoPlayer from '../course/VideoPlayer';
 import ModuleCard from '../course/ModuleCard';
 import CourseProgressBar from '../course/CourseProgressBar';
-import { courseData, introVideoUrl } from '../../constants/courseData';
+import { getCourseData, getIntroVideoUrl } from '../../services/courseService';
 import {
   calculateCourseProgress,
   getTotalLessons,
@@ -14,29 +14,37 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function Course() {
   const { user, getProgress, saveProgress } = useAuth();
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [courseData, setCourseData] = useState(null);
+  const [introVideoUrl, setIntroVideoUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load progress from Supabase on mount
+  // Load course data and progress
   useEffect(() => {
-    const loadProgress = async () => {
-      if (user) {
-        try {
+    const loadData = async () => {
+      try {
+        // Fetch course data from Supabase (or fallback to static)
+        const data = await getCourseData();
+        setCourseData(data);
+        setIntroVideoUrl(getIntroVideoUrl());
+
+        // Load user progress
+        if (user) {
           const progress = await getProgress();
           if (progress?.completed_lessons) {
             setCompletedLessons(progress.completed_lessons);
           }
-        } catch (error) {
-          console.error('Error loading progress:', error);
-          // Fallback to localStorage
-          const stored = localStorage.getItem('completedLessons');
-          if (stored) {
-            setCompletedLessons(JSON.parse(stored));
-          }
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        // Fallback to localStorage for progress
+        const stored = localStorage.getItem('completedLessons');
+        if (stored) {
+          setCompletedLessons(JSON.parse(stored));
         }
       }
       setIsLoading(false);
     };
-    loadProgress();
+    loadData();
   }, [user, getProgress]);
 
   // Save progress to localStorage as backup
@@ -46,17 +54,15 @@ export default function Course() {
     }
   }, [completedLessons]);
 
-  const progress = calculateCourseProgress(courseData, completedLessons);
-  const totalModules = getTotalModules(courseData);
-  const totalLessons = getTotalLessons(courseData);
+  const progress = courseData ? calculateCourseProgress(courseData, completedLessons) : 0;
+  const totalModules = courseData ? getTotalModules(courseData) : 0;
+  const totalLessons = courseData ? getTotalLessons(courseData) : 0;
 
-  if (isLoading) {
+  if (isLoading || !courseData) {
     return (
-      <CourseLayout course={courseData} completedLessons={completedLessons}>
-        <div className="w-full flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </CourseLayout>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
 

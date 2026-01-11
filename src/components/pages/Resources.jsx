@@ -1,35 +1,48 @@
 import { useState, useEffect } from 'react';
 import CourseLayout from '../course/CourseLayout';
-import { courseData, globalResources } from '../../constants/courseData';
+import { getCourseData, getGlobalResources } from '../../services/courseService';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Resources() {
   const { user, getProgress } = useAuth();
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [courseData, setCourseData] = useState(null);
+  const [globalResources, setGlobalResources] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadProgress = async () => {
-      if (user) {
-        try {
+    const loadData = async () => {
+      try {
+        // Fetch course data and resources
+        const [data, resources] = await Promise.all([
+          getCourseData(),
+          getGlobalResources()
+        ]);
+        setCourseData(data);
+        setGlobalResources(resources);
+
+        // Load user progress
+        if (user) {
           const progress = await getProgress();
           if (progress?.completed_lessons) {
             setCompletedLessons(progress.completed_lessons);
           }
-        } catch (error) {
-          console.error('Error loading progress:', error);
+        } else {
           const stored = localStorage.getItem('completedLessons');
           if (stored) {
             setCompletedLessons(JSON.parse(stored));
           }
         }
-      } else {
+      } catch (error) {
+        console.error('Error loading data:', error);
         const stored = localStorage.getItem('completedLessons');
         if (stored) {
           setCompletedLessons(JSON.parse(stored));
         }
       }
+      setIsLoading(false);
     };
-    loadProgress();
+    loadData();
   }, [user, getProgress]);
 
   const getResourceIcon = (type) => {
@@ -84,6 +97,15 @@ export default function Resources() {
         return 'Resources';
     }
   };
+
+  // Loading state
+  if (isLoading || !courseData) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const resourcesByCategory = globalResources.reduce((acc, resource) => {
     const category = resource.category || 'other';

@@ -19,8 +19,11 @@ export default function LessonEditor() {
 
   const [lesson, setLesson] = useState(null);
   const [resources, setResources] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [selectedModuleId, setSelectedModuleId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -42,7 +45,24 @@ export default function LessonEditor() {
 
   useEffect(() => {
     fetchLesson();
+    fetchModules();
   }, [lessonId]);
+
+  const fetchModules = async () => {
+    try {
+      const response = await fetch('/api/admin/modules', {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setModules(data.modules || []);
+      }
+    } catch (err) {
+      console.error('Error fetching modules:', err);
+    }
+  };
 
   const fetchLesson = async () => {
     setIsLoading(true);
@@ -66,11 +86,43 @@ export default function LessonEditor() {
       setLoomUrl(data.lesson.loom_url || '');
       setDuration(data.lesson.duration || '');
       setStatus(data.lesson.status || 'available');
+      setSelectedModuleId(data.lesson.module_id);
       setResources(data.resources || []);
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleMoveToModule = async (newModuleId) => {
+    if (newModuleId === lesson.module_id) return;
+    
+    setIsMoving(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/lessons?id=${lessonId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ module_id: newModuleId })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to move lesson');
+      }
+
+      setSuccessMessage('Lesson moved successfully!');
+      setSelectedModuleId(newModuleId);
+      setLesson({ ...lesson, module_id: newModuleId });
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsMoving(false);
     }
   };
 
@@ -310,6 +362,33 @@ export default function LessonEditor() {
                     className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold"
                     placeholder="e.g., 12:34"
                   />
+                </div>
+
+                {/* Move to Module */}
+                <div className="pt-4 border-t border-gray-800">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Move to Module
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <select
+                      value={selectedModuleId}
+                      onChange={(e) => handleMoveToModule(e.target.value)}
+                      disabled={isMoving}
+                      className="flex-1 px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white focus:border-gold focus:ring-1 focus:ring-gold disabled:opacity-50"
+                    >
+                      {modules.map((mod) => (
+                        <option key={mod.id} value={mod.id}>
+                          {mod.title}
+                        </option>
+                      ))}
+                    </select>
+                    {isMoving && (
+                      <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Select a different module to move this lesson
+                  </p>
                 </div>
               </div>
             </div>
