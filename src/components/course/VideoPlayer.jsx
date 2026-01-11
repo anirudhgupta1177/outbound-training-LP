@@ -7,14 +7,26 @@ export default function VideoPlayer({ loomUrl, title }) {
     );
   }
 
+  // Add Loom parameters to hide branding, title, and user info
+  const getCleanLoomUrl = (url) => {
+    const cleanParams = [
+      'hide_title=true',
+      'hideEmbedTopBar=true',
+      'hide_owner=true',
+      'hide_share=true',
+      'hideEmbedCaptions=true'
+    ].join('&');
+    
+    // Check if URL already has query parameters
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}${cleanParams}`;
+  };
+
   return (
     <div className="w-full">
-      {title && (
-        <h2 className="text-2xl font-semibold text-white mb-4">{title}</h2>
-      )}
       <div className="relative w-full aspect-video bg-[#000] rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
         <iframe
-          src={loomUrl}
+          src={getCleanLoomUrl(loomUrl)}
           allowFullScreen
           className="absolute top-0 left-0 w-full h-full"
           style={{ border: 0 }}
