@@ -1,32 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 
-const benefits = [
+
+// Memoize benefits to prevent re-creation on every render
+const BENEFITS = [
   'Wake up to booked meetings in your calendar',
   'Never manually prospect again',
   'Only talk to prospects ready to buy NOW',
   'Runs 24/7 without you lifting a finger',
 ];
 
-export default function Hero() {
-  const { pricing } = usePricing();
-  
-  // Calculate dynamic urgency text - spots filled increases gradually and resets every 2 weeks
-  const getUrgencyText = () => {
-    const now = new Date();
-    // Calculate spots filled (resets every 2 weeks, increases gradually from 38 to 50)
-    const daysSinceEpoch = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
-    const twoWeekCycle = daysSinceEpoch % 14; // 0-13
-    const baseSpots = 38;
-    // Gradually increases from 38 to 50 over 14 days (12 spots over 14 days ≈ 0.923 per day)
-    const spotsFilled = Math.min(50, baseSpots + Math.floor(twoWeekCycle * (12 / 14)));
-    
-    return `${spotsFilled}/50 spots filled`;
-  };
+// Calculate urgency text once (it only changes daily)
+const getUrgencyText = () => {
+  const now = new Date();
+  const daysSinceEpoch = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+  const twoWeekCycle = daysSinceEpoch % 14;
+  const baseSpots = 38;
+  const spotsFilled = Math.min(50, baseSpots + Math.floor(twoWeekCycle * (12 / 14)));
+  return `${spotsFilled}/50 spots filled`;
+};
 
+function Hero() {
+  const { pricing } = usePricing();
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const urgencyText = getUrgencyText();
 
   return (
@@ -80,7 +79,7 @@ export default function Hero() {
 
             {/* Benefits - Quick scannable list */}
             <ul className="space-y-1.5 md:space-y-2 mb-5 md:mb-6">
-              {benefits.map((benefit, index) => (
+              {BENEFITS.map((benefit, index) => (
                 <motion.li
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -132,7 +131,7 @@ export default function Hero() {
             </div>
           </motion.div>
 
-          {/* RIGHT SIDE: Loom Video */}
+          {/* RIGHT SIDE: Loom Video - Lazy loaded for performance */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -144,15 +143,34 @@ export default function Hero() {
               
               <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
                 <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
-                  <iframe 
-                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
-                    frameBorder="0"
-                    webkitallowfullscreen
-                    mozallowfullscreen
-                    allowFullScreen
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    title="Video"
-                  />
+                  {/* Show placeholder until video loads */}
+                  {!videoLoaded && (
+                    <div 
+                      className="absolute inset-0 bg-dark-secondary flex items-center justify-center cursor-pointer"
+                      onClick={() => setVideoLoaded(true)}
+                    >
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gold/20 flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gold ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                        <span className="text-sm text-text-muted">Click to play video</span>
+                      </div>
+                    </div>
+                  )}
+                  {videoLoaded && (
+                    <iframe 
+                      src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
+                      frameBorder="0"
+                      webkitallowfullscreen="true"
+                      mozallowfullscreen="true"
+                      allowFullScreen
+                      loading="lazy"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                      title="Video"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -178,3 +196,6 @@ export default function Hero() {
     </section>
   );
 }
+
+// Memoize the Hero component to prevent unnecessary re-renders
+export default memo(Hero);

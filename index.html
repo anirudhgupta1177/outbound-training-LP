@@ -2,38 +2,72 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0D0D12" />
+    
+    <!-- Preconnect to critical external domains for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.loom.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.loom.com" crossorigin>
+    <link rel="dns-prefetch" href="https://connect.facebook.net">
+    <link rel="dns-prefetch" href="https://ipapi.co">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/favicon.png" as="image" type="image/png">
+    
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="description" content="Generate 30+ Qualified Sales Meetings Every Month on Autopilot Using Intent-Led Cold Outreach. The AI-powered system filling calendars for 1132+ freelancers and agencies." />
     <meta name="keywords" content="cold outreach, sales meetings, AI automation, lead generation, freelancers, agencies" />
     <meta property="og:title" content="The Organic Buzz - Intent-Led Cold Outreach System" />
     <meta property="og:description" content="30+ Qualified Sales Meetings. Every Single Month. On Complete Autopilot." />
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#0D0D12" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>The Organic Buzz | 30+ Sales Meetings on Autopilot</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <style>
-      /* Prevent iOS rubber-band scrolling issues */
+      /* Critical CSS for immediate render - prevents FOUC */
       html, body {
         overscroll-behavior: none;
         -webkit-overflow-scrolling: touch;
+        background-color: #0D0D12;
+        color: #fff;
+      }
+      /* Initial loading state */
+      #root:empty::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 40px;
+        margin: 40vh auto;
+        border: 4px solid rgba(212, 175, 55, 0.3);
+        border-top-color: #D4AF37;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
     </style>
-    <!-- Meta Pixel Code -->
+    
+    <!-- Meta Pixel Code - defer loading to not block render -->
     <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1600918380939033');
-    fbq('track', 'PageView');
+    // Load FB pixel after page becomes interactive
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1600918380939033');
+        fbq('track', 'PageView');
+      }, 100);
+    });
     </script>
     <!-- End Meta Pixel Code -->
   </head>

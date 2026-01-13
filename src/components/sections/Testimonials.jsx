@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
@@ -9,24 +9,42 @@ import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
-// Import testimonial images
-import testimonial1 from '../../assets/testimonials/testimonial1.png';
-import testimonial2 from '../../assets/testimonials/testimonial2.png';
-import testimonial3 from '../../assets/testimonials/testimonial3.png';
-import testimonial4 from '../../assets/testimonials/testimonial4.png';
-import testimonial5 from '../../assets/testimonials/testimonial5.png';
-import testimonial6 from '../../assets/testimonials/testimonial6.png';
-
-const testimonials = [
-  { image: testimonial1 },
-  { image: testimonial2 },
-  { image: testimonial3 },
-  { image: testimonial4 },
-  { image: testimonial5 },
-  { image: testimonial6 },
+// Lazy load testimonial images - only import when section is visible
+const testimonialImages = [
+  () => import('../../assets/testimonials/testimonial1.png'),
+  () => import('../../assets/testimonials/testimonial2.png'),
+  () => import('../../assets/testimonials/testimonial3.png'),
+  () => import('../../assets/testimonials/testimonial4.png'),
+  () => import('../../assets/testimonials/testimonial5.png'),
+  () => import('../../assets/testimonials/testimonial6.png'),
 ];
 
-export default function Testimonials() {
+// Lazy Image component
+const LazyImage = memo(function LazyImage({ importFn, alt }) {
+  const [src, setSrc] = useState(null);
+  
+  useEffect(() => {
+    importFn().then(module => setSrc(module.default));
+  }, [importFn]);
+  
+  if (!src) {
+    return (
+      <div className="w-full aspect-[3/4] bg-dark-secondary animate-pulse rounded-xl" />
+    );
+  }
+  
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="block max-w-full h-auto"
+      loading="lazy"
+      decoding="async"
+    />
+  );
+});
+
+function Testimonials() {
   const { pricing, isIndia } = usePricing();
   const swiperRef = useRef(null);
   const sectionRef = useRef(null);
@@ -92,7 +110,7 @@ export default function Testimonials() {
             }}
             className="pb-12 md:pb-16 testimonials-swiper"
           >
-            {testimonials.map((testimonial, index) => (
+            {testimonialImages.map((importFn, index) => (
               <SwiperSlide key={index} className="!flex items-center justify-center !h-auto">
                 <motion.div
                   whileHover={{ y: -5 }}
@@ -100,11 +118,9 @@ export default function Testimonials() {
                 >
                   {/* Screenshot image - shows full testimonial from screenshot with border matching image ratio */}
                   <div className="inline-block border-4 border-white/20 rounded-xl md:rounded-2xl overflow-hidden">
-                    <img
-                      src={testimonial.image}
-                      alt="Student testimonial"
-                      className="block max-w-full h-auto"
-                      loading="lazy"
+                    <LazyImage 
+                      importFn={importFn} 
+                      alt={`Student testimonial ${index + 1}`}
                     />
                   </div>
                 </motion.div>
@@ -166,3 +182,5 @@ export default function Testimonials() {
     </section>
   );
 }
+
+export default memo(Testimonials);
