@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
@@ -25,7 +25,6 @@ const getUrgencyText = () => {
 
 function Hero() {
   const { pricing } = usePricing();
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const urgencyText = getUrgencyText();
 
   return (
@@ -131,7 +130,7 @@ function Hero() {
             </div>
           </motion.div>
 
-          {/* RIGHT SIDE: Loom Video - Lazy loaded for performance */}
+          {/* RIGHT SIDE: Loom Video */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -143,34 +142,15 @@ function Hero() {
               
               <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
                 <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
-                  {/* Show placeholder until video loads */}
-                  {!videoLoaded && (
-                    <div 
-                      className="absolute inset-0 bg-dark-secondary flex items-center justify-center cursor-pointer"
-                      onClick={() => setVideoLoaded(true)}
-                    >
-                      <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gold/20 flex items-center justify-center">
-                          <svg className="w-8 h-8 text-gold ml-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                          </svg>
-                        </div>
-                        <span className="text-sm text-text-muted">Click to play video</span>
-                      </div>
-                    </div>
-                  )}
-                  {videoLoaded && (
-                    <iframe 
-                      src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
-                      frameBorder="0"
-                      webkitallowfullscreen="true"
-                      mozallowfullscreen="true"
-                      allowFullScreen
-                      loading="lazy"
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                      title="Video"
-                    />
-                  )}
+                  <iframe 
+                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
+                    frameBorder="0"
+                    webkitallowfullscreen="true"
+                    mozallowfullscreen="true"
+                    allowFullScreen
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    title="Video"
+                  />
                 </div>
               </div>
             </div>

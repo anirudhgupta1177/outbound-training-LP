@@ -305,6 +305,9 @@ export default function Checkout() {
             // Still redirect to thank you page even if API call fails
           }
 
+          // Set payment session flag so ThankYou page knows it's a valid visit
+          sessionStorage.setItem('payment_completed', 'true');
+          
           // Redirect to thank you page on success
           navigate('/thank-you');
         },

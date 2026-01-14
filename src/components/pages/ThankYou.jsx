@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { HiCheckCircle, HiMail, HiAcademicCap } from 'react-icons/hi';
@@ -5,6 +6,38 @@ import { FaWhatsapp } from 'react-icons/fa';
 
 export default function ThankYou() {
   const navigate = useNavigate();
+  const [isValidSession, setIsValidSession] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user came from a valid payment
+    const paymentSession = sessionStorage.getItem('payment_completed');
+    
+    if (paymentSession) {
+      // Valid payment session exists
+      setIsValidSession(true);
+      // Clear the session so page can't be accessed again by direct URL
+      sessionStorage.removeItem('payment_completed');
+    } else {
+      // No valid payment session - redirect to home
+      navigate('/', { replace: true });
+    }
+    setIsLoading(false);
+  }, [navigate]);
+
+  // Show loading while checking session
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render if session is invalid (will redirect)
+  if (!isValidSession) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-dark flex items-center justify-center py-12 px-4">
