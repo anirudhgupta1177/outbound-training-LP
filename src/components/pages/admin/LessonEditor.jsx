@@ -131,12 +131,26 @@ export default function LessonEditor() {
     setError(null);
 
     try {
-      // Convert Loom share URL to embed URL if needed
+      // Convert video URLs to embed format if needed
       let embedUrl = loomUrl;
+      
       if (loomUrl.includes('loom.com/share/')) {
+        // Convert Loom share URL to embed URL
         const match = loomUrl.match(/share\/([a-f0-9]+)/);
         if (match && match[1]) {
           embedUrl = `https://www.loom.com/embed/${match[1]}`;
+        }
+      } else if (loomUrl.includes('youtube.com/watch') || loomUrl.includes('youtu.be')) {
+        // Convert YouTube watch/short URL to embed URL
+        let videoId = null;
+        const watchMatch = loomUrl.match(/[?&]v=([^&]+)/);
+        if (watchMatch) videoId = watchMatch[1];
+        if (!videoId) {
+          const shortMatch = loomUrl.match(/youtu\.be\/([^?&]+)/);
+          if (shortMatch) videoId = shortMatch[1];
+        }
+        if (videoId) {
+          embedUrl = `https://www.youtube.com/embed/${videoId}`;
         }
       }
 
@@ -218,11 +232,52 @@ export default function LessonEditor() {
     }
   };
 
-  // Extract video ID for preview
-  const getVideoId = () => {
+  // Detect video platform from URL
+  const getVideoPlatform = () => {
     if (!loomUrl) return null;
-    const match = loomUrl.match(/(?:embed|share)\/([a-f0-9]+)/);
-    return match ? match[1] : null;
+    if (loomUrl.includes('loom.com')) return 'loom';
+    if (loomUrl.includes('youtube.com') || loomUrl.includes('youtu.be')) return 'youtube';
+    return 'unknown';
+  };
+
+  // Get video preview URL based on platform
+  const getVideoPreviewUrl = () => {
+    if (!loomUrl) return null;
+    
+    const platform = getVideoPlatform();
+    
+    if (platform === 'loom') {
+      // Extract Loom video ID
+      const match = loomUrl.match(/(?:embed|share)\/([a-f0-9]+)/);
+      if (match) {
+        return `https://www.loom.com/embed/${match[1]}?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true`;
+      }
+    } else if (platform === 'youtube') {
+      // Extract YouTube video ID from various formats
+      let videoId = null;
+      
+      // youtube.com/watch?v=VIDEO_ID
+      const watchMatch = loomUrl.match(/[?&]v=([^&]+)/);
+      if (watchMatch) videoId = watchMatch[1];
+      
+      // youtu.be/VIDEO_ID
+      if (!videoId) {
+        const shortMatch = loomUrl.match(/youtu\.be\/([^?&]+)/);
+        if (shortMatch) videoId = shortMatch[1];
+      }
+      
+      // youtube.com/embed/VIDEO_ID
+      if (!videoId) {
+        const embedMatch = loomUrl.match(/youtube\.com\/embed\/([^?&]+)/);
+        if (embedMatch) videoId = embedMatch[1];
+      }
+      
+      if (videoId) {
+        return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0`;
+      }
+    }
+    
+    return null;
   };
 
   if (isLoading) {
@@ -245,8 +300,6 @@ export default function LessonEditor() {
       </div>
     );
   }
-
-  const videoId = getVideoId();
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -393,40 +446,41 @@ export default function LessonEditor() {
               </div>
             </div>
 
-            {/* Loom Video */}
+            {/* Video */}
             <div className="bg-[#111] border border-gray-800 rounded-xl p-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <HiVideoCamera className="w-5 h-5" />
-                Loom Video
+                Video
               </h2>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Loom URL
+                    Video URL
                   </label>
                   <input
                     type="url"
                     value={loomUrl}
                     onChange={(e) => setLoomUrl(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold"
-                    placeholder="https://www.loom.com/share/..."
+                    placeholder="Loom or YouTube URL..."
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    Paste the Loom share URL (will be converted to embed URL automatically)
+                    Supports Loom (loom.com/share/...) or YouTube (youtube.com/watch?v=... or youtu.be/...)
                   </p>
                 </div>
 
                 {/* Video Preview */}
-                {videoId && (
+                {loomUrl && getVideoPreviewUrl() && (
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Preview
                     </label>
                     <div className="aspect-video bg-black rounded-lg overflow-hidden">
                       <iframe
-                        src={`https://www.loom.com/embed/${videoId}?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true`}
+                        src={getVideoPreviewUrl()}
                         allowFullScreen
+                        allow={getVideoPlatform() === 'youtube' ? 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' : undefined}
                         className="w-full h-full"
                       />
                     </div>
