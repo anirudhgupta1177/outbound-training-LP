@@ -377,6 +377,91 @@ export default function Checkout() {
                 </button>
               </form>
             </motion.div>
+
+            {/* Trust Elements Section - Below Form */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mt-6 space-y-4"
+            >
+              {/* Row 1: Guarantee + Social Proof */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* 30-Day Money Back Guarantee */}
+                <div className="glass-card rounded-xl p-5 bg-gradient-to-r from-emerald-900/20 to-emerald-800/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <HiShieldCheck className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-emerald-400 font-bold">30-Day Money Back Guarantee</p>
+                      <p className="text-emerald-300/60 text-sm mt-1">
+                        Not satisfied? Full refund, no questions asked.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Proof */}
+                <div className="glass-card rounded-xl p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">A</div>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">S</div>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">R</div>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">+</div>
+                    </div>
+                    <div>
+                      <p className="text-white font-bold">Join 500+ Students</p>
+                      <p className="text-text-muted text-sm mt-1">Already mastering AI-powered outbound</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Testimonial */}
+              <div className="glass-card rounded-xl p-5 border-l-4 border-gold">
+                <div className="flex gap-4">
+                  <div className="text-gold text-3xl leading-none">"</div>
+                  <div>
+                    <p className="text-text-secondary italic">
+                      This course helped me book 47 meetings in my first month using AI-powered outbound. The ROI is insane - I made back 10x my investment in week one.
+                    </p>
+                    <div className="flex items-center gap-3 mt-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-xs font-bold text-dark">R</div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">Rahul C.</p>
+                        <p className="text-text-muted text-xs">Founder, SaaS Startup</p>
+                      </div>
+                      <div className="ml-auto flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className="text-gold text-sm">★</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Trust Badges */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="glass-card rounded-xl p-4 text-center">
+                  <span className="text-2xl mb-2 block">🔒</span>
+                  <p className="text-white font-semibold text-sm">Secure Payment</p>
+                  <p className="text-text-muted text-xs mt-1">256-bit SSL</p>
+                </div>
+                <div className="glass-card rounded-xl p-4 text-center">
+                  <span className="text-2xl mb-2 block">⚡</span>
+                  <p className="text-white font-semibold text-sm">Instant Access</p>
+                  <p className="text-text-muted text-xs mt-1">Start learning now</p>
+                </div>
+                <div className="glass-card rounded-xl p-4 text-center">
+                  <span className="text-2xl mb-2 block">🎯</span>
+                  <p className="text-white font-semibold text-sm">Lifetime Access</p>
+                  <p className="text-text-muted text-xs mt-1">All future updates</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           {/* Cart Summary */}
@@ -505,52 +590,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* 30-Day Money Back Guarantee */}
-              <div className="bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 border border-emerald-500/30 rounded-xl p-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <HiShieldCheck className="w-7 h-7 text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-emerald-400 font-bold text-sm">30-Day Money Back Guarantee</p>
-                    <p className="text-emerald-300/70 text-xs mt-0.5">
-                      Not satisfied? Get a full refund, no questions asked.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Social Proof */}
-              <div className="bg-dark-secondary/50 border border-white/10 rounded-xl p-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">A</div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">S</div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">R</div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">+</div>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">Join 500+ Students</p>
-                    <p className="text-text-muted text-xs">Already mastering AI-powered outbound</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Trust Elements */}
-              <div className="space-y-3 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-3 text-text-secondary text-sm">
-                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">🔒</span>
-                  <span>256-bit SSL Secure Payment</span>
-                </div>
-                <div className="flex items-center gap-3 text-text-secondary text-sm">
-                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">💳</span>
-                  <span>Cards, UPI, NetBanking Accepted</span>
-                </div>
-                <div className="flex items-center gap-3 text-text-secondary text-sm">
-                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">⚡</span>
-                  <span>Instant Lifetime Access</span>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
