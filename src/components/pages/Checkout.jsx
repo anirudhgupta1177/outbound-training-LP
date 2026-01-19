@@ -1,48 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiCheck, HiX } from 'react-icons/hi';
+import { HiCheck, HiX, HiShieldCheck } from 'react-icons/hi';
 import { getCartItems } from '../../constants/cartItems';
 import { validateCoupon } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
-
-// Country list - common countries first, then alphabetical
-const countries = [
-  'India', 'United States', 'United Kingdom', 'Canada', 'Australia',
-  'Germany', 'France', 'Netherlands', 'Sweden', 'Denmark',
-  'Singapore', 'United Arab Emirates', 'Saudi Arabia', 'Japan', 'South Korea',
-  'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia',
-  'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus',
-  'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia',
-  'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria',
-  'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Chile',
-  'China', 'Colombia', 'Costa Rica', 'Croatia', 'Cuba',
-  'Cyprus', 'Czech Republic', 'Democratic Republic of the Congo', 'Denmark', 'Djibouti',
-  'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Estonia',
-  'Ethiopia', 'Fiji', 'Finland', 'Gabon', 'Gambia',
-  'Georgia', 'Ghana', 'Greece', 'Guatemala', 'Guinea',
-  'Guyana', 'Haiti', 'Honduras', 'Hong Kong', 'Hungary',
-  'Iceland', 'Indonesia', 'Iran', 'Iraq', 'Ireland',
-  'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Jordan',
-  'Kazakhstan', 'Kenya', 'Kuwait', 'Kyrgyzstan', 'Laos',
-  'Latvia', 'Lebanon', 'Liberia', 'Libya', 'Liechtenstein',
-  'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
-  'Maldives', 'Mali', 'Malta', 'Mauritania', 'Mauritius',
-  'Mexico', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
-  'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nepal',
-  'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea',
-  'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine',
-  'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
-  'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia',
-  'Rwanda', 'San Marino', 'Saudi Arabia', 'Senegal', 'Serbia',
-  'Seychelles', 'Sierra Leone', 'Slovakia', 'Slovenia', 'Somalia',
-  'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
-  'Suriname', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan',
-  'Tanzania', 'Thailand', 'Togo', 'Trinidad and Tobago', 'Tunisia',
-  'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'Uruguay',
-  'Uzbekistan', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
-];
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -50,11 +13,7 @@ export default function Checkout() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    companyName: '',
     email: '',
-    contactNumber: '',
-    address: '',
-    country: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -176,17 +135,6 @@ export default function Checkout() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    if (!formData.contactNumber.trim()) {
-      newErrors.contactNumber = 'Contact number is required';
-    } else if (!/^[0-9+\-\s()]{10,}$/.test(formData.contactNumber.replace(/\s/g, ''))) {
-      newErrors.contactNumber = 'Please enter a valid contact number';
-    }
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-    }
-    if (!formData.country) {
-      newErrors.country = 'Please select a country';
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -270,7 +218,6 @@ export default function Checkout() {
         prefill: {
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
-          contact: formData.contactNumber,
         },
         handler: async (response) => {
           // Call serverless function to create contact in Systeme.io
@@ -289,7 +236,6 @@ export default function Checkout() {
                 customer_email: formData.email,
                 customer_first_name: formData.firstName,
                 customer_last_name: formData.lastName,
-                customer_phone: formData.contactNumber,
               })
             });
 
@@ -401,22 +347,6 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {/* Company Name (Optional) */}
-                <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-text-secondary mb-2">
-                    Company Name <span className="text-text-muted">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="companyName"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-dark-secondary border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white"
-                    placeholder="Your Company"
-                  />
-                </div>
-
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
@@ -435,74 +365,6 @@ export default function Checkout() {
                   />
                   {errors.email && (
                     <p className="mt-1 text-sm text-error">{errors.email}</p>
-                  )}
-                </div>
-
-                {/* Contact Number */}
-                <div>
-                  <label htmlFor="contactNumber" className="block text-sm font-medium text-text-secondary mb-2">
-                    Contact Number <span className="text-error">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    id="contactNumber"
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white ${
-                      errors.contactNumber ? 'border-error' : 'border-white/20'
-                    }`}
-                    placeholder="+91 9876543210"
-                  />
-                  {errors.contactNumber && (
-                    <p className="mt-1 text-sm text-error">{errors.contactNumber}</p>
-                  )}
-                </div>
-
-                {/* Address */}
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-text-secondary mb-2">
-                    Address <span className="text-error">*</span>
-                  </label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    rows="3"
-                    className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white resize-none ${
-                      errors.address ? 'border-error' : 'border-white/20'
-                    }`}
-                    placeholder="Street address, City, State"
-                  />
-                  {errors.address && (
-                    <p className="mt-1 text-sm text-error">{errors.address}</p>
-                  )}
-                </div>
-
-                {/* Country */}
-                <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-text-secondary mb-2">
-                    Country <span className="text-error">*</span>
-                  </label>
-                  <select
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white ${
-                      errors.country ? 'border-error' : 'border-white/20'
-                    }`}
-                  >
-                    <option value="">Select a country</option>
-                    {countries.map((country) => (
-                      <option key={country} value={country}>
-                        {country}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.country && (
-                    <p className="mt-1 text-sm text-error">{errors.country}</p>
                   )}
                 </div>
 
@@ -643,19 +505,50 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* 30-Day Money Back Guarantee */}
+              <div className="bg-gradient-to-r from-emerald-900/30 to-emerald-800/20 border border-emerald-500/30 rounded-xl p-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <HiShieldCheck className="w-7 h-7 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-emerald-400 font-bold text-sm">30-Day Money Back Guarantee</p>
+                    <p className="text-emerald-300/70 text-xs mt-0.5">
+                      Not satisfied? Get a full refund, no questions asked.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Proof */}
+              <div className="bg-dark-secondary/50 border border-white/10 rounded-xl p-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">A</div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">S</div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">R</div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 border-2 border-dark flex items-center justify-center text-xs font-bold text-white">+</div>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">Join 500+ Students</p>
+                    <p className="text-text-muted text-xs">Already mastering AI-powered outbound</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Trust Elements */}
-              <div className="space-y-2 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2 text-text-muted text-xs">
-                  <span>🔒</span>
-                  <span>Secure payment</span>
+              <div className="space-y-3 pt-4 border-t border-white/10">
+                <div className="flex items-center gap-3 text-text-secondary text-sm">
+                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">🔒</span>
+                  <span>256-bit SSL Secure Payment</span>
                 </div>
-                <div className="flex items-center gap-2 text-text-muted text-xs">
-                  <span>💳</span>
-                  <span>All payment methods accepted</span>
+                <div className="flex items-center gap-3 text-text-secondary text-sm">
+                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">💳</span>
+                  <span>Cards, UPI, NetBanking Accepted</span>
                 </div>
-                <div className="flex items-center gap-2 text-text-muted text-xs">
-                  <span>⚡</span>
-                  <span>Instant access after payment</span>
+                <div className="flex items-center gap-3 text-text-secondary text-sm">
+                  <span className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">⚡</span>
+                  <span>Instant Lifetime Access</span>
                 </div>
               </div>
             </motion.div>
