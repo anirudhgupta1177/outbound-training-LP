@@ -5,11 +5,11 @@ export const PRICING = {
   INDIA: {
     currency: 'INR',
     symbol: '₹',
-    basePrice: 3497,
+    basePrice: 3999,
     gstRate: 0.18,
-    originalPrice: 43999,
-    displayPrice: '₹3,497',
-    displayOriginalPrice: '₹43,999'
+    originalPrice: 49999,
+    displayPrice: '₹3,999',
+    displayOriginalPrice: '₹49,999'
   },
   SAARC: {
     currency: 'USD',
@@ -23,11 +23,11 @@ export const PRICING = {
   INTERNATIONAL: {
     currency: 'USD',
     symbol: '$',
-    basePrice: 97,
+    basePrice: 129,
     gstRate: 0, // No GST for international
-    originalPrice: 2999, // Similar ratio to India: ₹43,999 → ₹3,497 (92% discount)
-    displayPrice: '$97',
-    displayOriginalPrice: '$2,999'
+    originalPrice: 3999,
+    displayPrice: '$129',
+    displayOriginalPrice: '$3,999'
   }
 };
 

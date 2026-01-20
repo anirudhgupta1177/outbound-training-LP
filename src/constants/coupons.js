@@ -2,8 +2,12 @@
 export const coupons = {
   'ALLBOUND': 20,  // 20% discount
   'TESTSARANSH': 99.97,  // 99.97% discount (Testing only - pays ~₹1)
+  'SPECIAL5': 5,  // 5% discount - Default coupon applied on checkout
   // Add more coupons here as needed
 };
+
+// Default coupon to auto-apply on checkout page
+export const DEFAULT_COUPON = 'SPECIAL5';
 
 /**
  * Validates a coupon code and returns discount information

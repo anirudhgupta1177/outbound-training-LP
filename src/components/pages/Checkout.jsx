@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { HiCheck, HiX, HiShieldCheck } from 'react-icons/hi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { HiCheck, HiX, HiShieldCheck, HiSparkles } from 'react-icons/hi';
 import { getCartItems } from '../../constants/cartItems';
-import { validateCoupon } from '../../constants/coupons';
+import { validateCoupon, DEFAULT_COUPON } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
+import skoolWinImage from '../../assets/testimonials/skool-win.png';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function Checkout() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
+  const [showCouponPopup, setShowCouponPopup] = useState(false);
 
   // Wait for pricing to load
   if (pricingLoading || !pricing) {
@@ -66,6 +68,21 @@ export default function Checkout() {
     };
 
     loadRazorpay();
+  }, []);
+
+  // Auto-apply default coupon on page load
+  useEffect(() => {
+    if (!appliedCoupon && DEFAULT_COUPON) {
+      const result = validateCoupon(DEFAULT_COUPON);
+      if (result.valid) {
+        setCouponCode(DEFAULT_COUPON);
+        setAppliedCoupon(result);
+        // Show popup after a short delay for better UX
+        setTimeout(() => {
+          setShowCouponPopup(true);
+        }, 500);
+      }
+    }
   }, []);
 
   const handleChange = (e) => {
@@ -396,7 +413,7 @@ export default function Checkout() {
                     <div>
                       <p className="text-emerald-400 font-bold">30-Day Money Back Guarantee</p>
                       <p className="text-emerald-300/60 text-sm mt-1">
-                        Not satisfied? Full refund, no questions asked.
+                        Not satisfied? Get a full refund.
                       </p>
                     </div>
                   </div>
@@ -412,35 +429,23 @@ export default function Checkout() {
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">+</div>
                     </div>
                     <div>
-                      <p className="text-white font-bold">Join 500+ Students</p>
+                      <p className="text-white font-bold">Join 1,132+ Students</p>
                       <p className="text-text-muted text-sm mt-1">Already mastering AI-powered outbound</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Row 2: Testimonial */}
-              <div className="glass-card rounded-xl p-5 border-l-4 border-gold">
-                <div className="flex gap-4">
-                  <div className="text-gold text-3xl leading-none">"</div>
-                  <div>
-                    <p className="text-text-secondary italic">
-                      This course helped me book 47 meetings in my first month using AI-powered outbound. The ROI is insane - I made back 10x my investment in week one.
-                    </p>
-                    <div className="flex items-center gap-3 mt-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center text-xs font-bold text-dark">R</div>
-                      <div>
-                        <p className="text-white font-semibold text-sm">Rahul C.</p>
-                        <p className="text-text-muted text-xs">Founder, SaaS Startup</p>
-                      </div>
-                      <div className="ml-auto flex gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className="text-gold text-sm">★</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Row 2: Student Success Story */}
+              <div className="glass-card rounded-xl p-4 overflow-hidden">
+                <p className="text-text-secondary text-sm mb-3 flex items-center gap-2">
+                  <span className="text-gold">★</span> Student Success Story from our Community
+                </p>
+                <img 
+                  src={skoolWinImage} 
+                  alt="Student success: Just hit $4,500 in two weeks using outbound automation strategies"
+                  className="w-full rounded-lg border border-white/10"
+                />
               </div>
 
               {/* Row 3: Trust Badges */}
@@ -594,6 +599,51 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* Coupon Applied Popup */}
+      <AnimatePresence>
+        {showCouponPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowCouponPopup(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              className="bg-gradient-to-br from-dark-secondary to-dark border border-gold/30 rounded-2xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+                <HiSparkles className="w-8 h-8 text-gold" />
+              </div>
+              <h3 className="text-2xl font-display font-bold text-white mb-2">
+                Lucky You! 🎉
+              </h3>
+              <p className="text-text-secondary mb-4">
+                A special <span className="text-gold font-bold">5% discount</span> has been applied to your order!
+              </p>
+              <div className="bg-dark/50 border border-gold/20 rounded-lg p-3 mb-6">
+                <p className="text-text-muted text-sm">Coupon Code</p>
+                <p className="text-gold text-xl font-bold font-mono">{DEFAULT_COUPON}</p>
+              </div>
+              <button
+                onClick={() => setShowCouponPopup(false)}
+                className="w-full btn-gold text-dark font-display font-bold rounded-xl px-6 py-3 transition-all duration-300 hover:scale-105"
+              >
+                Continue to Checkout
+              </button>
+              <p className="text-text-muted text-xs mt-4">
+                Have a different coupon? You can change it in the order summary.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
