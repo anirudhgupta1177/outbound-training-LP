@@ -11,7 +11,8 @@ import {
   HiLogout,
   HiAcademicCap,
   HiVideoCamera,
-  HiRefresh
+  HiRefresh,
+  HiUsers
 } from 'react-icons/hi';
 
 export default function AdminDashboard() {
@@ -156,6 +157,13 @@ export default function AdminDashboard() {
             </div>
             
             <div className="flex items-center gap-4">
+              <Link 
+                to="/admin/members" 
+                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                <HiUsers className="w-4 h-4" />
+                Members
+              </Link>
               <Link 
                 to="/course" 
                 className="text-gray-400 hover:text-white transition-colors text-sm"
