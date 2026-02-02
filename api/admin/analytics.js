@@ -91,9 +91,21 @@ export default async function handler(req, res) {
       }
     }
 
+    // Debug info
+    let debugInfo = {
+      hasRazorpayKeys: !!(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET),
+      razorpayKeyIdPrefix: RAZORPAY_KEY_ID ? RAZORPAY_KEY_ID.substring(0, 10) + '...' : 'not set',
+      localOrdersExist,
+      razorpayFetchAttempted: false,
+      razorpayError: null,
+      totalPaymentsFetched: 0,
+      capturedPayments: 0
+    };
+
     // If no local orders, fetch from Razorpay API
     if (!localOrdersExist && RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
       console.log('Fetching payments from Razorpay API...');
+      debugInfo.razorpayFetchAttempted = true;
       
       const razorpayAuth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
       
@@ -103,46 +115,55 @@ export default async function handler(req, res) {
       const count = 100;
       let hasMore = true;
       
-      while (hasMore) {
-        const params = new URLSearchParams({
-          count: count.toString(),
-          skip: skip.toString()
-        });
-        
-        // Add date filters if specified
-        if (startDate) {
-          params.append('from', Math.floor(startDate.getTime() / 1000).toString());
-        }
-        if (endDate) {
-          params.append('to', Math.floor(endDate.getTime() / 1000).toString());
-        }
-        
-        const response = await fetch(`https://api.razorpay.com/v1/payments?${params.toString()}`, {
-          headers: {
-            'Authorization': `Basic ${razorpayAuth}`
+      try {
+        while (hasMore) {
+          const params = new URLSearchParams({
+            count: count.toString(),
+            skip: skip.toString()
+          });
+          
+          // Add date filters if specified
+          if (startDate) {
+            params.append('from', Math.floor(startDate.getTime() / 1000).toString());
           }
-        });
-        
-        if (!response.ok) {
-          console.error('Razorpay API error:', await response.text());
-          break;
+          if (endDate) {
+            params.append('to', Math.floor(endDate.getTime() / 1000).toString());
+          }
+          
+          const response = await fetch(`https://api.razorpay.com/v1/payments?${params.toString()}`, {
+            headers: {
+              'Authorization': `Basic ${razorpayAuth}`
+            }
+          });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Razorpay API error:', errorText);
+            debugInfo.razorpayError = `HTTP ${response.status}: ${errorText.substring(0, 200)}`;
+            break;
+          }
+          
+          const data = await response.json();
+          const payments = data.items || [];
+          debugInfo.totalPaymentsFetched += payments.length;
+          
+          // Filter for only captured payments (successful)
+          const capturedPayments = payments.filter(p => p.status === 'captured');
+          debugInfo.capturedPayments += capturedPayments.length;
+          allPayments = allPayments.concat(capturedPayments);
+          
+          // Check if there are more payments
+          if (payments.length < count) {
+            hasMore = false;
+          } else {
+            skip += count;
+            // Safety limit to prevent infinite loops
+            if (skip > 1000) hasMore = false;
+          }
         }
-        
-        const data = await response.json();
-        const payments = data.items || [];
-        
-        // Filter for only captured payments (successful)
-        const capturedPayments = payments.filter(p => p.status === 'captured');
-        allPayments = allPayments.concat(capturedPayments);
-        
-        // Check if there are more payments
-        if (payments.length < count) {
-          hasMore = false;
-        } else {
-          skip += count;
-          // Safety limit to prevent infinite loops
-          if (skip > 1000) hasMore = false;
-        }
+      } catch (fetchError) {
+        console.error('Razorpay fetch error:', fetchError);
+        debugInfo.razorpayError = fetchError.message;
       }
       
       // Convert Razorpay payments to order format
@@ -242,7 +263,8 @@ export default async function handler(req, res) {
         month: month || null,
         region: region || 'all'
       },
-      source: localOrdersExist ? 'database' : 'razorpay'
+      source: localOrdersExist ? 'database' : 'razorpay',
+      debug: debugInfo
     });
 
   } catch (error) {
