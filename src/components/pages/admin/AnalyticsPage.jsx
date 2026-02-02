@@ -23,7 +23,6 @@ export default function AnalyticsPage() {
   const [availableMonths, setAvailableMonths] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState(null);
   
   // Filters
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -59,7 +58,6 @@ export default function AnalyticsPage() {
       setOrders(data.orders || []);
       setSummary(data.summary || null);
       setAvailableMonths(data.availableMonths || []);
-      setDebugInfo(data.debug || null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -211,16 +209,6 @@ export default function AnalyticsPage() {
             >
               Dismiss
             </button>
-          </div>
-        )}
-
-        {/* Debug Info (temporary) */}
-        {debugInfo && (
-          <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-            <p className="text-yellow-400 font-medium mb-2">Debug Info:</p>
-            <pre className="text-xs text-gray-400 overflow-x-auto">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
           </div>
         )}
 

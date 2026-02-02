@@ -263,8 +263,7 @@ export default async function handler(req, res) {
         month: month || null,
         region: region || 'all'
       },
-      source: localOrdersExist ? 'database' : 'razorpay',
-      debug: debugInfo
+      source: localOrdersExist ? 'database' : 'razorpay'
     });
 
   } catch (error) {
