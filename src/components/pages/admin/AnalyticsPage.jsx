@@ -182,7 +182,6 @@ export default function AnalyticsPage() {
             >
               <option value="all">All Regions</option>
               <option value="INDIA">India (Domestic)</option>
-              <option value="SAARC">SAARC</option>
               <option value="INTERNATIONAL">International</option>
             </select>
           </div>
@@ -262,7 +261,7 @@ export default function AnalyticsPage() {
                     ${summary.totalRevenue.USD.toLocaleString('en-US')}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {summary.byRegion.INTERNATIONAL.count + summary.byRegion.SAARC.count} orders
+                    {summary.byRegion.INTERNATIONAL?.count || 0} orders
                   </p>
                 </div>
 
@@ -291,27 +290,26 @@ export default function AnalyticsPage() {
                   <HiGlobe className="w-5 h-5 text-gold" />
                   Revenue by Region
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-[#0a0a0a] rounded-lg border border-gray-800">
-                    <p className="text-gray-400 text-sm mb-1">India</p>
-                    <p className="text-xl font-bold text-white">
-                      ₹{summary.byRegion.INDIA.revenue.toLocaleString('en-IN')}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-[#0a0a0a] rounded-lg border border-emerald-500/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <HiFlag className="w-4 h-4 text-emerald-400" />
+                      <p className="text-emerald-400 text-sm font-medium">India (Domestic)</p>
+                    </div>
+                    <p className="text-2xl font-bold text-white">
+                      ₹{(summary.byRegion.INDIA?.revenue || 0).toLocaleString('en-IN')}
                     </p>
-                    <p className="text-sm text-gray-500">{summary.byRegion.INDIA.count} orders</p>
+                    <p className="text-sm text-gray-500">{summary.byRegion.INDIA?.count || 0} orders</p>
                   </div>
-                  <div className="p-4 bg-[#0a0a0a] rounded-lg border border-gray-800">
-                    <p className="text-gray-400 text-sm mb-1">SAARC</p>
-                    <p className="text-xl font-bold text-white">
-                      ${summary.byRegion.SAARC.revenue.toLocaleString('en-US')}
+                  <div className="p-4 bg-[#0a0a0a] rounded-lg border border-blue-500/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <HiGlobe className="w-4 h-4 text-blue-400" />
+                      <p className="text-blue-400 text-sm font-medium">International</p>
+                    </div>
+                    <p className="text-2xl font-bold text-white">
+                      ${(summary.byRegion.INTERNATIONAL?.revenue || 0).toLocaleString('en-US')}
                     </p>
-                    <p className="text-sm text-gray-500">{summary.byRegion.SAARC.count} orders</p>
-                  </div>
-                  <div className="p-4 bg-[#0a0a0a] rounded-lg border border-gray-800">
-                    <p className="text-gray-400 text-sm mb-1">International</p>
-                    <p className="text-xl font-bold text-white">
-                      ${summary.byRegion.INTERNATIONAL.revenue.toLocaleString('en-US')}
-                    </p>
-                    <p className="text-sm text-gray-500">{summary.byRegion.INTERNATIONAL.count} orders</p>
+                    <p className="text-sm text-gray-500">{summary.byRegion.INTERNATIONAL?.count || 0} orders</p>
                   </div>
                 </div>
               </div>
@@ -378,12 +376,10 @@ export default function AnalyticsPage() {
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 order.region === 'INDIA'
                                   ? 'bg-emerald-500/20 text-emerald-400'
-                                  : order.region === 'SAARC'
-                                  ? 'bg-yellow-500/20 text-yellow-400'
                                   : 'bg-blue-500/20 text-blue-400'
                               }`}
                             >
-                              {order.region}
+                              {order.region === 'INDIA' ? 'India' : 'International'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">

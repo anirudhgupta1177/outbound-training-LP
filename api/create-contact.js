@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     const SELLER_STATE_CODE = process.env.SELLER_STATE_CODE || '';
     const SELLER_SAC_CODE = process.env.SELLER_SAC_CODE || '999293';
     
-    // Determine region from currency
+    // Determine region from currency (simplified: India vs International)
     const region = currency === 'INR' ? 'INDIA' : 'INTERNATIONAL';
     
     // Verify payment with Razorpay API
