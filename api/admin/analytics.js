@@ -56,6 +56,15 @@ export default async function handler(req, res) {
 
     let orders = [];
     let localOrders = [];
+    let localOrdersExist = false;
+    
+    // Debug info for troubleshooting
+    const debugInfo = {
+      razorpayFetchAttempted: false,
+      totalPaymentsFetched: 0,
+      capturedPayments: 0,
+      razorpayError: null
+    };
 
     // Try to fetch from Supabase orders table first
     if (supabase) {
@@ -84,6 +93,7 @@ export default async function handler(req, res) {
         
         if (!error && dbOrders) {
           localOrders = dbOrders;
+          localOrdersExist = dbOrders.length > 0;
         }
       } catch (e) {
         console.log('Orders table may not exist yet, falling back to Razorpay');
