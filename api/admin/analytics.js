@@ -23,9 +23,9 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: authResult.error });
   }
 
-  // Get Razorpay credentials
-  const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
-  const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+  // Get Razorpay credentials (with fallbacks matching create-contact.js)
+  const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
+  const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
 
   // Initialize Supabase client (optional - may not have orders table yet)
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
