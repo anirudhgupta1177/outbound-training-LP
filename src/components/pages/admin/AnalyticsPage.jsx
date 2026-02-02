@@ -109,34 +109,10 @@ export default function AnalyticsPage() {
     }
   };
 
-  const printInvoice = (invoice) => {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Invoice ${invoice.invoiceNumber}</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-          .header h1 { margin: 0; color: #333; }
-          .header p { margin: 5px 0; color: #666; }
-          .invoice-details { display: flex; justify-content: space-between; margin-bottom: 30px; }
-          .invoice-details div { flex: 1; }
-          .invoice-details h3 { margin: 0 0 10px 0; color: #333; font-size: 14px; }
-          .invoice-details p { margin: 3px 0; font-size: 13px; color: #555; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
-          th { background: #f5f5f5; font-weight: bold; }
-          .total-row { font-weight: bold; background: #f9f9f9; }
-          .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #888; }
-          .type-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-          .b2c { background: #e3f2fd; color: #1565c0; }
-          .b2b { background: #e8f5e9; color: #2e7d32; }
-          @media print { body { padding: 20px; } }
-        </style>
-      </head>
-      <body>
+  // Generate HTML for a single invoice
+  const generateInvoiceHTML = (invoice) => {
+    return `
+      <div class="invoice-page">
         <div class="header">
           <h1>TAX INVOICE</h1>
           <p><span class="type-badge ${invoice.type.toLowerCase()}">${invoice.type}</span></p>
@@ -144,9 +120,9 @@ export default function AnalyticsPage() {
         
         <div class="invoice-details">
           <div>
-            <h3>FROM</h3>
+            <h3>FROM (SELLER)</h3>
             <p><strong>${invoice.seller.name}</strong></p>
-            <p>GSTIN: ${invoice.seller.gstin}</p>
+            <p><strong>GSTIN:</strong> ${invoice.seller.gstin}</p>
             <p>${invoice.seller.address}</p>
           </div>
           <div style="text-align: right;">
@@ -158,36 +134,41 @@ export default function AnalyticsPage() {
         </div>
         
         <div class="invoice-details">
-          <div>
-            <h3>BILL TO</h3>
+          <div class="buyer-section">
+            <h3>BILL TO (BUYER)</h3>
             <p><strong>${invoice.customerName}</strong></p>
-            <p>${invoice.customerEmail}</p>
-            ${invoice.customerGstin ? `<p>GSTIN: ${invoice.customerGstin}</p>` : ''}
-            <p>Payment ID: ${invoice.customerId}</p>
+            ${invoice.customerGstin ? `<p class="buyer-gstin"><strong>GSTIN:</strong> ${invoice.customerGstin}</p>` : ''}
+            <p><strong>Email:</strong> ${invoice.customerEmail}</p>
+            <p><strong>Payment ID:</strong> ${invoice.customerId}</p>
           </div>
         </div>
         
         <table>
           <thead>
             <tr>
+              <th>S.No.</th>
               <th>Description</th>
               <th style="text-align: right;">Amount (₹)</th>
             </tr>
           </thead>
           <tbody>
             <tr>
+              <td>1</td>
               <td>Outbound Training Course</td>
               <td style="text-align: right;">₹${invoice.baseAmount.toLocaleString('en-IN')}</td>
             </tr>
             <tr>
+              <td></td>
               <td>CGST @ 9%</td>
               <td style="text-align: right;">₹${invoice.cgst.toLocaleString('en-IN')}</td>
             </tr>
             <tr>
+              <td></td>
               <td>SGST @ 9%</td>
               <td style="text-align: right;">₹${invoice.sgst.toLocaleString('en-IN')}</td>
             </tr>
             <tr class="total-row">
+              <td></td>
               <td><strong>Total</strong></td>
               <td style="text-align: right;"><strong>₹${invoice.amount.toLocaleString('en-IN')}</strong></td>
             </tr>
@@ -197,6 +178,91 @@ export default function AnalyticsPage() {
         <div class="footer">
           <p>This is a computer-generated invoice and does not require a signature.</p>
         </div>
+      </div>
+    `;
+  };
+
+  // Common styles for invoice PDFs
+  const getInvoiceStyles = () => `
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    .invoice-page { page-break-after: always; padding: 20px 0; }
+    .invoice-page:last-child { page-break-after: avoid; }
+    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+    .header h1 { margin: 0; color: #333; }
+    .header p { margin: 5px 0; color: #666; }
+    .invoice-details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .invoice-details div { flex: 1; }
+    .invoice-details h3 { margin: 0 0 10px 0; color: #333; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+    .invoice-details p { margin: 3px 0; font-size: 13px; color: #555; }
+    .buyer-section { background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid #ddd; }
+    .buyer-gstin { color: #2e7d32; font-size: 14px !important; margin: 8px 0 !important; padding: 5px 0; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+    th { background: #f5f5f5; font-weight: bold; }
+    .total-row { font-weight: bold; background: #f9f9f9; }
+    .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #ddd; padding-top: 20px; }
+    .type-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .b2c { background: #e3f2fd; color: #1565c0; }
+    .b2b { background: #e8f5e9; color: #2e7d32; }
+    .combined-header { text-align: center; margin-bottom: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px; }
+    .combined-header h1 { margin: 0 0 10px 0; }
+    .combined-header p { margin: 5px 0; color: #666; }
+    @media print { 
+      body { padding: 0; } 
+      .invoice-page { padding: 10px 0; }
+    }
+  `;
+
+  // Print a single invoice
+  const printInvoice = (invoice) => {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice ${invoice.invoiceNumber}</title>
+        <style>${getInvoiceStyles()}</style>
+      </head>
+      <body>
+        ${generateInvoiceHTML(invoice)}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  // Print all invoices of a specific type (B2B or B2C) as combined PDF
+  const printAllInvoices = (type) => {
+    if (!invoiceData) return;
+    
+    const invoices = invoiceData.invoices.filter(inv => inv.type === type);
+    if (invoices.length === 0) {
+      alert(`No ${type} invoices found`);
+      return;
+    }
+
+    const totalAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+    const totalBase = invoices.reduce((sum, inv) => sum + inv.baseAmount, 0);
+    const totalGst = invoices.reduce((sum, inv) => sum + inv.totalGst, 0);
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${type} Invoices - ${invoiceData.month}</title>
+        <style>${getInvoiceStyles()}</style>
+      </head>
+      <body>
+        <div class="combined-header">
+          <h1>${type} TAX INVOICES</h1>
+          <p><strong>Period:</strong> ${invoiceData.month}</p>
+          <p><strong>Total Invoices:</strong> ${invoices.length}</p>
+          <p><strong>Total Amount:</strong> ₹${totalAmount.toLocaleString('en-IN')}</p>
+          <p><strong>Base Amount:</strong> ₹${Math.round(totalBase * 100) / 100} | <strong>GST:</strong> ₹${Math.round(totalGst * 100) / 100}</p>
+        </div>
+        ${invoices.map(invoice => generateInvoiceHTML(invoice)).join('')}
       </body>
       </html>
     `);
@@ -655,9 +721,30 @@ export default function AnalyticsPage() {
                   No domestic orders found for this month
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <h4 className="text-lg font-semibold text-white mb-3">
-                    Invoices ({invoiceData.invoices.length})
+                <div className="space-y-4">
+                  {/* Print All Buttons */}
+                  <div className="flex flex-wrap gap-3 p-4 bg-[#0a0a0a] rounded-lg border border-gray-800">
+                    <span className="text-gray-400 text-sm self-center">Download Combined PDF:</span>
+                    <button
+                      onClick={() => printAllInvoices('B2B')}
+                      disabled={invoiceData.summary.b2bOrders === 0}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <HiDownload className="w-4 h-4" />
+                      All B2B Invoices ({invoiceData.summary.b2bOrders})
+                    </button>
+                    <button
+                      onClick={() => printAllInvoices('B2C')}
+                      disabled={invoiceData.summary.b2cOrders === 0}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <HiDownload className="w-4 h-4" />
+                      All B2C Invoices ({invoiceData.summary.b2cOrders})
+                    </button>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-white">
+                    Individual Invoices ({invoiceData.invoices.length})
                   </h4>
                   {invoiceData.invoices.map((invoice) => (
                     <div
@@ -677,6 +764,9 @@ export default function AnalyticsPage() {
                         <div>
                           <p className="text-white font-medium">{invoice.invoiceNumber}</p>
                           <p className="text-gray-400 text-sm">{invoice.customerName}</p>
+                          {invoice.customerGstin && (
+                            <p className="text-emerald-400 text-xs">GSTIN: {invoice.customerGstin}</p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
