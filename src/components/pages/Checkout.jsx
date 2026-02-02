@@ -1,12 +1,54 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiCheck, HiX, HiShieldCheck, HiSparkles } from 'react-icons/hi';
+import { HiCheck, HiX, HiShieldCheck, HiSparkles, HiOfficeBuilding } from 'react-icons/hi';
 import { getCartItems } from '../../constants/cartItems';
 import { validateCoupon, DEFAULT_COUPON } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
 import skoolWinImage from '../../assets/testimonials/skool-win.png';
+
+// Indian states with GST codes
+const INDIAN_STATES = [
+  { code: '01', name: 'Jammu & Kashmir' },
+  { code: '02', name: 'Himachal Pradesh' },
+  { code: '03', name: 'Punjab' },
+  { code: '04', name: 'Chandigarh' },
+  { code: '05', name: 'Uttarakhand' },
+  { code: '06', name: 'Haryana' },
+  { code: '07', name: 'Delhi' },
+  { code: '08', name: 'Rajasthan' },
+  { code: '09', name: 'Uttar Pradesh' },
+  { code: '10', name: 'Bihar' },
+  { code: '11', name: 'Sikkim' },
+  { code: '12', name: 'Arunachal Pradesh' },
+  { code: '13', name: 'Nagaland' },
+  { code: '14', name: 'Manipur' },
+  { code: '15', name: 'Mizoram' },
+  { code: '16', name: 'Tripura' },
+  { code: '17', name: 'Meghalaya' },
+  { code: '18', name: 'Assam' },
+  { code: '19', name: 'West Bengal' },
+  { code: '20', name: 'Jharkhand' },
+  { code: '21', name: 'Odisha' },
+  { code: '22', name: 'Chhattisgarh' },
+  { code: '23', name: 'Madhya Pradesh' },
+  { code: '24', name: 'Gujarat' },
+  { code: '25', name: 'Daman & Diu' },
+  { code: '26', name: 'Dadra & Nagar Haveli' },
+  { code: '27', name: 'Maharashtra' },
+  { code: '28', name: 'Andhra Pradesh (Old)' },
+  { code: '29', name: 'Karnataka' },
+  { code: '30', name: 'Goa' },
+  { code: '31', name: 'Lakshadweep' },
+  { code: '32', name: 'Kerala' },
+  { code: '33', name: 'Tamil Nadu' },
+  { code: '34', name: 'Puducherry' },
+  { code: '35', name: 'Andaman & Nicobar Islands' },
+  { code: '36', name: 'Telangana' },
+  { code: '37', name: 'Andhra Pradesh (New)' },
+  { code: '38', name: 'Ladakh' },
+];
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -23,6 +65,17 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [showCouponPopup, setShowCouponPopup] = useState(false);
+  
+  // GST Details state (for Indian B2B customers)
+  const [hasGst, setHasGst] = useState(false);
+  const [gstData, setGstData] = useState({
+    gstin: '',
+    businessName: '',
+    businessAddress: '',
+    businessState: '',
+    businessStateCode: ''
+  });
+  const [gstErrors, setGstErrors] = useState({});
 
   // Wait for pricing to load
   if (pricingLoading || !pricing) {
@@ -138,8 +191,49 @@ export default function Checkout() {
     }
   };
 
+  // Handle GST data change
+  const handleGstChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Special handling for state selection
+    if (name === 'businessState') {
+      const selectedState = INDIAN_STATES.find(s => s.name === value);
+      setGstData(prev => ({
+        ...prev,
+        businessState: value,
+        businessStateCode: selectedState?.code || ''
+      }));
+    } else if (name === 'gstin') {
+      // GSTIN is always uppercase
+      setGstData(prev => ({
+        ...prev,
+        [name]: value.toUpperCase()
+      }));
+    } else {
+      setGstData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
+    // Clear error when user starts typing
+    if (gstErrors[name]) {
+      setGstErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  // Validate GSTIN format (15 characters: 2 state code + 10 PAN + 1 entity + 1 Z + 1 checksum)
+  const validateGstin = (gstin) => {
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    return gstinRegex.test(gstin);
+  };
+
   const validateForm = () => {
     const newErrors = {};
+    const newGstErrors = {};
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
@@ -153,8 +247,27 @@ export default function Checkout() {
       newErrors.email = 'Please enter a valid email address';
     }
 
+    // Validate GST fields if hasGst is true
+    if (hasGst && isIndia) {
+      if (!gstData.gstin.trim()) {
+        newGstErrors.gstin = 'GSTIN is required';
+      } else if (!validateGstin(gstData.gstin)) {
+        newGstErrors.gstin = 'Please enter a valid 15-character GSTIN';
+      }
+      if (!gstData.businessName.trim()) {
+        newGstErrors.businessName = 'Business name is required';
+      }
+      if (!gstData.businessAddress.trim()) {
+        newGstErrors.businessAddress = 'Business address is required';
+      }
+      if (!gstData.businessState) {
+        newGstErrors.businessState = 'Please select your state';
+      }
+    }
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setGstErrors(newGstErrors);
+    return Object.keys(newErrors).length === 0 && Object.keys(newGstErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -253,6 +366,14 @@ export default function Checkout() {
                 customer_email: formData.email,
                 customer_first_name: formData.firstName,
                 customer_last_name: formData.lastName,
+                coupon_code: appliedCoupon?.code || null,
+                // GST Details (for Indian B2B customers)
+                has_gst: hasGst && isIndia,
+                gstin: hasGst && isIndia ? gstData.gstin : null,
+                business_name: hasGst && isIndia ? gstData.businessName : null,
+                business_address: hasGst && isIndia ? gstData.businessAddress : null,
+                business_state: hasGst && isIndia ? gstData.businessState : null,
+                business_state_code: hasGst && isIndia ? gstData.businessStateCode : null,
               })
             });
 
@@ -384,6 +505,143 @@ export default function Checkout() {
                     <p className="mt-1 text-sm text-error">{errors.email}</p>
                   )}
                 </div>
+
+                {/* GST Section - Only shown for Indian customers */}
+                {isIndia && (
+                  <div className="border-t border-white/10 pt-6">
+                    {/* GST Toggle */}
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={hasGst}
+                          onChange={(e) => setHasGst(e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={`w-12 h-6 rounded-full transition-colors ${hasGst ? 'bg-gold' : 'bg-dark-secondary border border-white/20'}`}>
+                          <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${hasGst ? 'translate-x-6' : 'translate-x-0.5'} mt-0.5`} />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <HiOfficeBuilding className="w-5 h-5 text-text-secondary" />
+                        <span className="text-text-secondary group-hover:text-white transition-colors">
+                          I have a GST number (for B2B invoice)
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* GST Fields - Shown when toggle is on */}
+                    <AnimatePresence>
+                      {hasGst && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-4 space-y-4 overflow-hidden"
+                        >
+                          <div className="p-4 bg-gold/5 border border-gold/20 rounded-lg">
+                            <p className="text-gold text-sm flex items-center gap-2">
+                              <HiOfficeBuilding className="w-4 h-4" />
+                              A GST invoice will be sent to your email after payment
+                            </p>
+                          </div>
+
+                          {/* GSTIN and Business Name */}
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <label htmlFor="gstin" className="block text-sm font-medium text-text-secondary mb-2">
+                                GSTIN <span className="text-error">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                id="gstin"
+                                name="gstin"
+                                value={gstData.gstin}
+                                onChange={handleGstChange}
+                                maxLength={15}
+                                className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white font-mono uppercase ${
+                                  gstErrors.gstin ? 'border-error' : 'border-white/20'
+                                }`}
+                                placeholder="22AAAAA0000A1Z5"
+                              />
+                              {gstErrors.gstin && (
+                                <p className="mt-1 text-sm text-error">{gstErrors.gstin}</p>
+                              )}
+                            </div>
+
+                            <div>
+                              <label htmlFor="businessName" className="block text-sm font-medium text-text-secondary mb-2">
+                                Business Name <span className="text-error">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                id="businessName"
+                                name="businessName"
+                                value={gstData.businessName}
+                                onChange={handleGstChange}
+                                className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white ${
+                                  gstErrors.businessName ? 'border-error' : 'border-white/20'
+                                }`}
+                                placeholder="Your Company Pvt. Ltd."
+                              />
+                              {gstErrors.businessName && (
+                                <p className="mt-1 text-sm text-error">{gstErrors.businessName}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Business Address */}
+                          <div>
+                            <label htmlFor="businessAddress" className="block text-sm font-medium text-text-secondary mb-2">
+                              Business Address <span className="text-error">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              id="businessAddress"
+                              name="businessAddress"
+                              value={gstData.businessAddress}
+                              onChange={handleGstChange}
+                              className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white ${
+                                gstErrors.businessAddress ? 'border-error' : 'border-white/20'
+                              }`}
+                              placeholder="123 Business Park, City, PIN"
+                            />
+                            {gstErrors.businessAddress && (
+                              <p className="mt-1 text-sm text-error">{gstErrors.businessAddress}</p>
+                            )}
+                          </div>
+
+                          {/* State Selection */}
+                          <div>
+                            <label htmlFor="businessState" className="block text-sm font-medium text-text-secondary mb-2">
+                              State <span className="text-error">*</span>
+                            </label>
+                            <select
+                              id="businessState"
+                              name="businessState"
+                              value={gstData.businessState}
+                              onChange={handleGstChange}
+                              className={`w-full px-4 py-3 bg-dark-secondary border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white ${
+                                gstErrors.businessState ? 'border-error' : 'border-white/20'
+                              }`}
+                            >
+                              <option value="">Select your state</option>
+                              {INDIAN_STATES.map((state) => (
+                                <option key={state.code} value={state.name}>
+                                  {state.name} ({state.code})
+                                </option>
+                              ))}
+                            </select>
+                            {gstErrors.businessState && (
+                              <p className="mt-1 text-sm text-error">{gstErrors.businessState}</p>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
 
                 <button
                   type="submit"

@@ -41,10 +41,19 @@ export default async function handler(req, res) {
       razorpay_order_id,
       razorpay_signature,
       amount,
+      currency,
       customer_email,
       customer_first_name,
       customer_last_name,
-      customer_phone
+      customer_phone,
+      coupon_code,
+      // GST Details
+      has_gst,
+      gstin,
+      business_name,
+      business_address,
+      business_state,
+      business_state_code
     } = bodyData || {};
 
     // Validate required fields
@@ -70,6 +79,17 @@ export default async function handler(req, res) {
     const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
     const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    
+    // Seller GST Details (for invoice)
+    const SELLER_GSTIN = process.env.SELLER_GSTIN;
+    const SELLER_BUSINESS_NAME = process.env.SELLER_BUSINESS_NAME || 'The Organic Buzz';
+    const SELLER_ADDRESS = process.env.SELLER_ADDRESS || '';
+    const SELLER_STATE = process.env.SELLER_STATE || '';
+    const SELLER_STATE_CODE = process.env.SELLER_STATE_CODE || '';
+    const SELLER_SAC_CODE = process.env.SELLER_SAC_CODE || '999293';
+    
+    // Determine region from currency
+    const region = currency === 'INR' ? 'INDIA' : 'INTERNATIONAL';
     
     // Verify payment with Razorpay API
     if (razorpay_payment_id) {
@@ -170,6 +190,66 @@ export default async function handler(req, res) {
             console.log('User progress record initialized');
           }
         }
+        
+        // ============================================
+        // STEP 1.5: Store Order in Database
+        // ============================================
+        console.log('=== STORING ORDER ===');
+        
+        try {
+          // Generate invoice number using database function
+          let invoiceNumber = null;
+          if (has_gst) {
+            const { data: invoiceData, error: invoiceError } = await supabaseAdmin.rpc('generate_invoice_number');
+            if (invoiceError) {
+              console.error('Error generating invoice number:', invoiceError);
+              // Fallback: generate locally
+              invoiceNumber = `TOB/${new Date().getFullYear()}/${Date.now().toString().slice(-5)}`;
+            } else {
+              invoiceNumber = invoiceData;
+            }
+          }
+          
+          const orderData = {
+            user_id: supabaseUser?.id || null,
+            razorpay_payment_id,
+            razorpay_order_id: razorpay_order_id || null,
+            amount: amount || 0,
+            currency: currency || 'INR',
+            region,
+            customer_email,
+            customer_name: `${customer_first_name || ''} ${customer_last_name || ''}`.trim(),
+            coupon_code: coupon_code || null,
+            has_gst: has_gst || false,
+            gstin: gstin || null,
+            business_name: business_name || null,
+            business_address: business_address || null,
+            business_state: business_state || null,
+            business_state_code: business_state_code || null,
+            invoice_number: invoiceNumber,
+            invoice_sent: false
+          };
+          
+          const { data: orderResult, error: orderError } = await supabaseAdmin
+            .from('orders')
+            .insert(orderData)
+            .select()
+            .single();
+          
+          if (orderError) {
+            if (orderError.message.includes('duplicate')) {
+              console.log('Order already exists, skipping');
+            } else {
+              console.error('Error storing order:', orderError);
+            }
+          } else {
+            console.log('Order stored successfully:', orderResult.id);
+          }
+        } catch (orderStoreError) {
+          console.error('Error in order storage:', orderStoreError);
+          // Continue even if order storage fails
+        }
+        
       } catch (supabaseError) {
         console.error('Supabase error:', supabaseError);
         // Continue with Systeme.io even if Supabase fails
@@ -308,6 +388,205 @@ export default async function handler(req, res) {
     }
 
     // ============================================
+    // STEP 2.5: Send GST Invoice Email (if applicable)
+    // ============================================
+    let gstInvoiceSent = false;
+    if (RESEND_API_KEY && has_gst && gstin && SELLER_GSTIN) {
+      console.log('=== SENDING GST INVOICE ===');
+      
+      try {
+        // Calculate amounts (amount is in paise, convert to rupees)
+        const totalAmountRupees = (amount || 0) / 100;
+        const taxableAmount = Math.round(totalAmountRupees / 1.18 * 100) / 100; // Reverse calculate from total
+        const gstAmount = Math.round((totalAmountRupees - taxableAmount) * 100) / 100;
+        
+        // Check if same state (CGST+SGST) or inter-state (IGST)
+        const isSameState = business_state_code === SELLER_STATE_CODE;
+        const cgstAmount = isSameState ? (gstAmount / 2).toFixed(2) : '0.00';
+        const sgstAmount = isSameState ? (gstAmount / 2).toFixed(2) : '0.00';
+        const igstAmount = !isSameState ? gstAmount.toFixed(2) : '0.00';
+        
+        // Generate invoice number if not already generated
+        const invoiceNo = `TOB/${new Date().getFullYear()}/${Date.now().toString().slice(-5)}`;
+        const invoiceDate = new Date().toLocaleDateString('en-IN', { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric' 
+        });
+        
+        const gstInvoiceHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GST Invoice</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="700" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #ddd;">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 20px; border-bottom: 2px solid #333; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px; color: #333;">TAX INVOICE</h1>
+            </td>
+          </tr>
+          
+          <!-- Seller & Buyer Info -->
+          <tr>
+            <td style="padding: 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="50%" valign="top" style="padding-right: 20px;">
+                    <h3 style="margin: 0 0 10px; font-size: 14px; color: #666;">FROM (Seller)</h3>
+                    <p style="margin: 0 0 5px; font-size: 14px; color: #333; font-weight: bold;">${SELLER_BUSINESS_NAME}</p>
+                    <p style="margin: 0 0 5px; font-size: 13px; color: #555;">${SELLER_ADDRESS}</p>
+                    <p style="margin: 0 0 5px; font-size: 13px; color: #555;">State: ${SELLER_STATE} (${SELLER_STATE_CODE})</p>
+                    <p style="margin: 0; font-size: 13px; color: #333;"><strong>GSTIN:</strong> ${SELLER_GSTIN}</p>
+                  </td>
+                  <td width="50%" valign="top" style="padding-left: 20px; border-left: 1px solid #ddd;">
+                    <h3 style="margin: 0 0 10px; font-size: 14px; color: #666;">TO (Buyer)</h3>
+                    <p style="margin: 0 0 5px; font-size: 14px; color: #333; font-weight: bold;">${business_name}</p>
+                    <p style="margin: 0 0 5px; font-size: 13px; color: #555;">${business_address}</p>
+                    <p style="margin: 0 0 5px; font-size: 13px; color: #555;">State: ${business_state} (${business_state_code})</p>
+                    <p style="margin: 0; font-size: 13px; color: #333;"><strong>GSTIN:</strong> ${gstin}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Invoice Details -->
+          <tr>
+            <td style="padding: 0 20px;">
+              <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #ddd; margin-bottom: 20px;">
+                <tr style="background-color: #f9f9f9;">
+                  <td style="border-right: 1px solid #ddd; font-size: 13px;"><strong>Invoice No:</strong> ${invoiceNo}</td>
+                  <td style="border-right: 1px solid #ddd; font-size: 13px;"><strong>Date:</strong> ${invoiceDate}</td>
+                  <td style="font-size: 13px;"><strong>Place of Supply:</strong> ${business_state} (${business_state_code})</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Items Table -->
+          <tr>
+            <td style="padding: 0 20px 20px;">
+              <table width="100%" cellpadding="10" cellspacing="0" style="border: 1px solid #ddd;">
+                <tr style="background-color: #333; color: #fff;">
+                  <th style="text-align: left; font-size: 13px; border-right: 1px solid #555;">Description</th>
+                  <th style="text-align: center; font-size: 13px; border-right: 1px solid #555;">SAC Code</th>
+                  <th style="text-align: right; font-size: 13px;">Amount (₹)</th>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #ddd; font-size: 13px;">Outbound Mastery Course - Complete AI-Powered Outbound System</td>
+                  <td style="border: 1px solid #ddd; text-align: center; font-size: 13px;">${SELLER_SAC_CODE}</td>
+                  <td style="border: 1px solid #ddd; text-align: right; font-size: 13px;">${taxableAmount.toFixed(2)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Tax Breakdown -->
+          <tr>
+            <td style="padding: 0 20px 20px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="60%"></td>
+                  <td width="40%">
+                    <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #ddd;">
+                      <tr>
+                        <td style="border-bottom: 1px solid #ddd; font-size: 13px;">Taxable Amount</td>
+                        <td style="border-bottom: 1px solid #ddd; text-align: right; font-size: 13px;">₹${taxableAmount.toFixed(2)}</td>
+                      </tr>
+                      ${isSameState ? `
+                      <tr>
+                        <td style="border-bottom: 1px solid #ddd; font-size: 13px;">CGST @ 9%</td>
+                        <td style="border-bottom: 1px solid #ddd; text-align: right; font-size: 13px;">₹${cgstAmount}</td>
+                      </tr>
+                      <tr>
+                        <td style="border-bottom: 1px solid #ddd; font-size: 13px;">SGST @ 9%</td>
+                        <td style="border-bottom: 1px solid #ddd; text-align: right; font-size: 13px;">₹${sgstAmount}</td>
+                      </tr>
+                      ` : `
+                      <tr>
+                        <td style="border-bottom: 1px solid #ddd; font-size: 13px;">IGST @ 18%</td>
+                        <td style="border-bottom: 1px solid #ddd; text-align: right; font-size: 13px;">₹${igstAmount}</td>
+                      </tr>
+                      `}
+                      <tr style="background-color: #f9f9f9;">
+                        <td style="font-size: 14px;"><strong>Total</strong></td>
+                        <td style="text-align: right; font-size: 14px;"><strong>₹${totalAmountRupees.toFixed(2)}</strong></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px; border-top: 1px solid #ddd; background-color: #f9f9f9;">
+              <p style="margin: 0 0 10px; font-size: 12px; color: #666;">
+                <strong>Note:</strong> This is a computer-generated invoice and does not require a physical signature.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #666;">
+                For any queries, contact us at <a href="mailto:anirudh@theorganicbuzz.com" style="color: #0066cc;">anirudh@theorganicbuzz.com</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+        `;
+        
+        const invoiceEmailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Outbound Mastery <invoice@theorganicbuzz.com>',
+            to: [customer_email],
+            subject: `GST Invoice ${invoiceNo} - Outbound Mastery`,
+            html: gstInvoiceHtml,
+          }),
+        });
+        
+        if (invoiceEmailResponse.ok) {
+          const invoiceEmailData = await invoiceEmailResponse.json();
+          console.log('GST invoice email sent successfully:', invoiceEmailData.id);
+          gstInvoiceSent = true;
+          
+          // Update order to mark invoice as sent
+          if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+            const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+              auth: { autoRefreshToken: false, persistSession: false }
+            });
+            await supabaseAdmin
+              .from('orders')
+              .update({ invoice_sent: true })
+              .eq('razorpay_payment_id', razorpay_payment_id);
+          }
+        } else {
+          const invoiceEmailError = await invoiceEmailResponse.text();
+          console.error('Failed to send GST invoice email:', invoiceEmailError);
+        }
+      } catch (invoiceError) {
+        console.error('Error sending GST invoice:', invoiceError);
+      }
+    } else if (has_gst && !SELLER_GSTIN) {
+      console.log('GST invoice requested but seller GSTIN not configured');
+    }
+
+    // ============================================
     // STEP 3: Create contact in Systeme.io (keep existing flow)
     // ============================================
     console.log('=== CREATING SYSTEME.IO CONTACT ===');
@@ -374,6 +653,7 @@ export default async function handler(req, res) {
       message: 'Payment processed successfully',
       supabaseUser: supabaseUser ? { id: supabaseUser.id, email: supabaseUser.email } : null,
       emailSent: !!RESEND_API_KEY && !!generatedPassword,
+      gstInvoiceSent,
     });
 
   } catch (error) {

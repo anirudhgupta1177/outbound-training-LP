@@ -19,6 +19,7 @@ const ProtectedRoute = lazy(() => import('./components/auth/ProtectedRoute'));
 const AdminLogin = lazy(() => import('./components/pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/pages/admin/AdminDashboard'));
 const MembersPage = lazy(() => import('./components/pages/admin/MembersPage'));
+const AnalyticsPage = lazy(() => import('./components/pages/admin/AnalyticsPage'));
 const ModuleEditor = lazy(() => import('./components/pages/admin/ModuleEditor'));
 const LessonEditor = lazy(() => import('./components/pages/admin/LessonEditor'));
 const ProtectedAdminRoute = lazy(() => import('./components/auth/ProtectedAdminRoute'));
@@ -87,6 +88,14 @@ function App() {
               element={
                 <ProtectedAdminRoute>
                   <MembersPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedAdminRoute>
+                  <AnalyticsPage />
                 </ProtectedAdminRoute>
               }
             />

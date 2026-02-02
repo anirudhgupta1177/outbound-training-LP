@@ -12,7 +12,8 @@ import {
   HiAcademicCap,
   HiVideoCamera,
   HiRefresh,
-  HiUsers
+  HiUsers,
+  HiChartBar
 } from 'react-icons/hi';
 
 export default function AdminDashboard() {
@@ -163,6 +164,13 @@ export default function AdminDashboard() {
               >
                 <HiUsers className="w-4 h-4" />
                 Members
+              </Link>
+              <Link 
+                to="/admin/analytics" 
+                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                <HiChartBar className="w-4 h-4" />
+                Analytics
               </Link>
               <Link 
                 to="/course" 
