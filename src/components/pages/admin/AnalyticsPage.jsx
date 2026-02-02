@@ -14,7 +14,9 @@ import {
   HiFilter,
   HiCheck,
   HiX,
-  HiChartBar
+  HiChartBar,
+  HiDownload,
+  HiPrinter
 } from 'react-icons/hi';
 
 export default function AnalyticsPage() {
@@ -27,6 +29,12 @@ export default function AnalyticsPage() {
   // Filters
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('all');
+  
+  // Invoice generation
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [isGeneratingInvoices, setIsGeneratingInvoices] = useState(false);
+  const [invoiceMonth, setInvoiceMonth] = useState('');
 
   const { logout, adminEmail, getToken } = useAdminAuth();
   const navigate = useNavigate();
@@ -68,6 +76,132 @@ export default function AnalyticsPage() {
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
+  };
+
+  const generateInvoices = async () => {
+    if (!invoiceMonth) {
+      alert('Please select a month');
+      return;
+    }
+    
+    setIsGeneratingInvoices(true);
+    try {
+      const response = await fetch('/api/admin/generate-invoices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ month: invoiceMonth })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate invoices');
+      }
+
+      const data = await response.json();
+      setInvoiceData(data);
+      setShowInvoiceModal(true);
+    } catch (err) {
+      alert('Error generating invoices: ' + err.message);
+    } finally {
+      setIsGeneratingInvoices(false);
+    }
+  };
+
+  const printInvoice = (invoice) => {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice ${invoice.invoiceNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+          .header h1 { margin: 0; color: #333; }
+          .header p { margin: 5px 0; color: #666; }
+          .invoice-details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+          .invoice-details div { flex: 1; }
+          .invoice-details h3 { margin: 0 0 10px 0; color: #333; font-size: 14px; }
+          .invoice-details p { margin: 3px 0; font-size: 13px; color: #555; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+          th { background: #f5f5f5; font-weight: bold; }
+          .total-row { font-weight: bold; background: #f9f9f9; }
+          .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #888; }
+          .type-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+          .b2c { background: #e3f2fd; color: #1565c0; }
+          .b2b { background: #e8f5e9; color: #2e7d32; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>TAX INVOICE</h1>
+          <p><span class="type-badge ${invoice.type.toLowerCase()}">${invoice.type}</span></p>
+        </div>
+        
+        <div class="invoice-details">
+          <div>
+            <h3>FROM</h3>
+            <p><strong>${invoice.seller.name}</strong></p>
+            <p>GSTIN: ${invoice.seller.gstin}</p>
+            <p>${invoice.seller.address}</p>
+          </div>
+          <div style="text-align: right;">
+            <h3>INVOICE DETAILS</h3>
+            <p><strong>Invoice No:</strong> ${invoice.invoiceNumber}</p>
+            <p><strong>Date:</strong> ${invoice.date}</p>
+            <p><strong>Order Date:</strong> ${invoice.orderDate}</p>
+          </div>
+        </div>
+        
+        <div class="invoice-details">
+          <div>
+            <h3>BILL TO</h3>
+            <p><strong>${invoice.customerName}</strong></p>
+            <p>${invoice.customerEmail}</p>
+            ${invoice.customerGstin ? `<p>GSTIN: ${invoice.customerGstin}</p>` : ''}
+            <p>Payment ID: ${invoice.customerId}</p>
+          </div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align: right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Outbound Training Course</td>
+              <td style="text-align: right;">₹${invoice.baseAmount.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>CGST @ 9%</td>
+              <td style="text-align: right;">₹${invoice.cgst.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>SGST @ 9%</td>
+              <td style="text-align: right;">₹${invoice.sgst.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr class="total-row">
+              <td><strong>Total</strong></td>
+              <td style="text-align: right;"><strong>₹${invoice.amount.toLocaleString('en-IN')}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="footer">
+          <p>This is a computer-generated invoice and does not require a signature.</p>
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const formatDate = (dateString) => {
@@ -148,6 +282,47 @@ export default function AnalyticsPage() {
           >
             <HiRefresh className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Generate Invoices Section */}
+        <div className="mb-6 p-4 bg-[#111] border border-gray-800 rounded-xl">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-400">
+              <HiDocumentText className="w-5 h-5" />
+              <span className="text-sm font-medium">Generate Monthly Invoices:</span>
+            </div>
+            
+            <select
+              value={invoiceMonth}
+              onChange={(e) => setInvoiceMonth(e.target.value)}
+              className="px-4 py-2 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white focus:border-gold focus:ring-1 focus:ring-gold"
+            >
+              <option value="">Select Month</option>
+              {availableMonths.map((month) => (
+                <option key={month} value={month}>
+                  {formatMonthLabel(month)}
+                </option>
+              ))}
+            </select>
+            
+            <button
+              onClick={generateInvoices}
+              disabled={!invoiceMonth || isGeneratingInvoices}
+              className="flex items-center gap-2 px-4 py-2 bg-gold text-black font-semibold rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGeneratingInvoices ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <HiDownload className="w-4 h-4" />
+                  Generate Invoices
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -418,6 +593,112 @@ export default function AnalyticsPage() {
           </>
         )}
       </main>
+
+      {/* Invoice Modal */}
+      {showInvoiceModal && invoiceData && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111] border border-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-800 flex items-center justify-between sticky top-0 bg-[#111]">
+              <div>
+                <h3 className="text-xl font-bold text-white">Generated Invoices</h3>
+                <p className="text-gray-400 text-sm">{invoiceData.month}</p>
+              </div>
+              <button
+                onClick={() => setShowInvoiceModal(false)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <HiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {/* Summary */}
+              <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg border border-gray-800">
+                <h4 className="text-lg font-semibold text-white mb-3">Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Orders</p>
+                    <p className="text-white font-bold">{invoiceData.summary.totalOrders}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">B2C Orders</p>
+                    <p className="text-blue-400 font-bold">{invoiceData.summary.b2cOrders}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">B2B Orders</p>
+                    <p className="text-emerald-400 font-bold">{invoiceData.summary.b2bOrders}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Revenue</p>
+                    <p className="text-gold font-bold">₹{invoiceData.summary.totalRevenue.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-700 grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">Base Amount</p>
+                    <p className="text-white">₹{invoiceData.summary.totalBaseAmount.toLocaleString('en-IN')}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">CGST (9%)</p>
+                    <p className="text-white">₹{invoiceData.summary.cgst.toLocaleString('en-IN')}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">SGST (9%)</p>
+                    <p className="text-white">₹{invoiceData.summary.sgst.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Invoice List */}
+              {invoiceData.invoices.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  No domestic orders found for this month
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <h4 className="text-lg font-semibold text-white mb-3">
+                    Invoices ({invoiceData.invoices.length})
+                  </h4>
+                  {invoiceData.invoices.map((invoice) => (
+                    <div
+                      key={invoice.invoiceNumber}
+                      className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-lg border border-gray-800"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-bold ${
+                            invoice.type === 'B2C'
+                              ? 'bg-blue-500/20 text-blue-400'
+                              : 'bg-emerald-500/20 text-emerald-400'
+                          }`}
+                        >
+                          {invoice.type}
+                        </span>
+                        <div>
+                          <p className="text-white font-medium">{invoice.invoiceNumber}</p>
+                          <p className="text-gray-400 text-sm">{invoice.customerName}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <p className="text-white font-medium">
+                          ₹{invoice.amount.toLocaleString('en-IN')}
+                        </p>
+                        <button
+                          onClick={() => printInvoice(invoice)}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors"
+                        >
+                          <HiPrinter className="w-4 h-4" />
+                          Print
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

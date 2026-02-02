@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     }
 
     let orders = [];
-    let localOrdersExist = false;
+    let localOrders = [];
 
     // Try to fetch from Supabase orders table first
     if (supabase) {
@@ -80,30 +80,18 @@ export default async function handler(req, res) {
           }
         }
 
-        const { data: localOrders, error } = await query;
+        const { data: dbOrders, error } = await query;
         
-        if (!error && localOrders && localOrders.length > 0) {
-          orders = localOrders;
-          localOrdersExist = true;
+        if (!error && dbOrders) {
+          localOrders = dbOrders;
         }
       } catch (e) {
         console.log('Orders table may not exist yet, falling back to Razorpay');
       }
     }
 
-    // Debug info
-    let debugInfo = {
-      hasRazorpayKeys: !!(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET),
-      razorpayKeyIdPrefix: RAZORPAY_KEY_ID ? RAZORPAY_KEY_ID.substring(0, 10) + '...' : 'not set',
-      localOrdersExist,
-      razorpayFetchAttempted: false,
-      razorpayError: null,
-      totalPaymentsFetched: 0,
-      capturedPayments: 0
-    };
-
-    // If no local orders, fetch from Razorpay API
-    if (!localOrdersExist && RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
+    // Always fetch from Razorpay API to get complete historical data
+    if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
       console.log('Fetching payments from Razorpay API...');
       debugInfo.razorpayFetchAttempted = true;
       
@@ -198,6 +186,16 @@ export default async function handler(req, res) {
       // Sort by date descending
       orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
+    
+    // Merge local orders with Razorpay orders (deduplicate by payment_id)
+    const localPaymentIds = new Set(localOrders.map(o => o.razorpay_payment_id));
+    const razorpayOnly = orders.filter(o => !localPaymentIds.has(o.razorpay_payment_id));
+    
+    // Combine: local orders first (they have more data like GST info), then Razorpay-only
+    orders = [...localOrders, ...razorpayOnly];
+    
+    // Re-sort after merging
+    orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     // Calculate summary statistics (simplified: India vs International)
     const summary = {
