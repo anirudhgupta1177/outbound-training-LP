@@ -3,6 +3,78 @@ import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatLargeAmount, convertINRToUSD } from '../../constants/pricing';
+import { useState, useRef, useEffect, memo } from 'react';
+
+// #region agent log
+const debugLog = (location, message, data) => {
+  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'video-debug',hypothesisId:'E-F'})}).catch(()=>{});
+};
+// #endregion
+
+// #region agent log - InstructorVideo component with lazy loading
+const InstructorVideo = memo(function InstructorVideo() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [loadState, setLoadState] = useState('pending');
+  const containerRef = useRef(null);
+  
+  useEffect(() => {
+    debugLog('Instructor.jsx:InstructorVideo', 'Component mounted', { hypothesisId: 'E' });
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          debugLog('Instructor.jsx:InstructorVideo', 'Video container became visible - loading iframe', { hypothesisId: 'E' });
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+  
+  const handleLoad = () => {
+    debugLog('Instructor.jsx:InstructorVideo', 'iframe loaded successfully', { hypothesisId: 'D' });
+    setLoadState('loaded');
+  };
+  
+  return (
+    <div ref={containerRef} className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+      <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+        {isVisible ? (
+          <iframe 
+            src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&speed=1.5" 
+            frameBorder="0"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            loading="lazy"
+            onLoad={handleLoad}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            title="The Complete System Breakdown (6 min)"
+          />
+        ) : (
+          <div 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            className="bg-dark-secondary flex items-center justify-center"
+          >
+            <div className="text-gray-500 text-sm">Video will load when scrolled into view</div>
+          </div>
+        )}
+      </div>
+      {loadState === 'pending' && isVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-dark-secondary/80">
+          <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin" />
+        </div>
+      )}
+    </div>
+  );
+});
+// #endregion
 
 export default function Instructor() {
   const { pricing, isIndia } = usePricing();
@@ -47,19 +119,7 @@ export default function Instructor() {
             {/* Glow */}
             <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-20 blur-2xl rounded-2xl md:rounded-3xl" />
             
-            <div className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
-              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-                <iframe 
-                  src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&speed=1.5" 
-                  frameBorder="0"
-                  webkitallowfullscreen
-                  mozallowfullscreen
-                  allowFullScreen
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                  title="The Complete System Breakdown (6 min)"
-                />
-                  </div>
-            </div>
+            <InstructorVideo />
           </motion.div>
 
           {/* Credentials */}

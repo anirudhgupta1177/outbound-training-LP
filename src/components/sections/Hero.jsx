@@ -1,8 +1,97 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
+
+// #region agent log
+const debugLog = (location, message, data) => {
+  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'video-debug',hypothesisId:'A-D'})}).catch(()=>{});
+};
+// #endregion
+
+// #region agent log - HeroVideo component with instrumentation
+const HeroVideo = memo(function HeroVideo({ debugLog }) {
+  const iframeRef = useRef(null);
+  const [loadState, setLoadState] = useState('pending');
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef(null);
+  
+  // Detect iOS/Safari
+  const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+  useEffect(() => {
+    debugLog('Hero.jsx:HeroVideo', 'Component mounted', { 
+      isIOS, 
+      isSafari, 
+      userAgent: navigator.userAgent,
+      hypothesisId: 'A' 
+    });
+    
+    // Lazy load: only load iframe when visible
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          debugLog('Hero.jsx:HeroVideo', 'Video container became visible', { hypothesisId: 'E' });
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+  
+  const handleIframeLoad = () => {
+    debugLog('Hero.jsx:HeroVideo', 'iframe onLoad fired', { loadState: 'loaded', hypothesisId: 'D' });
+    setLoadState('loaded');
+  };
+  
+  const handleIframeError = (e) => {
+    debugLog('Hero.jsx:HeroVideo', 'iframe onError fired', { error: e?.message || 'unknown', hypothesisId: 'D' });
+    setLoadState('error');
+  };
+  
+  return (
+    <div ref={containerRef} className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
+      <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
+        {isVisible ? (
+          <iframe 
+            ref={iframeRef}
+            src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
+            frameBorder="0"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            loading="lazy"
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            title="Video"
+          />
+        ) : (
+          <div 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            className="bg-dark-secondary flex items-center justify-center"
+          >
+            <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+      {loadState === 'pending' && isVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-dark-secondary/80">
+          <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin" />
+        </div>
+      )}
+    </div>
+  );
+});
+// #endregion
 
 
 // Memoize benefits to prevent re-creation on every render
@@ -140,19 +229,7 @@ function Hero() {
             <div className="relative">
               <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-30 blur-2xl rounded-3xl" />
               
-              <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
-                <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
-                  <iframe 
-                    src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
-                    frameBorder="0"
-                    webkitallowfullscreen="true"
-                    mozallowfullscreen="true"
-                    allowFullScreen
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    title="Video"
-                  />
-                </div>
-              </div>
+              <HeroVideo debugLog={debugLog} />
             </div>
           </motion.div>
         </div>
