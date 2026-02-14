@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
@@ -10,82 +10,61 @@ const debugLog = (location, message, data) => {
 };
 // #endregion
 
-// #region agent log - HeroVideo component with instrumentation
+// #region agent log - HeroVideo component with lite embed pattern (click to load)
 const HeroVideo = memo(function HeroVideo({ debugLog }) {
-  const iframeRef = useRef(null);
-  const [loadState, setLoadState] = useState('pending');
-  const [isVisible, setIsVisible] = useState(false);
-  const containerRef = useRef(null);
+  const [isActivated, setIsActivated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Detect iOS/Safari
-  const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  
-  useEffect(() => {
-    debugLog('Hero.jsx:HeroVideo', 'Component mounted', { 
-      isIOS, 
-      isSafari, 
-      userAgent: navigator.userAgent,
-      hypothesisId: 'A' 
-    });
-    
-    // Lazy load: only load iframe when visible
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          debugLog('Hero.jsx:HeroVideo', 'Video container became visible', { hypothesisId: 'E' });
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '100px' }
-    );
-    
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    
-    return () => observer.disconnect();
-  }, []);
-  
-  const handleIframeLoad = () => {
-    debugLog('Hero.jsx:HeroVideo', 'iframe onLoad fired', { loadState: 'loaded', hypothesisId: 'D' });
-    setLoadState('loaded');
+  const handleActivate = () => {
+    debugLog('Hero.jsx:HeroVideo', 'User clicked to load video', { hypothesisId: 'H' });
+    setIsLoading(true);
+    setIsActivated(true);
   };
   
-  const handleIframeError = (e) => {
-    debugLog('Hero.jsx:HeroVideo', 'iframe onError fired', { error: e?.message || 'unknown', hypothesisId: 'D' });
-    setLoadState('error');
+  const handleIframeLoad = () => {
+    debugLog('Hero.jsx:HeroVideo', 'iframe loaded', { hypothesisId: 'H' });
+    setIsLoading(false);
   };
   
   return (
-    <div ref={containerRef} className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
+    <div className="relative bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden">
       <div style={{ position: 'relative', paddingBottom: '177.77777777777777%', height: 0 }}>
-        {isVisible ? (
+        {isActivated ? (
           <iframe 
-            ref={iframeRef}
-            src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0" 
+            src="https://www.loom.com/embed/184abed1210c4ac88940d6cd3a62a726?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0&autoplay=1" 
             frameBorder="0"
             allow="autoplay; fullscreen"
             allowFullScreen
-            loading="lazy"
             onLoad={handleIframeLoad}
-            onError={handleIframeError}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
             title="Video"
           />
         ) : (
-          <div 
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-            className="bg-dark-secondary flex items-center justify-center"
+          <button
+            onClick={handleActivate}
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-purple/20 to-dark-secondary cursor-pointer group transition-all hover:from-purple/30"
+            aria-label="Play video"
           >
-            <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
-          </div>
+            {/* Thumbnail placeholder with gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gold/5 via-transparent to-purple/10" />
+            
+            {/* Play button */}
+            <div className="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gold/90 flex items-center justify-center shadow-2xl group-hover:bg-gold group-hover:scale-110 transition-all duration-300">
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-dark ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+            
+            {/* Text label */}
+            <p className="relative z-10 mt-4 text-white/80 text-sm font-medium">
+              Click to play video
+            </p>
+          </button>
         )}
       </div>
-      {loadState === 'pending' && isVisible && (
-        <div className="absolute inset-0 flex items-center justify-center bg-dark-secondary/80">
-          <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin" />
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-dark-secondary/90 z-20">
+          <div className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
         </div>
       )}
     </div>
