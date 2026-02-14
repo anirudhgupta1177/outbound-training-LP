@@ -4,20 +4,9 @@ import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 
-// #region agent log
-const debugLog = (location, message, data) => {
-  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'video-debug',hypothesisId:'A-D'})}).catch(()=>{});
-};
-// #endregion
-
-// #region agent log - HeroVideo component with autoplay
-const HeroVideo = memo(function HeroVideo({ debugLog }) {
+// Video component with loading state
+const HeroVideo = memo(function HeroVideo() {
   const [isLoaded, setIsLoaded] = useState(false);
-  
-  const handleIframeLoad = () => {
-    debugLog('Hero.jsx:HeroVideo', 'iframe loaded', { hypothesisId: 'H' });
-    setIsLoaded(true);
-  };
   
   return (
     <div className="relative bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden">
@@ -27,7 +16,7 @@ const HeroVideo = memo(function HeroVideo({ debugLog }) {
           frameBorder="0"
           allow="autoplay; fullscreen"
           allowFullScreen
-          onLoad={handleIframeLoad}
+          onLoad={() => setIsLoaded(true)}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#1a1a2e' }}
           title="Video"
         />
@@ -40,7 +29,6 @@ const HeroVideo = memo(function HeroVideo({ debugLog }) {
     </div>
   );
 });
-// #endregion
 
 
 // Memoize benefits to prevent re-creation on every render
@@ -178,7 +166,7 @@ function Hero() {
             <div className="relative">
               <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-30 blur-2xl rounded-3xl" />
               
-              <HeroVideo debugLog={debugLog} />
+              <HeroVideo />
             </div>
           </motion.div>
         </div>

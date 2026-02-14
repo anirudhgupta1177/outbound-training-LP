@@ -5,20 +5,9 @@ import { usePricing } from '../../contexts/PricingContext';
 import { formatLargeAmount, convertINRToUSD } from '../../constants/pricing';
 import { useState, memo } from 'react';
 
-// #region agent log
-const debugLog = (location, message, data) => {
-  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'video-debug',hypothesisId:'E-F'})}).catch(()=>{});
-};
-// #endregion
-
-// #region agent log - InstructorVideo component with autoplay
+// Video component with loading state
 const InstructorVideo = memo(function InstructorVideo() {
   const [isLoaded, setIsLoaded] = useState(false);
-  
-  const handleIframeLoad = () => {
-    debugLog('Instructor.jsx:InstructorVideo', 'iframe loaded', { hypothesisId: 'H' });
-    setIsLoaded(true);
-  };
   
   return (
     <div className="relative aspect-video bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
@@ -28,7 +17,7 @@ const InstructorVideo = memo(function InstructorVideo() {
           frameBorder="0"
           allow="autoplay; fullscreen"
           allowFullScreen
-          onLoad={handleIframeLoad}
+          onLoad={() => setIsLoaded(true)}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#1a1a2e' }}
           title="The Complete System Breakdown (6 min)"
         />
@@ -41,7 +30,6 @@ const InstructorVideo = memo(function InstructorVideo() {
     </div>
   );
 });
-// #endregion
 
 export default function Instructor() {
   const { pricing, isIndia } = usePricing();
