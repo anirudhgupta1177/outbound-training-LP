@@ -127,11 +127,19 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
 }
 
-/* Glass card effect */
+/* Glass card effect - with iOS Safari fallback */
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(20, 20, 20, 0.95); /* Solid fallback for iOS */
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* For browsers that support backdrop-filter, use transparent background */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 /* MacBook frame styles */

@@ -11,62 +11,30 @@ const debugLog = (location, message, data) => {
 };
 // #endregion
 
-// #region agent log - InstructorVideo component with lite embed pattern (click to load)
+// #region agent log - InstructorVideo component with autoplay
 const InstructorVideo = memo(function InstructorVideo() {
-  const [isActivated, setIsActivated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleActivate = () => {
-    debugLog('Instructor.jsx:InstructorVideo', 'User clicked to load video', { hypothesisId: 'H' });
-    setIsLoading(true);
-    setIsActivated(true);
-  };
+  const [isLoaded, setIsLoaded] = useState(false);
   
   const handleIframeLoad = () => {
     debugLog('Instructor.jsx:InstructorVideo', 'iframe loaded', { hypothesisId: 'H' });
-    setIsLoading(false);
+    setIsLoaded(true);
   };
   
   return (
-    <div className="relative aspect-video bg-dark-secondary rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+    <div className="relative aspect-video bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
       <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-        {isActivated ? (
-          <iframe 
-            src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&autoplay=1" 
-            frameBorder="0"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-            onLoad={handleIframeLoad}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-            title="The Complete System Breakdown (6 min)"
-          />
-        ) : (
-          <button
-            onClick={handleActivate}
-            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple/20 via-dark-secondary to-gold/10 cursor-pointer group transition-all hover:from-purple/30"
-            aria-label="Play video - 6 minute breakdown"
-          >
-            {/* Thumbnail placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-transparent" />
-            
-            {/* Play button */}
-            <div className="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gold/90 flex items-center justify-center shadow-2xl group-hover:bg-gold group-hover:scale-110 transition-all duration-300">
-              <svg className="w-6 h-6 md:w-8 md:h-8 text-dark ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-            
-            {/* Duration badge */}
-            <div className="relative z-10 mt-4 px-3 py-1 bg-dark/80 rounded-full">
-              <p className="text-white/90 text-sm font-medium">
-                ▶ Watch 6-Min Breakdown
-              </p>
-            </div>
-          </button>
-        )}
+        <iframe 
+          src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true" 
+          frameBorder="0"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          onLoad={handleIframeLoad}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#1a1a2e' }}
+          title="The Complete System Breakdown (6 min)"
+        />
       </div>
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-dark-secondary/90 z-20">
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a2e] z-10">
           <div className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
         </div>
       )}
