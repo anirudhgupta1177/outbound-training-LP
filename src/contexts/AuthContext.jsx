@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
+// #region agent log
+const debugLog = (location, message, data) => {
+  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'auth-debug'})}).catch(()=>{});
+};
+// #endregion
+
 const AuthContext = createContext({});
 
 export const useAuth = () => {
@@ -19,10 +25,31 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Check active sessions and sets the user
     const getSession = async () => {
+      // #region agent log
+      debugLog('AuthContext:getSession', 'Checking session on mount', { hypothesisId: 'A-E' });
+      // #endregion
+      
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        
+        // #region agent log
+        debugLog('AuthContext:getSession', 'Session check complete', { 
+          hasSession: !!session,
+          hypothesisId: 'A-E'
+        });
+        // #endregion
+        
         setUser(session?.user ?? null);
       } catch (err) {
+        // #region agent log
+        debugLog('AuthContext:getSession', 'Session check failed', { 
+          errorName: err.name,
+          errorMessage: err.message,
+          isNetworkError: err.message?.toLowerCase().includes('fetch'),
+          hypothesisId: 'B-E'
+        });
+        // #endregion
+        
         console.error('Error getting session:', err);
         setError(err.message);
       } finally {
@@ -41,17 +68,73 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Sign in with email and password
-  const signIn = async (email, password) => {
+  // Sign in with email and password (with retry for network errors)
+  const signIn = async (email, password, retryCount = 0) => {
+    const MAX_RETRIES = 2;
+    
+    // #region agent log
+    debugLog('AuthContext:signIn', 'Login attempt started', { 
+      emailDomain: email.split('@')[1],
+      retryCount,
+      hypothesisId: 'A-E'
+    });
+    // #endregion
+    
     try {
       setError(null);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      // #region agent log
+      if (error) {
+        debugLog('AuthContext:signIn', 'Supabase returned error', { 
+          errorMessage: error.message,
+          errorStatus: error.status,
+          errorCode: error.code,
+          retryCount,
+          hypothesisId: 'A'
+        });
+      } else {
+        debugLog('AuthContext:signIn', 'Login successful', { retryCount, hypothesisId: 'A-E' });
+      }
+      // #endregion
+      
       if (error) throw error;
       return { data, error: null };
     } catch (err) {
+      const isNetworkError = err.message?.toLowerCase().includes('fetch') || 
+                             err.message?.toLowerCase().includes('network') ||
+                             err.name === 'TypeError';
+      
+      // #region agent log
+      debugLog('AuthContext:signIn', 'Login catch block - exception thrown', { 
+        errorName: err.name,
+        errorMessage: err.message,
+        errorStack: err.stack?.substring(0, 500),
+        isNetworkError,
+        retryCount,
+        willRetry: isNetworkError && retryCount < MAX_RETRIES,
+        hypothesisId: 'B-E'
+      });
+      // #endregion
+      
+      // Retry on network errors
+      if (isNetworkError && retryCount < MAX_RETRIES) {
+        // #region agent log
+        debugLog('AuthContext:signIn', 'Retrying after network error', { 
+          retryCount: retryCount + 1,
+          delayMs: 1000 * (retryCount + 1),
+          hypothesisId: 'E'
+        });
+        // #endregion
+        
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        return signIn(email, password, retryCount + 1);
+      }
+      
       setError(err.message);
       return { data: null, error: err };
     }

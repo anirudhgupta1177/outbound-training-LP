@@ -3,6 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../assets/logo.png';
 
+// #region agent log
+const debugLog = (location, message, data) => {
+  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'auth-debug'})}).catch(()=>{});
+};
+// #endregion
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,18 +22,47 @@ export default function Login() {
     setError('');
     setIsLoading(true);
 
+    // #region agent log
+    debugLog('Login:handleSubmit', 'Form submitted', { 
+      emailDomain: email.split('@')[1],
+      userAgent: navigator.userAgent,
+      online: navigator.onLine,
+      hypothesisId: 'B-D'
+    });
+    // #endregion
+
     try {
       const { error } = await signIn(email, password);
       if (error) {
+        // #region agent log
+        debugLog('Login:handleSubmit', 'signIn returned error', { 
+          errorMessage: error.message,
+          isFailToFetch: error.message?.toLowerCase().includes('fetch'),
+          hypothesisId: 'A-E'
+        });
+        // #endregion
+        
         if (error.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please try again.');
+        } else if (error.message.toLowerCase().includes('fetch') || error.message.toLowerCase().includes('network')) {
+          setError('Unable to connect to the server. Please check your internet connection and try again. If the problem persists, try disabling any ad blockers or VPN.');
         } else {
           setError(error.message);
         }
       } else {
+        // #region agent log
+        debugLog('Login:handleSubmit', 'Login successful, navigating', { hypothesisId: 'A-E' });
+        // #endregion
         navigate('/course');
       }
     } catch (err) {
+      // #region agent log
+      debugLog('Login:handleSubmit', 'Unexpected catch error', { 
+        errorName: err.name,
+        errorMessage: err.message,
+        hypothesisId: 'B-E'
+      });
+      // #endregion
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
