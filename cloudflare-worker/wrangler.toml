@@ -1,0 +1,9 @@
+name = "supabase-proxy"
+main = "supabase-proxy.js"
+compatibility_date = "2024-01-01"
+
+# Uncomment and configure for production
+# [env.production]
+# routes = [
+#   { pattern = "api.theorganicbuzz.com/*", zone_name = "theorganicbuzz.com" }
+# ]
