@@ -111,6 +111,48 @@ export default function AnalyticsPage() {
 
   // Generate HTML for a single invoice
   const generateInvoiceHTML = (invoice) => {
+    // Generate tax rows based on inter-state or intra-state
+    const taxRows = invoice.isInterState
+      ? `<tr>
+              <td></td>
+              <td>IGST @ 18%</td>
+              <td style="text-align: right;">₹${(invoice.igst || 0).toLocaleString('en-IN')}</td>
+            </tr>`
+      : `<tr>
+              <td></td>
+              <td>CGST @ 9%</td>
+              <td style="text-align: right;">₹${(invoice.cgst || 0).toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>SGST @ 9%</td>
+              <td style="text-align: right;">₹${(invoice.sgst || 0).toLocaleString('en-IN')}</td>
+            </tr>`;
+
+    // Generate buyer section based on invoice type
+    const buyerSection = invoice.type === 'B2B' && invoice.buyer
+      ? `<div class="buyer-section">
+            <h3>BILL TO (BUYER)</h3>
+            <p><strong>${invoice.buyer.legalName || invoice.customerName}</strong></p>
+            ${invoice.buyer.gstin ? `<p class="buyer-gstin"><strong>GSTIN:</strong> ${invoice.buyer.gstin}</p>` : ''}
+            ${invoice.buyer.address ? `<p><strong>Address:</strong> ${invoice.buyer.address}</p>` : ''}
+            ${invoice.buyer.state ? `<p><strong>State:</strong> ${invoice.buyer.state} (${invoice.buyer.stateCode || ''})</p>` : ''}
+            <p><strong>Email:</strong> ${invoice.customerEmail}</p>
+            <p><strong>Payment ID:</strong> ${invoice.customerId}</p>
+          </div>`
+      : `<div class="buyer-section">
+            <h3>BILL TO (BUYER)</h3>
+            <p><strong>${invoice.customerName}</strong></p>
+            ${invoice.customerGstin ? `<p class="buyer-gstin"><strong>GSTIN:</strong> ${invoice.customerGstin}</p>` : ''}
+            <p><strong>Email:</strong> ${invoice.customerEmail}</p>
+            <p><strong>Payment ID:</strong> ${invoice.customerId}</p>
+          </div>`;
+
+    // Place of Supply row for B2B invoices
+    const placeOfSupplyRow = invoice.type === 'B2B' && invoice.placeOfSupply
+      ? `<p><strong>Place of Supply:</strong> ${invoice.placeOfSupply}</p>`
+      : '';
+
     return `
       <div class="invoice-page">
         <div class="header">
@@ -124,23 +166,19 @@ export default function AnalyticsPage() {
             <p><strong>${invoice.seller.name}</strong></p>
             <p><strong>GSTIN:</strong> ${invoice.seller.gstin}</p>
             <p>${invoice.seller.address}</p>
+            ${invoice.seller.state ? `<p><strong>State:</strong> ${invoice.seller.state} (${invoice.seller.stateCode || ''})</p>` : ''}
           </div>
           <div style="text-align: right;">
             <h3>INVOICE DETAILS</h3>
             <p><strong>Invoice No:</strong> ${invoice.invoiceNumber}</p>
             <p><strong>Date:</strong> ${invoice.date}</p>
             <p><strong>Order Date:</strong> ${invoice.orderDate}</p>
+            ${placeOfSupplyRow}
           </div>
         </div>
         
         <div class="invoice-details">
-          <div class="buyer-section">
-            <h3>BILL TO (BUYER)</h3>
-            <p><strong>${invoice.customerName}</strong></p>
-            ${invoice.customerGstin ? `<p class="buyer-gstin"><strong>GSTIN:</strong> ${invoice.customerGstin}</p>` : ''}
-            <p><strong>Email:</strong> ${invoice.customerEmail}</p>
-            <p><strong>Payment ID:</strong> ${invoice.customerId}</p>
-          </div>
+          ${buyerSection}
         </div>
         
         <table>
@@ -157,23 +195,19 @@ export default function AnalyticsPage() {
               <td>Outbound Training Course</td>
               <td style="text-align: right;">₹${invoice.baseAmount.toLocaleString('en-IN')}</td>
             </tr>
-            <tr>
-              <td></td>
-              <td>CGST @ 9%</td>
-              <td style="text-align: right;">₹${invoice.cgst.toLocaleString('en-IN')}</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>SGST @ 9%</td>
-              <td style="text-align: right;">₹${invoice.sgst.toLocaleString('en-IN')}</td>
-            </tr>
+            ${taxRows}
             <tr class="total-row">
               <td></td>
-              <td><strong>Total</strong></td>
+              <td><strong>Total (Including GST)</strong></td>
               <td style="text-align: right;"><strong>₹${invoice.amount.toLocaleString('en-IN')}</strong></td>
             </tr>
           </tbody>
         </table>
+        
+        <div class="tax-summary">
+          <p><strong>Total Tax:</strong> ₹${(invoice.totalGst || 0).toLocaleString('en-IN')}</p>
+          <p><strong>Total Invoice Amount:</strong> ₹${invoice.amount.toLocaleString('en-IN')}</p>
+        </div>
         
         <div class="footer">
           <p>This is a computer-generated invoice and does not require a signature.</p>
@@ -200,6 +234,8 @@ export default function AnalyticsPage() {
     th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
     th { background: #f5f5f5; font-weight: bold; }
     .total-row { font-weight: bold; background: #f9f9f9; }
+    .tax-summary { margin: 20px 0; padding: 15px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 4px; text-align: right; }
+    .tax-summary p { margin: 5px 0; font-size: 14px; color: #2e7d32; }
     .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #ddd; padding-top: 20px; }
     .type-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; }
     .b2c { background: #e3f2fd; color: #1565c0; }
@@ -705,12 +741,12 @@ export default function AnalyticsPage() {
                     <p className="text-white">₹{invoiceData.summary.totalBaseAmount.toLocaleString('en-IN')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">CGST (9%)</p>
-                    <p className="text-white">₹{invoiceData.summary.cgst.toLocaleString('en-IN')}</p>
+                    <p className="text-gray-400 text-sm">Total GST (18%)</p>
+                    <p className="text-white">₹{invoiceData.summary.totalGst.toLocaleString('en-IN')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">SGST (9%)</p>
-                    <p className="text-white">₹{invoiceData.summary.sgst.toLocaleString('en-IN')}</p>
+                    <p className="text-gray-400 text-sm text-xs">(CGST+SGST or IGST)</p>
+                    <p className="text-gray-500 text-xs">See individual invoices for breakdown</p>
                   </div>
                 </div>
               </div>

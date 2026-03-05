@@ -27,6 +27,8 @@ export default async function handler(req, res) {
   const BUSINESS_NAME = process.env.BUSINESS_NAME || 'The Organic Buzz';
   const BUSINESS_GSTIN = process.env.BUSINESS_GSTIN || '23DSDPG2452N1ZR';
   const BUSINESS_ADDRESS = process.env.BUSINESS_ADDRESS || 'Plot No. 43, Shri Achleshwer Vihar Colony, Near Kanti Nagar, Tansen Road, Gwalior, Madhya Pradesh, India - 474002';
+  const BUSINESS_STATE = process.env.BUSINESS_STATE || 'Madhya Pradesh';
+  const BUSINESS_STATE_CODE = process.env.BUSINESS_STATE_CODE || '23';
 
   // Initialize Supabase client
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -145,11 +147,15 @@ export default async function handler(req, res) {
         baseAmount: Math.round(baseAmount * 100) / 100,
         cgst: Math.round((gstAmount / 2) * 100) / 100,
         sgst: Math.round((gstAmount / 2) * 100) / 100,
+        igst: 0,
         totalGst: Math.round(gstAmount * 100) / 100,
+        isInterState: false,
         seller: {
           name: BUSINESS_NAME,
           gstin: BUSINESS_GSTIN,
-          address: BUSINESS_ADDRESS
+          address: BUSINESS_ADDRESS,
+          state: BUSINESS_STATE,
+          stateCode: BUSINESS_STATE_CODE
         }
       });
     });
@@ -162,24 +168,46 @@ export default async function handler(req, res) {
       const baseAmount = amountInRupees / (1 + gstRate / 100);
       const gstAmount = amountInRupees - baseAmount;
 
+      // Determine if inter-state (IGST) or intra-state (CGST+SGST)
+      const buyerStateCode = order.business_state_code || '';
+      const isInterState = buyerStateCode && buyerStateCode !== BUSINESS_STATE_CODE;
+
+      // Calculate tax based on inter-state or intra-state
+      const cgst = isInterState ? 0 : Math.round((gstAmount / 2) * 100) / 100;
+      const sgst = isInterState ? 0 : Math.round((gstAmount / 2) * 100) / 100;
+      const igst = isInterState ? Math.round(gstAmount * 100) / 100 : 0;
+
       invoices.push({
         type: 'B2B',
         invoiceNumber,
         date: invoiceDate,
         customerName: order.gst_company_name || order.customer_name || 'Business',
         customerEmail: order.customer_email,
-        customerGstin: order.gst_number,
+        customerGstin: order.gst_number || order.gstin,
         customerId: order.razorpay_payment_id || order.id,
         orderDate: new Date(order.created_at).toLocaleDateString('en-IN'),
         amount: amountInRupees,
         baseAmount: Math.round(baseAmount * 100) / 100,
-        cgst: Math.round((gstAmount / 2) * 100) / 100,
-        sgst: Math.round((gstAmount / 2) * 100) / 100,
+        cgst,
+        sgst,
+        igst,
         totalGst: Math.round(gstAmount * 100) / 100,
+        isInterState,
+        // Buyer details for GST compliance
+        buyer: {
+          legalName: order.business_name || order.gst_company_name || order.customer_name || 'Business',
+          gstin: order.gst_number || order.gstin || '',
+          address: order.business_address || '',
+          state: order.business_state || '',
+          stateCode: order.business_state_code || ''
+        },
+        placeOfSupply: order.business_state ? `${order.business_state} (${order.business_state_code || ''})` : '',
         seller: {
           name: BUSINESS_NAME,
           gstin: BUSINESS_GSTIN,
-          address: BUSINESS_ADDRESS
+          address: BUSINESS_ADDRESS,
+          state: BUSINESS_STATE,
+          stateCode: BUSINESS_STATE_CODE
         }
       });
     });
@@ -210,7 +238,9 @@ export default async function handler(req, res) {
       seller: {
         name: BUSINESS_NAME,
         gstin: BUSINESS_GSTIN,
-        address: BUSINESS_ADDRESS
+        address: BUSINESS_ADDRESS,
+        state: BUSINESS_STATE,
+        stateCode: BUSINESS_STATE_CODE
       }
     });
 
