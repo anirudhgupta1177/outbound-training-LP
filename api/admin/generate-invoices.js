@@ -125,8 +125,6 @@ export default async function handler(req, res) {
 
     const invoices = [];
     const monthName = new Date(year, monthNum - 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-    const invoiceDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
     // Generate individual invoices for B2C orders
     b2cOrders.forEach((order, index) => {
       const invoiceNumber = `INV-B2C-${month.replace('-', '')}-${String(index + 1).padStart(3, '0')}`;
@@ -134,7 +132,9 @@ export default async function handler(req, res) {
       const gstRate = 18;
       const baseAmount = amountInRupees / (1 + gstRate / 100);
       const gstAmount = amountInRupees - baseAmount;
+      const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
+      
       invoices.push({
         type: 'B2C',
         invoiceNumber,
@@ -176,7 +176,9 @@ export default async function handler(req, res) {
       const cgst = isInterState ? 0 : Math.round((gstAmount / 2) * 100) / 100;
       const sgst = isInterState ? 0 : Math.round((gstAmount / 2) * 100) / 100;
       const igst = isInterState ? Math.round(gstAmount * 100) / 100 : 0;
+      const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
+      
       invoices.push({
         type: 'B2B',
         invoiceNumber,
