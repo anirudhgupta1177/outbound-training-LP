@@ -13,22 +13,8 @@ export default function Header() {
         <div className="flex items-center space-x-4 sm:space-x-6">
           <Link href="/course" className="flex items-center space-x-3 group">
             {/* Logo - add your logo file to /public/logo.png or /public/logo.svg */}
-            {!logoError && (
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                  priority
-                  unoptimized
-                  onError={() => setLogoError(true)}
-                />
-              </div>
-            )}
-            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400 transition-all">
-              Outbound Mastery
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-amber-300 transition-all">
+              IntentLedSales
             </h1>
           </Link>
         </div>
@@ -41,7 +27,7 @@ export default function Header() {
             <span className="sm:hidden">Res</span>
           </Link>
           {/* Placeholder for user area - will be replaced with auth later */}
-          <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border border-gray-700"></div>
+          <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 border border-gray-700"></div>
         </div>
       </div>
     </header>

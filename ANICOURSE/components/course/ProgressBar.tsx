@@ -29,7 +29,7 @@ export default function ProgressBar({
       )}
       <div className={`w-full bg-gray-800 rounded-full overflow-hidden ${heightClasses[size]}`}>
         <div
-          className="bg-gradient-to-r from-blue-500 to-purple-600 h-full transition-all duration-300 ease-out rounded-full shadow-lg shadow-blue-500/50"
+          className="bg-gradient-to-r from-cyan-400 to-emerald-500 h-full transition-all duration-300 ease-out rounded-full shadow-lg shadow-cyan-400/50"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         ></div>
       </div>

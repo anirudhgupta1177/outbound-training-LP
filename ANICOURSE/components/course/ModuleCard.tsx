@@ -24,11 +24,11 @@ export default function ModuleCard({ module, completedLessons }: ModuleCardProps
   );
 
   return (
-    <div className="border border-gray-800 rounded-xl bg-[#111111] hover:border-gray-700 hover:shadow-2xl hover:shadow-blue-500/10 transition-all group">
+    <div className="border border-gray-800 rounded-xl bg-[#111111] hover:border-gray-700 hover:shadow-2xl hover:shadow-cyan-400/10 transition-all group">
       <div className="p-4 sm:p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+            <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
               {module.order === 0 ? 'Welcome' : `Module ${module.order}`}: {module.title}
             </h3>
             {module.description && (
@@ -94,7 +94,7 @@ export default function ModuleCard({ module, completedLessons }: ModuleCardProps
         {firstAvailableLesson && (
           <Link
             href={`/course/${module.id}/${firstAvailableLesson.id}`}
-            className="inline-block px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+            className="inline-block px-5 py-2.5 bg-gradient-to-r from-cyan-400 to-emerald-500 text-black rounded-lg text-sm font-medium hover:from-cyan-300 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-400/30 hover:shadow-xl hover:shadow-cyan-400/40"
           >
             {completedCount === 0
               ? 'Start Module'

@@ -78,7 +78,7 @@ export default function LessonNavigation({
       {prevLesson ? (
         <Link
           href={`/course/${prevLesson.module.id}/${prevLesson.lesson.id}`}
-          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors group px-4 py-2 rounded-lg hover:bg-gray-800/50"
+          className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors group px-4 py-2 rounded-lg hover:bg-gray-800/50"
         >
           <svg
             className="w-5 h-5 group-hover:-translate-x-1 transition-transform"
@@ -105,7 +105,7 @@ export default function LessonNavigation({
       {nextLesson ? (
         <Link
           href={`/course/${nextLesson.module.id}/${nextLesson.lesson.id}`}
-          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors group px-4 py-2 rounded-lg hover:bg-gray-800/50"
+          className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors group px-4 py-2 rounded-lg hover:bg-gray-800/50"
         >
           <div className="text-right">
             <p className="text-xs text-gray-500">Next</p>

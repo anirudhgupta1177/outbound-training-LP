@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Outbound Mastery",
-  description: "Comprehensive outbound marketing and lead generation training",
+  title: "IntentLedSales | Outbound Mastery",
+  description: "Comprehensive outbound marketing and lead generation training by IntentLedSales",
 };
 
 export default function RootLayout({
