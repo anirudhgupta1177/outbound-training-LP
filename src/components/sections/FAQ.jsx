@@ -259,7 +259,7 @@ export default function FAQ() {
           <p className="text-text-secondary text-sm md:text-base mb-6">
             Still have questions?{' '}
             <a 
-              href="mailto:anirudh@theorganicbuzz.com" 
+              href="mailto:contact@intentledsales.com"
               className="text-gold hover:text-gold-light underline transition-colors"
             >
               Email me directly

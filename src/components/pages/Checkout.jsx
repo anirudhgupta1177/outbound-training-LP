@@ -343,7 +343,7 @@ export default function Checkout() {
       const options = {
         key: orderData.key_id, // Use key_id from order response
         order_id: orderData.order_id, // Use order_id instead of amount/currency
-        name: 'The Organic Buzz',
+        name: 'IntentLedSales',
         description: baseDescription + couponText,
         prefill: {
           name: `${formData.firstName} ${formData.lastName}`,

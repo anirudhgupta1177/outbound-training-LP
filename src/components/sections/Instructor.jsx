@@ -13,7 +13,7 @@ const InstructorVideo = memo(function InstructorVideo() {
     <div className="relative aspect-video bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
       <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
         <iframe 
-          src="https://www.loom.com/embed/4d7b347472a342b4aee4818d49f9a1df?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true" 
+          src="https://www.loom.com/embed/617864d822534ff3ab3c9b24c744c273?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true" 
           frameBorder="0"
           allow="autoplay; fullscreen"
           allowFullScreen

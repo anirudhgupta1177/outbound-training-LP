@@ -16,7 +16,7 @@ function getLoomVideoId(url: string): string {
 }
 
 // Intro video URL (from removed module 0)
-export const introVideoUrl = getLoomEmbedUrl('https://www.loom.com/share/4d7b347472a342b4aee4818d49f9a1df?source=embed_watch_on_loom_cta');
+export const introVideoUrl = getLoomEmbedUrl('https://www.loom.com/share/617864d822534ff3ab3c9b24c744c273');
 
 export const courseData: Course = {
   title: 'Outbound Mastery',

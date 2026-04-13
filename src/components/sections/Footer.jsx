@@ -1,21 +1,18 @@
-import { motion } from 'framer-motion';
-import { HiMail, HiPhone } from 'react-icons/hi';
+import { HiMail } from 'react-icons/hi';
 import { FaLinkedin } from 'react-icons/fa';
-import logo from '../../assets/logo.png';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="relative py-8 md:py-12 border-t border-white/10">
-      {/* Background */}
       <div className="absolute inset-0 bg-dark-secondary" />
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
           {/* Brand */}
           <div>
-            <img src={logo} alt="The Organic Buzz" className="h-8 md:h-10 w-auto mb-3 md:mb-4" />
+            <span className="text-lg font-bold text-white block mb-3 md:mb-4" style={{ fontFamily: 'var(--font-display)' }}>IntentLedSales</span>
             <p className="text-text-secondary text-xs md:text-sm max-w-md mb-3 md:mb-4">
               AI-Powered Outbound Systems That Actually Work
             </p>
@@ -32,10 +29,10 @@ export default function Footer() {
                 { label: 'Who I Am', href: '#instructor' },
                 { label: 'Testimonials', href: '#testimonials' },
                 { label: 'Refund Policy', href: '#risk-reversal' },
-                { label: 'Contact Support', href: 'https://mail.google.com/mail/?view=cm&fs=1&to=anirudh@theorganicbuzz.com' },
+                { label: 'Contact Support', href: 'mailto:contact@intentledsales.com' },
               ].map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
                     className="text-text-muted hover:text-gold transition-colors text-xs md:text-sm"
                   >
@@ -58,14 +55,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2 text-text-muted text-xs md:text-sm">
                 <HiMail className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=anirudh@theorganicbuzz.com" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors">
-                  anirudh@theorganicbuzz.com
-                </a>
-              </li>
-              <li className="flex items-center gap-2 text-text-muted text-xs md:text-sm">
-                <HiPhone className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-                <a href="tel:+919098456224" className="hover:text-gold transition-colors">
-                  +91-9098456224
+                <a href="mailto:contact@intentledsales.com" className="hover:text-gold transition-colors">
+                  contact@intentledsales.com
                 </a>
               </li>
               <li className="text-text-muted text-xs md:text-sm">
@@ -95,7 +86,7 @@ export default function Footer() {
         <div className="pt-6 md:pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
             <p className="text-text-muted text-xs md:text-sm text-center">
-              Copyright © {currentYear} The Organic Buzz. All rights reserved.
+              Copyright © {currentYear} IntentLedSales. All rights reserved.
             </p>
           </div>
         </div>

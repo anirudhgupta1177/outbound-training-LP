@@ -42,7 +42,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a href="#" className="flex items-center gap-3">
-              <img src={logo} alt="The Organic Buzz" className="h-8 md:h-10 w-auto rounded-full" />
+              <span className="text-lg font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>IntentLedSales</span>
             </a>
 
             {/* Desktop Navigation */}

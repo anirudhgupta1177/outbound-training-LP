@@ -1,35 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
-  --color-dark: #0a0a0a;
-  --color-dark-secondary: #141414;
-  --color-dark-tertiary: #1f1f1f;
-  --color-purple: #6B46C1;
-  --color-purple-light: #8B5CF6;
-  --color-purple-dark: #553C9A;
-  --color-gold: #FFD700;
-  --color-gold-light: #FDE68A;
-  --color-gold-dark: #D4A800;
+  /* Colors — IntentLedSales brand */
+  --color-dark: #050505;
+  --color-dark-secondary: #0A0A0A;
+  --color-dark-tertiary: #111111;
+  --color-purple: #7C3AED;
+  --color-purple-light: #A78BFA;
+  --color-purple-dark: #5B21B6;
+  --color-gold: #00D4FF;
+  --color-gold-light: #67E8F9;
+  --color-gold-dark: #0099BB;
+  --color-amber: #FF9F1C;
+  --color-amber-light: #FBBF24;
+  --color-amber-dark: #F59E0B;
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A1A1AA;
-  --color-text-muted: #71717A;
-  --color-success: #22C55E;
+  --color-text-secondary: #9CA3AF;
+  --color-text-muted: #6B7280;
+  --color-success: #10B981;
   --color-error: #EF4444;
-  
-  /* Typography */
-  --font-display: 'Bricolage Grotesque', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  
+
+  /* Typography — IntentLedSales fonts */
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-accent: 'Playfair Display', serif;
+
   /* Animations */
   --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
   --animate-fade-in: fade-in 0.4s ease-out forwards;
-  --animate-pulse-gold: pulse-gold 2s ease-in-out infinite;
+  --animate-pulse-gold: pulse-cyan 2s ease-in-out infinite;
   --animate-float: float 3s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
-  
+
   @keyframes fade-in-up {
     from {
       opacity: 0;
@@ -40,26 +44,26 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  
-  @keyframes pulse-gold {
+
+  @keyframes pulse-cyan {
     0%, 100% {
-      box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4);
     }
     50% {
-      box-shadow: 0 0 0 20px rgba(255, 215, 0, 0);
+      box-shadow: 0 0 0 20px rgba(0, 212, 255, 0);
     }
   }
-  
+
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
   }
-  
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -82,25 +86,25 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-/* Gradient text utility */
+/* Gradient text utility — cyan (replaces gold) */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 50%, var(--color-gold) 100%);
+  background: linear-gradient(135deg, #00D4FF 0%, #67E8F9 50%, #00D4FF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-purple {
-  background: linear-gradient(135deg, var(--color-purple-light) 0%, var(--color-purple) 50%, var(--color-purple-dark) 100%);
+  background: linear-gradient(135deg, #FF9F1C 0%, #FBBF24 50%, #FF9F1C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Gold gradient button */
+/* Cyan gradient button (replaces gold) */
 .btn-gold {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
-  color: var(--color-dark);
+  background: linear-gradient(135deg, #00D4FF 0%, #0099BB 100%);
+  color: #050505;
   font-weight: 700;
   transition: all 0.3s ease;
   position: relative;
@@ -124,18 +128,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-gold:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
 }
 
-/* Glass card effect - with iOS Safari fallback */
+/* Glass card effect */
 .glass-card {
-  background: rgba(20, 20, 20, 0.95); /* Solid fallback for iOS */
+  background: rgba(10, 10, 10, 0.95);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* For browsers that support backdrop-filter, use transparent background */
 @supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
   .glass-card {
     background: rgba(255, 255, 255, 0.05);
@@ -169,7 +172,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Section divider */
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-purple), var(--color-gold), var(--color-purple), transparent);
+  background: linear-gradient(90deg, transparent, #00D4FF, #FF9F1C, #00D4FF, transparent);
   opacity: 0.3;
 }
 
@@ -183,12 +186,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-purple);
+  background: #00D4FF;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-purple-light);
+  background: #67E8F9;
 }
 
 /* Swiper customization */
@@ -198,7 +201,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .swiper-pagination-bullet-active {
-  background: var(--color-gold) !important;
+  background: #00D4FF !important;
 }
 
 .testimonial-pagination {
@@ -231,7 +234,7 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(107, 70, 193, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 212, 255, 0.3);
 }
 
 .video-overlay {
@@ -239,4 +242,14 @@ h1, h2, h3, h4, h5, h6 {
   inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
   pointer-events: none;
+}
+
+/* Amber accent utility */
+.text-amber-accent {
+  color: #FF9F1C;
+}
+
+/* Cyan glow utility */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15), 0 0 60px rgba(0, 212, 255, 0.05);
 }
