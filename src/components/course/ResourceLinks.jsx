@@ -34,7 +34,7 @@ export default function ResourceLinks({ lesson }) {
     if (isWhimsical) {
       icon = (
         <svg
-          className="w-5 h-5 text-purple-500"
+          className="w-5 h-5 text-amber-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -51,7 +51,7 @@ export default function ResourceLinks({ lesson }) {
     } else if (isDrive) {
       icon = (
         <svg
-          className="w-5 h-5 text-blue-500"
+          className="w-5 h-5 text-cyan-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -111,13 +111,13 @@ export default function ResourceLinks({ lesson }) {
       >
         <div className="flex-shrink-0">{icon}</div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">
+          <p className="text-sm font-medium text-white group-hover:text-cyan-400 transition-colors">
             {displayTitle}
           </p>
           <p className="text-xs text-gray-500 truncate">{url}</p>
         </div>
         <svg
-          className="w-4 h-4 text-gray-500 group-hover:text-blue-400 flex-shrink-0 transition-colors"
+          className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 flex-shrink-0 transition-colors"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

@@ -63,7 +63,7 @@ export default function ResetPassword() {
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center space-x-3 mb-4">
               <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent">
                 Outbound Mastery
               </span>
             </Link>
@@ -79,7 +79,7 @@ export default function ResetPassword() {
             <p className="text-gray-400 mb-6">
               Your password has been successfully updated. Redirecting to course...
             </p>
-            <div className="w-8 h-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent mx-auto"></div>
+            <div className="w-8 h-8 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent mx-auto"></div>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function ResetPassword() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-3 mb-4">
             <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent">
               Outbound Mastery
             </span>
           </Link>
@@ -121,7 +121,7 @@ export default function ResetPassword() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors"
                 placeholder="Enter new password"
               />
             </div>
@@ -137,7 +137,7 @@ export default function ResetPassword() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                className="w-full px-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors"
                 placeholder="Confirm new password"
               />
             </div>
@@ -145,7 +145,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#111] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full py-3 px-4 bg-gradient-to-r from-cyan-400 to-emerald-500 text-white font-semibold rounded-lg hover:from-cyan-300 hover:to-emerald-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-[#111] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <>

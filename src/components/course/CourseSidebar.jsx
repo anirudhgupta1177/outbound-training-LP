@@ -88,7 +88,7 @@ export default function CourseSidebar({ course, completedLessons }) {
                           isComingSoon
                             ? 'text-gray-600 cursor-not-allowed'
                             : isActive
-                            ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-400 font-medium border-l-2 border-blue-500'
+                            ? 'bg-gradient-to-r from-cyan-400/20 to-amber-400/20 text-cyan-400 font-medium border-l-2 border-cyan-400'
                             : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
                         }`}
                         onClick={(e) => {

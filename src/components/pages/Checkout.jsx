@@ -681,7 +681,7 @@ export default function Checkout() {
                 <div className="glass-card rounded-xl p-5">
                   <div className="flex items-center gap-4">
                     <div className="flex -space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">A</div>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-amber-400 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">A</div>
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">S</div>
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">R</div>
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 border-2 border-dark flex items-center justify-center text-sm font-bold text-white">+</div>

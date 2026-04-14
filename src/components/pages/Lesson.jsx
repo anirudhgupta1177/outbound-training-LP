@@ -58,7 +58,7 @@ export default function Lesson() {
   if (isLoading || !courseData) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400"></div>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function Lesson() {
             <p className="text-gray-400 mb-4">The lesson you're looking for doesn't exist.</p>
             <Link
               to="/course"
-              className="inline-block px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-blue-500/30"
+              className="inline-block px-5 py-2.5 bg-gradient-to-r from-cyan-400 to-emerald-500 text-white rounded-lg hover:from-cyan-300 hover:to-emerald-400 transition-all shadow-lg shadow-cyan-400/30"
             >
               Back to Course
             </Link>
@@ -141,7 +141,7 @@ export default function Lesson() {
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
               <div className="flex-1">
-                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent mb-2">
                   {isComingSoon && lesson.titleHidden
                     ? 'Lesson Coming Soon'
                     : lesson.title}
@@ -213,7 +213,7 @@ export default function Lesson() {
           {isComingSoon && (
             <div className="border-2 border-dashed border-gray-700 rounded-xl p-12 text-center bg-[#111111]">
               <div className="max-w-md mx-auto">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-amber-400/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700">
                   <svg
                     className="w-8 h-8 text-gray-400"
                     fill="none"

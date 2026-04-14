@@ -18,17 +18,7 @@ export default function CourseHeader() {
       <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4 sm:space-x-6">
           <Link to="/course" className="flex items-center space-x-3 group">
-            {!logoError && (
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="w-full h-full object-contain"
-                  onError={() => setLogoError(true)}
-                />
-              </div>
-            )}
-            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400 transition-all">
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-amber-300 transition-all">
               Outbound Mastery
             </h1>
           </Link>
@@ -43,7 +33,7 @@ export default function CourseHeader() {
           </Link>
           {user && (
             <div className="relative group">
-              <button className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border border-gray-700 flex items-center justify-center text-white text-sm font-medium">
+              <button className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 border border-gray-700 flex items-center justify-center text-black text-sm font-medium">
                 {user.email?.[0]?.toUpperCase() || 'U'}
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-[#111] border border-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">

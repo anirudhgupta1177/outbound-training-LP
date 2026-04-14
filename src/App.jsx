@@ -27,7 +27,7 @@ const ProtectedAdminRoute = lazy(() => import('./components/auth/ProtectedAdminR
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-screen bg-[#0D0D12] flex items-center justify-center">
-    <div className="w-10 h-10 border-4 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin" />
+    <div className="w-10 h-10 border-4 border-[#00D4FF]/30 border-t-[#00D4FF] rounded-full animate-spin" />
   </div>
 );
 
