@@ -84,8 +84,14 @@ export default function CouponsPage() {
       const res = await fetch('/api/admin/coupons', {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
-      if (!res.ok) throw new Error('Failed to fetch coupons');
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          data.error
+            ? `Failed to fetch coupons (${res.status}): ${data.error}`
+            : `Failed to fetch coupons (${res.status})`
+        );
+      }
       setCoupons(data.coupons || []);
     } catch (err) {
       setError(err.message);
@@ -449,7 +455,7 @@ export default function CouponsPage() {
           <div className="flex items-center justify-center py-20">
             <div className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
           </div>
-        ) : coupons.length === 0 ? (
+        ) : error ? null : coupons.length === 0 ? (
           <div className="text-center py-20">
             <HiTicket className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No coupons yet</h3>
