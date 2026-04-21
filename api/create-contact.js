@@ -363,7 +363,7 @@ export default async function handler(req, res) {
           <tr>
             <td style="padding: 30px 40px; border-top: 1px solid #333;">
               <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px;">
-                Need help? Reply to this email or contact us at <a href="mailto:anirudh@theorganicbuzz.com" style="color: #60a5fa;">anirudh@theorganicbuzz.com</a>
+                Need help? Reply to this email or contact us at <a href="mailto:anirudh@intentledsales.com" style="color: #60a5fa;">anirudh@intentledsales.com</a>
               </p>
               <p style="color: #6b7280; font-size: 12px; margin: 0;">
                 © 2026 The Organic Buzz. All rights reserved.
@@ -554,7 +554,7 @@ export default async function handler(req, res) {
                 <strong>Note:</strong> This is a computer-generated invoice and does not require a physical signature.
               </p>
               <p style="margin: 0; font-size: 12px; color: #666;">
-                For any queries, contact us at <a href="mailto:anirudh@theorganicbuzz.com" style="color: #0066cc;">anirudh@theorganicbuzz.com</a>
+                For any queries, contact us at <a href="mailto:anirudh@intentledsales.com" style="color: #0066cc;">anirudh@intentledsales.com</a>
               </p>
             </td>
           </tr>
