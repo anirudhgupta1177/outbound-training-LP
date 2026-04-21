@@ -1,78 +1,101 @@
+import { validateCouponAgainstDb } from './validate-coupon.js';
+
 export default async function handler(req, res) {
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Get environment variables
     const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
     const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
 
-    // Parse request body
     let bodyData = req.body;
     if (typeof bodyData === 'string') {
       try {
         bodyData = JSON.parse(bodyData);
       } catch (e) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'Invalid JSON in request body',
-          details: e.message 
+          details: e.message
         });
       }
     }
 
     const {
-      amount,
+      basePrice,      // major units, pre-discount, pre-GST (preferred new field)
+      gstRate,        // decimal, e.g. 0.18 for India, 0 otherwise
+      amount,         // legacy: amount already in smallest currency unit
       currency,
       couponCode,
       receipt
     } = bodyData || {};
 
-    // Validate required fields
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ 
-        error: 'Missing or invalid amount',
-        details: 'Amount must be provided in smallest currency unit (paise for INR, cents for USD)'
-      });
-    }
-
     if (!currency || (currency !== 'INR' && currency !== 'USD')) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Missing or invalid currency',
         details: 'Currency must be either "INR" or "USD"'
       });
     }
 
-    // Validate amount is in smallest currency unit (integer)
-    if (!Number.isInteger(amount)) {
-      return res.status(400).json({ 
-        error: 'Invalid amount format',
-        details: 'Amount must be an integer (in smallest currency unit)'
+    // Server-side coupon re-validation against Supabase `coupons` table.
+    // If the coupon is inactive, expired, or over-limit, we reject here —
+    // preventing an admin-disabled coupon from being used via a stale client.
+    let validatedCoupon = null;
+    if (couponCode) {
+      const baseForValidation = typeof basePrice === 'number' ? basePrice : undefined;
+      validatedCoupon = await validateCouponAgainstDb({
+        code: couponCode,
+        currency,
+        baseAmount: baseForValidation
+      });
+      if (!validatedCoupon.valid) {
+        return res.status(400).json({
+          error: validatedCoupon.error || 'Invalid coupon code',
+          code: 'COUPON_INVALID'
+        });
+      }
+    }
+
+    // Determine the final amount in the smallest currency unit.
+    // Preferred path: client sends basePrice + gstRate, server recomputes.
+    // Legacy path: client sends `amount` already in smallest unit — kept for
+    // backward compatibility, but coupon still enforces server-side validity.
+    let finalAmountSmallest;
+
+    if (typeof basePrice === 'number' && basePrice > 0) {
+      const rate = typeof gstRate === 'number' && gstRate >= 0 ? gstRate : 0;
+      const discountAmount = validatedCoupon ? validatedCoupon.discountAmount : 0;
+      const discountedPrice = Math.max(0, basePrice - discountAmount);
+      const gstAmount = Math.round(discountedPrice * rate);
+      const totalMajor = discountedPrice + gstAmount;
+      finalAmountSmallest = Math.round(totalMajor * 100);
+    } else if (typeof amount === 'number' && Number.isInteger(amount) && amount > 0) {
+      finalAmountSmallest = amount;
+    } else {
+      return res.status(400).json({
+        error: 'Missing or invalid amount',
+        details: 'Provide either `basePrice` (major units) or `amount` (smallest unit integer)'
       });
     }
 
     console.log('=== CREATING RAZORPAY ORDER ===');
-    console.log('Amount:', amount, 'Currency:', currency, 'Coupon:', couponCode || 'none');
+    console.log('Amount (smallest):', finalAmountSmallest, 'Currency:', currency, 'Coupon:', couponCode || 'none');
 
-    // Prepare order payload
     const orderPayload = {
-      amount: amount, // Already in smallest currency unit
+      amount: finalAmountSmallest,
       currency: currency,
-      payment_capture: 1, // Auto-capture enabled
+      payment_capture: 1,
       receipt: receipt || `receipt_${Date.now()}_${Math.random().toString(36).substring(7)}`
     };
 
-    // Add notes if coupon was applied
     if (couponCode) {
       orderPayload.notes = {
         coupon_code: couponCode
       };
     }
 
-    // Create order via Razorpay API
     const razorpayAuth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
-    
+
     const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
@@ -91,7 +114,7 @@ export default async function handler(req, res) {
         status: orderResponse.status,
         response: responseText
       });
-      
+
       let errorDetails;
       try {
         errorDetails = JSON.parse(responseText);
@@ -99,20 +122,18 @@ export default async function handler(req, res) {
         errorDetails = { message: responseText };
       }
 
-      // Return detailed error info for debugging
       return res.status(orderResponse.status).json({
         error: 'Failed to create Razorpay order',
         razorpay_status: orderResponse.status,
         razorpay_error: errorDetails,
         request_info: {
-          amount: amount,
+          amount: finalAmountSmallest,
           currency: currency,
           couponCode: couponCode || null
         }
       });
     }
 
-    // Parse order response
     let orderData;
     try {
       orderData = JSON.parse(responseText);
@@ -131,7 +152,6 @@ export default async function handler(req, res) {
       status: orderData.status
     });
 
-    // Return order_id and key_id to frontend
     return res.status(200).json({
       success: true,
       order_id: orderData.id,
@@ -148,4 +168,3 @@ export default async function handler(req, res) {
     });
   }
 }
-

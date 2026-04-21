@@ -125,18 +125,28 @@ export default function Checkout() {
 
   // Auto-apply default coupon on page load
   useEffect(() => {
-    if (!appliedCoupon && DEFAULT_COUPON) {
-      const result = validateCoupon(DEFAULT_COUPON);
+    let cancelled = false;
+    const applyDefaultCoupon = async () => {
+      if (appliedCoupon || !DEFAULT_COUPON || !pricing) return;
+      const result = await validateCoupon({
+        code: DEFAULT_COUPON,
+        currency: pricing.currency,
+        baseAmount: pricing.basePrice
+      });
+      if (cancelled) return;
       if (result.valid) {
         setCouponCode(DEFAULT_COUPON);
         setAppliedCoupon(result);
-        // Show popup after a short delay for better UX
         setTimeout(() => {
-          setShowCouponPopup(true);
+          if (!cancelled) setShowCouponPopup(true);
         }, 500);
       }
-    }
-  }, []);
+    };
+    applyDefaultCoupon();
+    return () => {
+      cancelled = true;
+    };
+  }, [pricing, appliedCoupon]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -162,19 +172,23 @@ export default function Checkout() {
     }
   };
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError('');
       return;
     }
 
-    const result = validateCoupon(couponCode);
-    
+    const result = await validateCoupon({
+      code: couponCode,
+      currency: pricing.currency,
+      baseAmount: pricing.basePrice
+    });
+
     if (result.valid) {
       setAppliedCoupon(result);
       setCouponError('');
     } else {
-      setCouponError('Invalid coupon code');
+      setCouponError(result.error || 'Invalid coupon code');
       setAppliedCoupon(null);
     }
   };
@@ -285,14 +299,20 @@ export default function Checkout() {
     setIsSubmitting(true);
 
     try {
-      // Step 1: Convert amount to smallest currency unit (paise for INR, cents for USD)
-      const amountInSmallestUnit = pricing.currency === 'INR' 
+      // Step 1: Convert amount to smallest currency unit (for the Razorpay
+      // handler callback below). The server re-validates the coupon and
+      // recomputes the canonical amount from `basePrice` + `gstRate`.
+      const amountInSmallestUnit = pricing.currency === 'INR'
         ? totalAmount * 100  // INR: paise
         : Math.round(totalAmount * 100); // USD: cents
 
-      // Step 2: Create Razorpay order with auto-capture
+      // Step 2: Create Razorpay order with auto-capture. We send the
+      // pre-discount base price and GST rate so the server — not the
+      // client — is the source of truth for the final charged amount
+      // after coupon validation.
       console.log('Creating Razorpay order...', {
-        amount: amountInSmallestUnit,
+        basePrice,
+        gstRate: isIndia ? pricing.gstRate : 0,
         currency: pricing.currency,
         coupon: appliedCoupon?.code
       });
@@ -305,7 +325,8 @@ export default function Checkout() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            amount: amountInSmallestUnit,
+            basePrice,
+            gstRate: isIndia ? pricing.gstRate : 0,
             currency: pricing.currency,
             couponCode: appliedCoupon?.code || null,
             // Receipt must be max 40 chars - use timestamp + random suffix

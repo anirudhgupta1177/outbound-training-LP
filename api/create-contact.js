@@ -245,6 +245,26 @@ export default async function handler(req, res) {
           } else {
             console.log('Order stored successfully:', orderResult.id);
           }
+
+          // Increment coupon redemption counter on successful payment.
+          // This is the "sync" back to the coupons table — every Razorpay
+          // payment that used a coupon bumps the counter, and is visible
+          // in the admin coupons page (`redemption_count`).
+          if (coupon_code) {
+            try {
+              const { error: incError } = await supabaseAdmin.rpc(
+                'increment_coupon_redemption',
+                { p_code: coupon_code }
+              );
+              if (incError) {
+                console.error('Failed to increment coupon redemption:', incError);
+              } else {
+                console.log('Incremented coupon redemption for:', coupon_code);
+              }
+            } catch (incErr) {
+              console.error('Error incrementing coupon redemption:', incErr);
+            }
+          }
         } catch (orderStoreError) {
           console.error('Error in order storage:', orderStoreError);
           // Continue even if order storage fails
