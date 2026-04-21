@@ -120,11 +120,11 @@ export default function ThankYou() {
               Have questions or need help?
             </p>
             <a
-              href="mailto:contact@intentledsales.com"
+              href="mailto:anirudh@intentledsales.com"
               className="inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors"
             >
               <HiMail className="w-5 h-5" />
-              <span>contact@intentledsales.com</span>
+              <span>anirudh@intentledsales.com</span>
             </a>
           </motion.div>
 

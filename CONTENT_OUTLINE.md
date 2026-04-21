@@ -485,7 +485,7 @@
 - Default Open: No
 
 **Still Have Questions:**
-- "Still have questions? Email me directly" (anirudh@theorganicbuzz.com)
+- "Still have questions? Email me directly" (anirudh@intentledsales.com)
 
 **CTA Button:**
 - Get Started for ₹3497
@@ -506,7 +506,7 @@
 - Contact Support
 
 **Contact:**
-- Email: anirudh@theorganicbuzz.com
+- Email: anirudh@intentledsales.com
 - Phone: +91-9098456224
 - Response time: Within 24 hours
 

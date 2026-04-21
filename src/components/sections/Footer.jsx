@@ -29,7 +29,7 @@ export default function Footer() {
                 { label: 'Who I Am', href: '#instructor' },
                 { label: 'Testimonials', href: '#testimonials' },
                 { label: 'Refund Policy', href: '#risk-reversal' },
-                { label: 'Contact Support', href: 'mailto:contact@intentledsales.com' },
+                { label: 'Contact Support', href: 'mailto:anirudh@intentledsales.com' },
               ].map((link, index) => (
                 <li key={index}>
                   <a
@@ -55,8 +55,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2 text-text-muted text-xs md:text-sm">
                 <HiMail className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-                <a href="mailto:contact@intentledsales.com" className="hover:text-gold transition-colors">
-                  contact@intentledsales.com
+                <a href="mailto:anirudh@intentledsales.com" className="hover:text-gold transition-colors">
+                  anirudh@intentledsales.com
                 </a>
               </li>
               <li className="text-text-muted text-xs md:text-sm">
