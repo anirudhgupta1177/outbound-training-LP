@@ -4,6 +4,7 @@ import CourseLayout from '../course/CourseLayout';
 import VideoPlayer from '../course/VideoPlayer';
 import ResourceLinks from '../course/ResourceLinks';
 import LessonNavigation from '../course/LessonNavigation';
+import LessonCTA from '../course/LessonCTA';
 import { getCourseData } from '../../services/courseService';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -246,6 +247,8 @@ export default function Lesson() {
               currentLessonId={lessonId}
             />
           )}
+
+          <LessonCTA />
         </div>
       </div>
     </CourseLayout>
