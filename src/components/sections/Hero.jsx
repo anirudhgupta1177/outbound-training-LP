@@ -83,9 +83,6 @@ function Hero() {
                 4.9/5 rating
               </span>
               <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
-                🎓 Learn from IITian
-              </span>
-              <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
                 📧 1.9M Emails Sent in 2025
               </span>
             </div>

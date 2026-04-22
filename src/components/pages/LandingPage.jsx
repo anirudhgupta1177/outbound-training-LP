@@ -13,7 +13,6 @@ const Personas = lazy(() => import('../sections/Personas'));
 const Instructor = lazy(() => import('../sections/Instructor'));
 const ValueStack = lazy(() => import('../sections/ValueStack'));
 const FAQ = lazy(() => import('../sections/FAQ'));
-const Footer = lazy(() => import('../sections/Footer'));
 
 // Minimal loading placeholder for sections
 const SectionLoader = () => (
@@ -75,11 +74,7 @@ export default function LandingPage() {
           <FAQ />
         </Suspense>
       </main>
-      
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
-      
+
       {/* Mobile sticky CTA */}
       <MobileCTA />
     </div>
