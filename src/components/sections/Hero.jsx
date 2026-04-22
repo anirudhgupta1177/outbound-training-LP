@@ -54,7 +54,7 @@ function Hero() {
   const urgencyText = getUrgencyText();
 
   return (
-    <section className="relative min-h-screen pt-20 md:pt-32 pb-4 md:pb-6 overflow-hidden">
+    <section className="relative min-h-screen pt-6 md:pt-10 pb-4 md:pb-6 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
