@@ -1,13 +1,8 @@
-import { useRef, useEffect, useState, memo, useCallback } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import { useRef, useState, memo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { SectionHeading, Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
-import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
+import { convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
 const videoTestimonials = [
   {
@@ -113,25 +108,12 @@ const VideoCard = memo(function VideoCard({ testimonial }) {
 
 function Testimonials() {
   const { pricing, isIndia } = usePricing();
-  const swiperRef = useRef(null);
-  const sectionRef = useRef(null);
 
   const revenueAmount = isIndia ? 42000000 : convertINRToUSD(42000000);
   const revenueDisplay = formatLargeAmount(revenueAmount, pricing.currency);
-  const isInView = useInView(sectionRef, { once: false, margin: '-100px' });
-
-  useEffect(() => {
-    if (swiperRef.current && swiperRef.current.swiper) {
-      if (isInView) {
-        swiperRef.current.swiper.autoplay.start();
-      } else {
-        swiperRef.current.swiper.autoplay.stop();
-      }
-    }
-  }, [isInView]);
 
   return (
-    <section id="testimonials" ref={sectionRef} className="py-12 md:py-20 relative overflow-hidden">
+    <section id="testimonials" className="py-12 md:py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-dark-secondary via-dark to-dark-secondary" />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple to-transparent opacity-30" />
 
@@ -146,61 +128,17 @@ function Testimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-8 md:mt-12"
+          className="mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
         >
-          <Swiper
-            ref={swiperRef}
-            modules={[Autoplay, Pagination, Navigation]}
-            spaceBetween={16}
-            slidesPerView={1}
-            loop={true}
-            autoplay={{
-              delay: 3000,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            speed={800}
-            pagination={{
-              clickable: true,
-              el: '.testimonial-pagination',
-            }}
-            navigation={{
-              prevEl: '.testimonial-prev',
-              nextEl: '.testimonial-next',
-            }}
-            breakpoints={{
-              480: { slidesPerView: 1.5, spaceBetween: 16 },
-              640: { slidesPerView: 2, spaceBetween: 20 },
-              1024: { slidesPerView: 3, spaceBetween: 24 },
-            }}
-            className="pb-12 md:pb-16 testimonials-swiper"
-          >
-            {videoTestimonials.map((testimonial, index) => (
-              <SwiperSlide key={index} className="!flex items-center justify-center !h-auto">
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="w-full h-full"
-                >
-                  <VideoCard testimonial={testimonial} />
-                </motion.div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          {/* Navigation and pagination */}
-          <div className="flex items-center justify-center gap-4 mt-2 md:mt-4">
-            <button className="testimonial-prev w-8 h-8 md:w-10 md:h-10 rounded-full border border-purple/30 flex items-center justify-center text-text-secondary hover:text-gold hover:border-gold transition-colors">
-              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="testimonial-pagination flex gap-2 justify-center items-center" style={{ width: 'auto', minWidth: '120px' }} />
-            <button className="testimonial-next w-8 h-8 md:w-10 md:h-10 rounded-full border border-purple/30 flex items-center justify-center text-text-secondary hover:text-gold hover:border-gold transition-colors">
-              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+          {videoTestimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ y: -5 }}
+              className="h-full"
+            >
+              <VideoCard testimonial={testimonial} />
+            </motion.div>
+          ))}
         </motion.div>
 
         {/* Bottom Stats */}

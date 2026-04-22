@@ -13,7 +13,6 @@ const Personas = lazy(() => import('../sections/Personas'));
 const Instructor = lazy(() => import('../sections/Instructor'));
 const ValueStack = lazy(() => import('../sections/ValueStack'));
 const FAQ = lazy(() => import('../sections/FAQ'));
-const Footer = lazy(() => import('../sections/Footer'));
 
 // Minimal loading placeholder for sections
 const SectionLoader = () => (
@@ -30,19 +29,19 @@ export default function LandingPage() {
       
       <main>
         <Hero />
-        
+
         {/* Section divider */}
         <div className="section-divider" />
-        
+
         {/* Below-the-fold content - lazy loaded */}
-        <Suspense fallback={<SectionLoader />}>
-          <BeforeAfter />
-        </Suspense>
-        
         <Suspense fallback={<SectionLoader />}>
           <Testimonials />
         </Suspense>
-        
+
+        <Suspense fallback={<SectionLoader />}>
+          <BeforeAfter />
+        </Suspense>
+
         <Suspense fallback={<SectionLoader />}>
           <div className="hidden md:block">
             <SystemFunnel />
@@ -75,11 +74,7 @@ export default function LandingPage() {
           <FAQ />
         </Suspense>
       </main>
-      
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
-      
+
       {/* Mobile sticky CTA */}
       <MobileCTA />
     </div>
