@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiCheck, HiX, HiShieldCheck, HiSparkles, HiOfficeBuilding } from 'react-icons/hi';
@@ -65,7 +65,8 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [showCouponPopup, setShowCouponPopup] = useState(false);
-  
+  const hasAttemptedDefaultCoupon = useRef(false);
+
   // GST Details state (for Indian B2B customers)
   const [hasGst, setHasGst] = useState(false);
   const [gstData, setGstData] = useState({
@@ -123,11 +124,15 @@ export default function Checkout() {
     loadRazorpay();
   }, []);
 
-  // Auto-apply default coupon on page load
+  // Auto-apply default coupon once on page load. We intentionally do not
+  // depend on `appliedCoupon` — otherwise removing the coupon would
+  // re-trigger the effect and re-apply it.
   useEffect(() => {
+    if (hasAttemptedDefaultCoupon.current || !DEFAULT_COUPON || !pricing) return;
+    hasAttemptedDefaultCoupon.current = true;
+
     let cancelled = false;
     const applyDefaultCoupon = async () => {
-      if (appliedCoupon || !DEFAULT_COUPON || !pricing) return;
       const result = await validateCoupon({
         code: DEFAULT_COUPON,
         currency: pricing.currency,
@@ -146,7 +151,7 @@ export default function Checkout() {
     return () => {
       cancelled = true;
     };
-  }, [pricing, appliedCoupon]);
+  }, [pricing]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
