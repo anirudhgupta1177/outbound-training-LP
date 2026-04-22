@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiCheck, HiX, HiShieldCheck, HiSparkles, HiOfficeBuilding } from 'react-icons/hi';
+import { HiCheck, HiX, HiShieldCheck, HiOfficeBuilding } from 'react-icons/hi';
 import { getCartItems } from '../../constants/cartItems';
 import { validateCoupon, DEFAULT_COUPON } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
-import skoolWinImage from '../../assets/testimonials/skool-win.png';
+import { videoTestimonials, VideoCard } from '../sections/Testimonials';
 
 // Indian states with GST codes
 const INDIAN_STATES = [
@@ -64,7 +64,6 @@ export default function Checkout() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
-  const [showCouponPopup, setShowCouponPopup] = useState(false);
   const hasAttemptedDefaultCoupon = useRef(false);
 
   // GST Details state (for Indian B2B customers)
@@ -129,7 +128,6 @@ export default function Checkout() {
   // re-trigger the effect and re-apply it.
   useEffect(() => {
     if (hasAttemptedDefaultCoupon.current || !DEFAULT_COUPON || !pricing) return;
-    hasAttemptedDefaultCoupon.current = true;
 
     let cancelled = false;
     const applyDefaultCoupon = async () => {
@@ -139,12 +137,14 @@ export default function Checkout() {
         baseAmount: pricing.basePrice
       });
       if (cancelled) return;
+      // Mark as attempted ONLY after the fetch settles. If this invocation
+      // was the Strict-Mode throwaway, the cleanup sets cancelled=true and
+      // we bail above, leaving the ref false so the second invocation can
+      // still apply the coupon.
+      hasAttemptedDefaultCoupon.current = true;
       if (result.valid) {
         setCouponCode(DEFAULT_COUPON);
         setAppliedCoupon(result);
-        setTimeout(() => {
-          if (!cancelled) setShowCouponPopup(true);
-        }, 500);
       }
     };
     applyDefaultCoupon();
@@ -720,16 +720,16 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Row 2: Student Success Story */}
-              <div className="glass-card rounded-xl p-4 overflow-hidden">
-                <p className="text-text-secondary text-sm mb-3 flex items-center gap-2">
-                  <span className="text-gold">★</span> Student Success Story from our Community
-                </p>
-                <img 
-                  src={skoolWinImage} 
-                  alt="Student success: Just hit $4,500 in two weeks using outbound automation strategies"
-                  className="w-full rounded-lg border border-white/10"
-                />
+              {/* Row 2: Student's Success Story - 3 Video Testimonials */}
+              <div>
+                <h3 className="text-center text-[11px] font-display font-semibold uppercase tracking-[0.25em] text-gold mb-3">
+                  Student's Success Story
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {videoTestimonials.slice(0, 3).map((testimonial, index) => (
+                    <VideoCard key={index} testimonial={testimonial} compact />
+                  ))}
+                </div>
               </div>
 
               {/* Row 3: Trust Badges */}
@@ -797,11 +797,11 @@ export default function Checkout() {
                         onChange={handleCouponChange}
                         onKeyPress={handleCouponKeyPress}
                         placeholder="Enter coupon code"
-                        className="flex-1 px-4 py-2 bg-dark-secondary border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white placeholder:text-text-muted"
+                        className="flex-1 min-w-0 px-4 py-2 bg-dark-secondary border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-white placeholder:text-text-muted"
                       />
                       <button
                         onClick={handleApplyCoupon}
-                        className="px-4 py-2 bg-gold text-dark font-display font-bold rounded-lg hover:bg-gold-light transition-colors"
+                        className="flex-shrink-0 px-4 py-2 bg-gold text-dark font-display font-bold rounded-lg hover:bg-gold-light transition-colors"
                       >
                         Apply
                       </button>
@@ -883,51 +883,6 @@ export default function Checkout() {
           </div>
         </div>
       </div>
-
-      {/* Coupon Applied Popup */}
-      <AnimatePresence>
-        {showCouponPopup && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => setShowCouponPopup(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-              className="bg-gradient-to-br from-dark-secondary to-dark border border-gold/30 rounded-2xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
-                <HiSparkles className="w-8 h-8 text-gold" />
-              </div>
-              <h3 className="text-2xl font-display font-bold text-white mb-2">
-                Lucky You! 🎉
-              </h3>
-              <p className="text-text-secondary mb-4">
-                A special <span className="text-gold font-bold">5% discount</span> has been applied to your order!
-              </p>
-              <div className="bg-dark/50 border border-gold/20 rounded-lg p-3 mb-6">
-                <p className="text-text-muted text-sm">Coupon Code</p>
-                <p className="text-gold text-xl font-bold font-mono">{DEFAULT_COUPON}</p>
-              </div>
-              <button
-                onClick={() => setShowCouponPopup(false)}
-                className="w-full btn-gold text-dark font-display font-bold rounded-xl px-6 py-3 transition-all duration-300 hover:scale-105"
-              >
-                Continue to Checkout
-              </button>
-              <p className="text-text-muted text-xs mt-4">
-                Have a different coupon? You can change it in the order summary.
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

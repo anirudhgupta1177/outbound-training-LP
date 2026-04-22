@@ -248,7 +248,7 @@ export default function FAQ() {
           </div>
         </motion.div>
 
-        {/* Still have questions */}
+        {/* CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -256,15 +256,6 @@ export default function FAQ() {
           transition={{ delay: 0.3 }}
           className="text-center mt-8 md:mt-12"
         >
-          <p className="text-text-secondary text-sm md:text-base mb-6">
-            Still have questions?{' '}
-            <a 
-              href="mailto:anirudh@intentledsales.com"
-              className="text-gold hover:text-gold-light underline transition-colors"
-            >
-              Email me directly
-            </a>
-          </p>
           <Button size="lg" className="w-full sm:w-auto">
             Get Started for {pricing.displayPrice}
           </Button>

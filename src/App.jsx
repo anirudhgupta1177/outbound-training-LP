@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { Toaster } from 'react-hot-toast';
 import LandingPage from './components/pages/LandingPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
@@ -24,6 +25,9 @@ const CouponsPage = lazy(() => import('./components/pages/admin/CouponsPage'));
 const ModuleEditor = lazy(() => import('./components/pages/admin/ModuleEditor'));
 const LessonEditor = lazy(() => import('./components/pages/admin/LessonEditor'));
 const ProtectedAdminRoute = lazy(() => import('./components/auth/ProtectedAdminRoute'));
+
+// Chatbot widget - lazy loaded on every page (separate bundle)
+const ChatWidget = lazy(() => import('./components/chatbot/ChatWidget'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -126,6 +130,12 @@ function App() {
             />
           </Routes>
         </Suspense>
+
+        {/* Floating chatbot (available on every page) */}
+        <Suspense fallback={null}>
+          <ChatWidget />
+        </Suspense>
+        <Toaster position="top-center" />
       </AdminAuthProvider>
     </AuthProvider>
   );

@@ -46,7 +46,7 @@ function Hero() {
   const urgencyText = getUrgencyText();
 
   return (
-    <section className="relative pt-20 md:pt-28 pb-12 md:pb-20 overflow-hidden">
+    <section className="relative pt-2 md:pt-3 pb-12 md:pb-20 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
@@ -60,7 +60,7 @@ function Hero() {
           className="text-center"
         >
           {/* Social Proof Bar */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-4 md:mb-6">
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-2 md:mb-3">
             <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
               <HiFire className="w-3 h-3 md:w-4 md:h-4" />
               <span className="hidden sm:inline">1132+ freelancers & agencies using this</span>
@@ -76,15 +76,16 @@ function Hero() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold leading-tight mb-3 md:mb-4">
-            <span className="gradient-text">30+ Qualified Sales Meetings</span>
-            <br />
-            <span className="text-white">Every Month. On Complete Autopilot.</span>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold leading-tight mb-2 md:mb-2">
+            <span className="text-white">How Freelancers & Agencies Are Booking </span>
+            <span className="gradient-text">30+ Sales Meetings Per Month</span>
+            <span className="text-white"> Using AI-Powered Cold Outreach </span>
+            <span className="text-white/80">(Without Ads or Cold Calling)</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-6 md:mb-8 max-w-2xl mx-auto">
-            The AI-powered system filling calendars for 1132+ companies and freelancers - without cold calling, without ads, without burning out
+          <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-3 md:mb-4 max-w-2xl mx-auto">
+            Built from sending 1.9M+ emails in 2025 — now simplified into a system you can implement in days.
           </p>
 
           {/* Loom Video — horizontal, directly under the subheading */}
