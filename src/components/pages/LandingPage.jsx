@@ -29,19 +29,19 @@ export default function LandingPage() {
       
       <main>
         <Hero />
-        
+
         {/* Section divider */}
         <div className="section-divider" />
-        
+
         {/* Below-the-fold content - lazy loaded */}
-        <Suspense fallback={<SectionLoader />}>
-          <BeforeAfter />
-        </Suspense>
-        
         <Suspense fallback={<SectionLoader />}>
           <Testimonials />
         </Suspense>
-        
+
+        <Suspense fallback={<SectionLoader />}>
+          <BeforeAfter />
+        </Suspense>
+
         <Suspense fallback={<SectionLoader />}>
           <div className="hidden md:block">
             <SystemFunnel />

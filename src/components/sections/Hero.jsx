@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { HiCheck, HiStar, HiFire } from 'react-icons/hi';
+import { HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
 import { usePricing } from '../../contexts/PricingContext';
 
@@ -31,14 +31,6 @@ const HeroVideo = memo(function HeroVideo() {
 });
 
 
-// Memoize benefits to prevent re-creation on every render
-const BENEFITS = [
-  'Wake up to booked meetings in your calendar',
-  'Never manually prospect again',
-  'Only talk to prospects ready to buy NOW',
-  'Runs 24/7 without you lifting a finger',
-];
-
 // Calculate urgency text once (it only changes daily)
 const getUrgencyText = () => {
   const now = new Date();
@@ -54,7 +46,7 @@ function Hero() {
   const urgencyText = getUrgencyText();
 
   return (
-    <section className="relative min-h-screen pt-20 md:pt-28 pb-4 md:pb-6 overflow-hidden">
+    <section className="relative pt-20 md:pt-28 pb-12 md:pb-20 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
@@ -108,31 +100,10 @@ function Hero() {
             </div>
           </motion.div>
 
-          {/* Benefits */}
-          <ul className="inline-flex flex-col items-start space-y-1.5 md:space-y-2 mb-5 md:mb-6 text-left">
-            {BENEFITS.map((benefit, index) => (
-              <motion.li
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + index * 0.1 }}
-                className="flex items-center gap-2 md:gap-3 text-text-primary text-sm md:text-base"
-              >
-                <span className="flex-shrink-0 w-4 h-4 md:w-5 md:h-5 rounded-full bg-success/20 flex items-center justify-center">
-                  <HiCheck className="w-2.5 h-2.5 md:w-3 md:h-3 text-success" />
-                </span>
-                {benefit}
-              </motion.li>
-            ))}
-          </ul>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-center mb-4">
+          {/* CTA */}
+          <div className="flex justify-center mb-4">
             <Button size="lg" className="animate-pulse-gold w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
               Start Filling Your Calendar for {pricing.displayPrice}
-            </Button>
-            <Button variant="outline" size="lg" href="#instructor" className="w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-              Watch 6-Min Breakdown
             </Button>
           </div>
 
@@ -162,22 +133,6 @@ function Hero() {
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll indicator - hidden on mobile */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 hidden md:block"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-5 h-8 md:w-6 md:h-10 rounded-full border-2 border-text-muted flex justify-center pt-1.5 md:pt-2"
-        >
-          <motion.div className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-gold" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }
