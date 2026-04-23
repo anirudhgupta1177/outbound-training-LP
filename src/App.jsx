@@ -1,9 +1,17 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './components/pages/LandingPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 // Lazy load non-critical pages for faster initial load
 const Checkout = lazy(() => import('./components/pages/Checkout'));
@@ -40,6 +48,7 @@ function App() {
   return (
     <AuthProvider>
       <AdminAuthProvider>
+        <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes - Landing page not lazy loaded for speed */}
