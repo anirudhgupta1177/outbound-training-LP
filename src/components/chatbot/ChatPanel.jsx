@@ -13,7 +13,6 @@ export default function ChatPanel() {
     closeChat,
     showWelcome,
     mode,
-    clearMessages,
     profileSubmitted,
     setProfileSubmitted,
     chatEnded,
@@ -43,7 +42,7 @@ export default function ChatPanel() {
   const hasMessages = messages.length > 0;
 
   const handleNewChat = () => {
-    clearMessages();
+    startNewChat();
     setIsMenuOpen(false);
   };
 

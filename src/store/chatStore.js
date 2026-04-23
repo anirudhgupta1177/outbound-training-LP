@@ -77,10 +77,6 @@ export const useChatStore = create(persist((set, get) => ({
 
   dismissWelcome: () => set({ showWelcome: false }),
 
-  clearMessages: () => {
-    set({ messages: [], chatEnded: false });
-  },
-
   endChat: () => set({ chatEnded: true, isLoading: false }),
 
   startNewChat: () => set({ messages: [], chatEnded: false, showWelcome: true }),
