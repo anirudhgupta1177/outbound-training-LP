@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Send } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+import { usePricing } from '../../contexts/PricingContext';
 import { trimConversationHistory } from '../../lib/chatUtils';
 import toast from 'react-hot-toast';
 
@@ -17,6 +18,7 @@ export default function ChatInput() {
     userProfile,
     dismissWelcome,
   } = useChatStore();
+  const { country } = usePricing();
 
   const MAX_CHARS = 600;
   const SHOW_COUNTER_AT = 500;
@@ -50,6 +52,7 @@ export default function ChatInput() {
           messages: trimmedMessages,
           mode,
           userProfile,
+          country,
         }),
       });
 
@@ -137,6 +140,7 @@ export default function ChatInput() {
     messages,
     mode,
     userProfile,
+    country,
     addMessage,
     updateLastAssistantMessage,
     setLoading,
@@ -165,7 +169,7 @@ export default function ChatInput() {
           value={input}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask anything about The Organic Buzz course…"
+          placeholder="Ask about the AI-Powered Outbound System…"
           disabled={isLoading}
           rows={2}
           className="chat-input"

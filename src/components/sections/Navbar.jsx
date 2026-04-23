@@ -9,8 +9,8 @@ export default function Navbar() {
       className="relative w-full pt-3 pb-2 md:pt-5 md:pb-3 overflow-hidden"
     >
       {/* Purple ambient backdrop — matches the Hero gradient below so there is no hard black bar */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple/15 via-purple/5 to-transparent pointer-events-none" />
-      <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[40rem] h-40 bg-purple/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-purple/5 to-transparent pointer-events-none" />
+      <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-full h-48 bg-purple/10 blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <a

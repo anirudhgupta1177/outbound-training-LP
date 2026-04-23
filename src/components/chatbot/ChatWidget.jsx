@@ -30,21 +30,6 @@ export default function ChatWidget() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="chat-mobile-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            className="fixed inset-0 z-[9998] md:hidden"
-          >
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <motion.button
         onClick={toggleChat}
         className="fixed bottom-4 right-4 z-[10000] flex h-[60px] w-[60px] items-center justify-center rounded-full shadow-2xl transition-colors md:bottom-6 md:right-6 launcher-button"

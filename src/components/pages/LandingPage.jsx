@@ -1,10 +1,8 @@
 import { Suspense, lazy } from 'react';
-import Navbar from '../sections/Navbar';
 import Hero from '../sections/Hero';
 import MobileCTA from '../ui/MobileCTA';
 
 // Lazy load below-the-fold sections for faster initial render
-const AudienceQualification = lazy(() => import('../sections/AudienceQualification'));
 const BeforeAfter = lazy(() => import('../sections/BeforeAfter'));
 const Testimonials = lazy(() => import('../sections/Testimonials'));
 const SystemFunnel = lazy(() => import('../sections/SystemFunnel'));
@@ -26,8 +24,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-dark">
       {/* Critical above-the-fold content - rendered immediately */}
-      <Navbar />
-      
       <main>
         <Hero />
 
@@ -35,10 +31,6 @@ export default function LandingPage() {
         <div className="section-divider" />
 
         {/* Below-the-fold content - lazy loaded */}
-        <Suspense fallback={<SectionLoader />}>
-          <AudienceQualification />
-        </Suspense>
-
         <Suspense fallback={<SectionLoader />}>
           <Testimonials />
         </Suspense>

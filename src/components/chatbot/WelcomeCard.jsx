@@ -24,8 +24,8 @@ export default function WelcomeCard() {
 
         <p className="text-[13px] text-white/70 leading-relaxed">
           {mode === 'post-purchase'
-            ? "Welcome back! I'm here to help you navigate every module of The Organic Buzz course and answer any onboarding questions. Ask away!"
-            : "Hi there! 👋 I can help you understand everything about The Organic Buzz — AI-Powered Outbound System: what's included, pricing, timeline, and more. Ask anything!"}
+            ? "Welcome back! I'm here to help you navigate every module of the AI-Powered Outbound System by Ani and answer any onboarding questions. Ask away!"
+            : "Hi there! 👋 I can help you understand everything about AI-Powered Outbound System by Ani: what's included, pricing, timeline, and more. Ask anything!"}
         </p>
 
         <div className="mt-3 flex items-center gap-2">

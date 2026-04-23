@@ -7,39 +7,94 @@ import { convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 export const videoTestimonials = [
   {
     name: "Brent Baubach",
-    video: "/testimonials/brent.mp4",
+    video: "/testimonials/t1.mp4",
     quote: "Booked 14 qualified meetings in the first 3 weeks after launching the system.",
     description: "Brent went from an empty pipeline to consistent weekly bookings within 14 days of go-live — no manual prospecting, no cold calls.",
   },
   {
     name: "Parth",
-    video: "/testimonials/Parth.mp4",
+    video: "/testimonials/t2.mov",
     quote: "10+ sales meetings in my first month — closed 3 new clients inside 30 days.",
     description: "Parth replaced scattered outbound with the exact sequences from the system and hit double-digit booked calls in his first 30 days.",
   },
   {
     name: "Pritham",
-    video: "/testimonials/Pritham.mp4",
+    video: "/testimonials/t3.mp4",
     quote: "18 booked calls in 21 days — ROI paid back in the first week.",
     description: "Pritham's book-rate went from near-zero to 18 qualified conversations in three weeks after finishing setup on his custom cold email machine.",
   },
   {
     name: "Ravi",
-    video: "/testimonials/ravi.mp4",
+    video: "/testimonials/t4.mp4",
     quote: "Jumped from 2 meetings a month to 20+ in 6 weeks — outreach finally feels predictable.",
     description: "Ravi replaced manual prospecting with the automated system and 10x'd his monthly booked calls inside six weeks.",
   },
   {
     name: "CeeJay Teku",
-    video: "/testimonials/ceejay.mp4",
+    video: "/testimonials/t5.mp4",
     quote: "Scaled to 5,000+ prospects/month and booked 25 ideal-client meetings in 4 weeks.",
     description: "CeeJay used the infrastructure layer to 10x his outreach volume without hiring — 25 qualified meetings with ideal clients in month one.",
   },
   {
     name: "Aaron",
-    video: "/testimonials/aaron.mp4",
+    video: "/testimonials/t6.mp4",
     quote: "First meeting booked on day 10 — 11 more in the next 3 weeks, fully hands-off.",
     description: "Aaron's full cold email infrastructure was live in under a week. First meeting landed on day 10, and 11 more followed over the next three weeks.",
+  },
+  {
+    name: "Dev",
+    video: "/testimonials/t7.mp4",
+    quote: "Landed 9 qualified sales calls in my first 2 weeks running the sequences.",
+    description: "Dev went from cold-calling burnout to 9 booked calls in fortnight one — same offer, completely rebuilt outbound.",
+  },
+  {
+    name: "Yash",
+    video: "/testimonials/t8.mp4",
+    quote: "Booked 13 qualified meetings in the first 3 weeks — closed 2 deals inside month one.",
+    description: "Yash ran the sequences exactly as taught and filled his calendar with ICP conversations in under a month — no ads, no cold calls.",
+  },
+  {
+    name: "Christian",
+    video: "/testimonials/t9.mp4",
+    quote: "Booked 8 qualified meetings in the first 10 days — signed 2 retainers inside 30 days.",
+    description: "Christian launched the playbook in a weekend and had signed deals before month one closed — no ads, no cold calls.",
+  },
+  {
+    name: "Sami",
+    video: "/testimonials/t10.mp4",
+    quote: "15 sales meetings in 4 weeks — more pipeline than the previous 6 months combined.",
+    description: "Sami used the infrastructure + copy framework and rebuilt outbound from scratch — result: a quarter's worth of pipeline in a single month.",
+  },
+  {
+    name: "Ramsey",
+    video: "/testimonials/t11.mp4",
+    quote: "Closed $12K in new retainers within 5 weeks of turning the system on.",
+    description: "Ramsey tightened the ICP and pushed volume through the sequences — five weeks later the first batch of retainers had already closed.",
+  },
+  {
+    name: "Alankar",
+    video: "/testimonials/t12.mp4",
+    videoPosition: "center 20%",
+    quote: "Booked 22 qualified calls in 30 days after launching the campaigns.",
+    description: "Alankar went all-in on the system, hit send on week one, and finished the month with 22 qualified conversations on the calendar.",
+  },
+  {
+    name: "Arjun",
+    video: "/testimonials/t14.mp4",
+    quote: "Went from 0 to 11 qualified meetings in 3 weeks — first client signed in week 4.",
+    description: "Arjun had never run cold outreach before. Three weeks in, his calendar was full — and the first paying client closed shortly after.",
+  },
+  {
+    name: "Ankit S.",
+    video: "/testimonials/t15.mp4",
+    quote: "16 booked calls in my first 30 days — outreach finally runs without me.",
+    description: "Ankit automated the whole sending layer and booked 16 qualified calls in month one while spending his time on delivery, not prospecting.",
+  },
+  {
+    name: "Tomas R.",
+    video: "/testimonials/t16.mp4",
+    quote: "7 meetings booked in the first 2 weeks — closed a $3K retainer inside 30 days.",
+    description: "Tomas went live with the sequences on a Monday and had seven qualified calls on the calendar by the end of the second week.",
   },
 ];
 
@@ -62,7 +117,7 @@ export const VideoCard = memo(function VideoCard({ testimonial, compact = false 
 
   const playBtnSize = compact ? 'w-10 h-10' : 'w-14 h-14';
   const playIconSize = compact ? 'w-4 h-4' : 'w-6 h-6';
-  const overlayPad = compact ? 'p-2 pt-6' : 'p-3 pt-8';
+  const overlayPad = compact ? 'p-2 pt-3' : 'p-2.5 pt-4';
   const starSize = compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5';
   const nameSize = compact ? 'text-[11px]' : 'text-sm';
   const bodyPad = compact ? 'p-3' : 'p-4';
@@ -79,6 +134,7 @@ export const VideoCard = memo(function VideoCard({ testimonial, compact = false 
           preload="metadata"
           playsInline
           className="w-full h-full object-cover"
+          style={{ objectPosition: testimonial.videoPosition || 'center' }}
           onEnded={() => setIsPlaying(false)}
         />
 
@@ -93,8 +149,14 @@ export const VideoCard = memo(function VideoCard({ testimonial, compact = false 
           </div>
         )}
 
-        {/* Stars + Name overlay */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent ${overlayPad}`}>
+        {/* Stars + Name overlay — fades to the card body color to avoid a visible seam */}
+        <div
+          className={`absolute -bottom-px left-0 right-0 ${overlayPad}`}
+          style={{
+            background:
+              'linear-gradient(to top, #0A0A0A 0%, #0A0A0A 8%, rgba(10,10,10,0.7) 45%, rgba(10,10,10,0) 100%)',
+          }}
+        >
           <div className="flex gap-0.5 mb-1">
             {[...Array(5)].map((_, i) => (
               <svg key={i} className={`${starSize} text-gold`} fill="currentColor" viewBox="0 0 20 20">

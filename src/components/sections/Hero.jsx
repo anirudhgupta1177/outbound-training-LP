@@ -46,13 +46,30 @@ function Hero() {
   const urgencyText = getUrgencyText();
 
   return (
-    <section className="relative pt-2 md:pt-3 pb-12 md:pb-20 overflow-hidden">
+    <section className="relative pt-3 md:pt-5 pb-12 md:pb-20 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-gold/10 rounded-full blur-3xl" />
 
       <div className="relative w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex items-center justify-center mb-3 md:mb-5"
+        >
+          <a
+            href="/"
+            className="font-display font-bold tracking-tight select-none leading-none text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+            aria-label="IntentLedSales home"
+          >
+            <span className="text-white">Intent</span>
+            <span className="text-gold">Led</span>
+            <span className="text-white">Sales</span>
+          </a>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

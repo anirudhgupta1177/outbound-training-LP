@@ -179,27 +179,30 @@ export default function ChatPanel() {
         <PreChatForm />
       ) : (
         <>
-          <div className="chat-messages flex-1 overflow-y-auto relative">
+          <div className="relative flex-1 overflow-hidden">
+            <div className="chat-messages h-full overflow-y-auto">
+              {showWelcome && !hasMessages && !chatEnded && <WelcomeCard />}
+              {hasMessages && <MessageList />}
+              {!hasMessages && !chatEnded && <SuggestedChips />}
+
+              {chatEnded && (
+                <div className="flex items-center gap-3 px-4 my-4">
+                  <div className="flex-1 h-px bg-white/10" />
+                  <span className="text-[11px] text-white/40 whitespace-nowrap">
+                    The chat has ended
+                  </span>
+                  <div className="flex-1 h-px bg-white/10" />
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
             {isRefreshing && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#111118]/85 backdrop-blur-sm">
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#111118]/85 backdrop-blur-sm pointer-events-none">
                 <RefreshCw className="h-8 w-8 text-emerald-400 animate-spin" strokeWidth={2.25} />
               </div>
             )}
-            {showWelcome && !hasMessages && !chatEnded && <WelcomeCard />}
-            {hasMessages && <MessageList />}
-            {!hasMessages && !chatEnded && <SuggestedChips />}
-
-            {chatEnded && (
-              <div className="flex items-center gap-3 px-4 my-4">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-[11px] text-white/40 whitespace-nowrap">
-                  The chat has ended
-                </span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {chatEnded ? (

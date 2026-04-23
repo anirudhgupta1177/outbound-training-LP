@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/chat.js": {
-      "includeFiles": "intentledsales-course-knowledge-base.md"
+      "includeFiles": "course_knowledge_base_new.md"
     }
   },
   "rewrites": [

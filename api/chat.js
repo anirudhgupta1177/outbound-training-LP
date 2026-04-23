@@ -8,7 +8,7 @@ import {
 // Load knowledge base from the Markdown file at module init (cold-start).
 // The file lives at the project root; Vercel bundles it via vercel.json's
 // `includeFiles` config. Falls back gracefully if unreadable.
-const KB_FILE = 'intentledsales-course-knowledge-base.md';
+const KB_FILE = 'course_knowledge_base_new.md';
 let KNOWLEDGE_BASE = '';
 try {
   const kbPath = path.resolve(process.cwd(), KB_FILE);
@@ -37,11 +37,36 @@ function checkRateLimit(ip) {
   return true;
 }
 
-function buildSystemPrompt(mode, userProfile) {
+function buildRegionRule(country) {
+  // Map ISO country code → pricing region per KB §7. India-neighbor codes fall
+  // back to the ₹4,000 neighboring-country price; everyone else gets $129.
+  const NEIGHBORS = new Set(['NP', 'BD', 'LK', 'PK', 'BT', 'MV']); // Nepal, Bangladesh, Sri Lanka, Pakistan, Bhutan, Maldives
+  const code = typeof country === 'string' ? country.toUpperCase() : '';
+
+  if (code === 'IN') {
+    return `[PRICING REGION — STRICT]
+The user is in India. When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the Indian price: **₹3,999 + GST** (one-time, lifetime access). Do NOT mention the international ($129) or neighboring-country (₹4,000) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+  }
+  if (NEIGHBORS.has(code)) {
+    return `[PRICING REGION — STRICT]
+The user is in a neighboring country (${code}). When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the neighboring-country price: **₹4,000** (one-time, lifetime access). Do NOT mention the Indian (₹3,999) or international ($129) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+  }
+  if (code) {
+    return `[PRICING REGION — STRICT]
+The user is in ${code} (international). When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the international price: **$129 USD** (one-time, lifetime access). Do NOT mention the Indian (₹3,999) or neighboring-country (₹4,000) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+  }
+  // Unknown country — leave the KB's full pricing table visible.
+  return '';
+}
+
+function buildSystemPrompt(mode, userProfile, country) {
   const preamble =
     mode === 'post-purchase' ? POST_PURCHASE_PREAMBLE : PRE_PURCHASE_PREAMBLE;
 
-  let prompt = `${preamble}\n\n=== KNOWLEDGE BASE START ===\n${KNOWLEDGE_BASE}\n=== KNOWLEDGE BASE END ===`;
+  const regionRule = buildRegionRule(country);
+  const regionBlock = regionRule ? `\n\n${regionRule}` : '';
+
+  let prompt = `${preamble}${regionBlock}\n\n=== KNOWLEDGE BASE START ===\n${KNOWLEDGE_BASE}\n=== KNOWLEDGE BASE END ===`;
 
   if (userProfile?.name) {
     prompt += `\n\n[USER CONTEXT: You are talking to ${userProfile.name} (${userProfile.email}). Address them by their first name when natural.]`;
@@ -105,7 +130,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: validationError });
     }
 
-    const { messages, mode, userProfile } = body;
+    const { messages, mode, userProfile, country } = body;
 
     const vpsUrl = process.env.CLAUDE_VPS_URL;
     const vpsKey = process.env.CLAUDE_VPS_API_KEY;
@@ -115,7 +140,7 @@ export default async function handler(req, res) {
         .json({ error: 'Server is not configured (missing Claude VPS env vars)' });
     }
 
-    const systemPrompt = buildSystemPrompt(mode, userProfile);
+    const systemPrompt = buildSystemPrompt(mode, userProfile, country);
 
     // Flatten the chat history into a single prompt string, since the VPS
     // endpoint accepts { prompt, system } rather than a message array.

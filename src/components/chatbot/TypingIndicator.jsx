@@ -8,8 +8,8 @@ export default function TypingIndicator() {
       className="flex justify-start"
     >
       <div className="flex items-start gap-2">
-        <div className="chat-avatar-small mt-1">
-          <span className="text-[9px] font-bold text-white">AI</span>
+        <div className="chat-avatar-small overflow-hidden mt-1">
+          <img src="/ani.jpg" alt="Ani" className="w-full h-full object-cover" />
         </div>
         <div className="message-bubble message-bot">
           <motion.div className="flex items-center gap-1.5 py-1 px-1">
