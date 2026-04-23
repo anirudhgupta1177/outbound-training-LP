@@ -43,20 +43,31 @@ function buildRegionRule(country) {
   const NEIGHBORS = new Set(['NP', 'BD', 'LK', 'PK', 'BT', 'MV']); // Nepal, Bangladesh, Sri Lanka, Pakistan, Bhutan, Maldives
   const code = typeof country === 'string' ? country.toUpperCase() : '';
 
+  const buildRule = (label, allowedPrice, forbiddenPhrases) => `[PRICING REGION — ABSOLUTE OVERRIDE]
+The user is confirmed to be in ${label}. For ANY pricing question ("what does it cost", "price", "fees", "how much", "pricing", "cost", and any paraphrase of these), your ENTIRE pricing answer MUST quote exactly one price: **${allowedPrice}** (one-time, lifetime access, 30-day money-back guarantee).
+
+ABSOLUTELY FORBIDDEN in your reply:
+- Mentioning any of these strings: ${forbiddenPhrases}.
+- Comparing regions, listing multiple prices, or using a pricing table.
+- Hedging language like "depending on where you are", "if you're in India", "for international users", or similar region-conditional phrasing.
+- Using emojis like 🇮🇳 🌍 to visually separate regions, or bullet points that imply multiple options.
+
+The KNOWLEDGE BASE contains a pricing table with multiple regions (§7). You MUST treat every row except the one for ${label} as nonexistent — do not read those rows aloud, do not summarize them, do not reference them.
+
+The ONLY exception: if the user's CURRENT message explicitly asks about a specific other country (e.g. "how much in the US?", "what about India pricing?"), you may answer that specific country's price for that one reply. Never volunteer other regions proactively.`;
+
   if (code === 'IN') {
-    return `[PRICING REGION — STRICT]
-The user is in India. When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the Indian price: **₹3,999 + GST** (one-time, lifetime access). Do NOT mention the international ($129) or neighboring-country (₹4,000) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+    return buildRule('India', '₹3,999 + GST', '"$129", "USD", "International", "₹4,000", "neighbor", "neighboring", "SAARC", "abroad", "overseas"');
   }
   if (NEIGHBORS.has(code)) {
-    return `[PRICING REGION — STRICT]
-The user is in a neighboring country (${code}). When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the neighboring-country price: **₹4,000** (one-time, lifetime access). Do NOT mention the Indian (₹3,999) or international ($129) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+    return buildRule(`a neighboring country (${code})`, '₹4,000', '"₹3,999", "GST", "$129", "USD", "International", "India", "abroad", "overseas"');
   }
   if (code) {
-    return `[PRICING REGION — STRICT]
-The user is in ${code} (international). When they ask about price, cost, fees, or anything related to what the course charges, quote ONLY the international price: **$129 USD** (one-time, lifetime access). Do NOT mention the Indian (₹3,999) or neighboring-country (₹4,000) prices unless the user explicitly asks about pricing in another region. Do not list a pricing table.`;
+    return buildRule(`${code} (international)`, '$129 USD', '"₹3,999", "GST", "INR", "India", "Indian", "₹4,000", "neighbor", "neighboring", "SAARC"');
   }
-  // Unknown country — leave the KB's full pricing table visible.
-  return '';
+  // Unknown country — still forbid multi-region pricing answers. Default to
+  // Indian pricing since that's the primary market.
+  return buildRule('India (fallback — country not detected)', '₹3,999 + GST', '"$129", "USD", "International", "₹4,000", "neighbor", "neighboring", "SAARC", "abroad", "overseas"');
 }
 
 function buildSystemPrompt(mode, userProfile, country) {
@@ -66,11 +77,22 @@ function buildSystemPrompt(mode, userProfile, country) {
   const regionRule = buildRegionRule(country);
   const regionBlock = regionRule ? `\n\n${regionRule}` : '';
 
-  let prompt = `${preamble}${regionBlock}\n\n=== KNOWLEDGE BASE START ===\n${KNOWLEDGE_BASE}\n=== KNOWLEDGE BASE END ===`;
+  let prompt = `${preamble}${regionBlock}`;
 
   if (userProfile?.name) {
     prompt += `\n\n[USER CONTEXT: You are talking to ${userProfile.name} (${userProfile.email}). Address them by their first name when natural.]`;
   }
+
+  prompt += `\n\n=== KNOWLEDGE BASE START ===\n${KNOWLEDGE_BASE}\n=== KNOWLEDGE BASE END ===`;
+
+  // Re-inject the region rule AFTER the KB so it is LITERALLY the last thing
+  // the model sees before the user message. Without this, the KB's
+  // multi-region pricing table (§7) tends to win over the rule and the bot
+  // lists every region's price even when the user's country is known.
+  if (regionRule) {
+    prompt += `\n\n${regionRule}`;
+  }
+
   return prompt;
 }
 
@@ -131,6 +153,10 @@ export default async function handler(req, res) {
     }
 
     const { messages, mode, userProfile, country } = body;
+
+    // Diagnostic — prints on every request so we can see what country was sent
+    // and whether the region rule is being injected. Remove once confirmed.
+    console.log(`[api/chat] country="${country ?? '(undefined)'}" mode="${mode}" msgs=${messages.length}`);
 
     const vpsUrl = process.env.CLAUDE_VPS_URL;
     const vpsKey = process.env.CLAUDE_VPS_API_KEY;
