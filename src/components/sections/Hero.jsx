@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
@@ -8,6 +8,14 @@ import { usePricing } from '../../contexts/PricingContext';
 const HeroVideo = memo(function HeroVideo() {
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Fallback: hide the spinner after 1s even if iframe.onLoad hasn't fired.
+  // Loom paints its own poster/player chrome before onLoad, so our overlay
+  // was hiding content that was already visible.
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoaded(true), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="relative bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden">
       <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
@@ -16,6 +24,8 @@ const HeroVideo = memo(function HeroVideo() {
           frameBorder="0"
           allow="autoplay; fullscreen"
           allowFullScreen
+          loading="eager"
+          fetchPriority="high"
           onLoad={() => setIsLoaded(true)}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#1a1a2e' }}
           title="Video"
@@ -107,9 +117,9 @@ function Hero() {
 
           {/* Loom Video — horizontal, directly under the subheading */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="relative max-w-4xl mx-auto mb-6 md:mb-8"
           >
             <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-30 blur-2xl rounded-3xl" />
