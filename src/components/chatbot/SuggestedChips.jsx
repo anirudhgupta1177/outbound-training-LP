@@ -2,7 +2,6 @@ import { useChatStore } from '../../store/chatStore';
 
 const PRE_PURCHASE_CHIPS = [
   "What's included?",
-  'What does it cost?',
   'How long until results?',
   'Refund policy?',
 ];
