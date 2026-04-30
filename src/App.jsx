@@ -1,8 +1,17 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import LandingPage from './components/pages/LandingPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 // Lazy load non-critical pages for faster initial load
 const Checkout = lazy(() => import('./components/pages/Checkout'));
@@ -25,6 +34,9 @@ const ModuleEditor = lazy(() => import('./components/pages/admin/ModuleEditor'))
 const LessonEditor = lazy(() => import('./components/pages/admin/LessonEditor'));
 const ProtectedAdminRoute = lazy(() => import('./components/auth/ProtectedAdminRoute'));
 
+// Chatbot widget - lazy loaded on every page (separate bundle)
+const ChatWidget = lazy(() => import('./components/chatbot/ChatWidget'));
+
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-screen bg-[#0D0D12] flex items-center justify-center">
@@ -36,6 +48,7 @@ function App() {
   return (
     <AuthProvider>
       <AdminAuthProvider>
+        <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes - Landing page not lazy loaded for speed */}
@@ -126,6 +139,12 @@ function App() {
             />
           </Routes>
         </Suspense>
+
+        {/* Floating chatbot (available on every page) */}
+        <Suspense fallback={null}>
+          <ChatWidget />
+        </Suspense>
+        <Toaster position="top-center" />
       </AdminAuthProvider>
     </AuthProvider>
   );

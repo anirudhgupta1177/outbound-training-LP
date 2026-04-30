@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
@@ -8,6 +8,14 @@ import { usePricing } from '../../contexts/PricingContext';
 const HeroVideo = memo(function HeroVideo() {
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Fallback: hide the spinner after 1s even if iframe.onLoad hasn't fired.
+  // Loom paints its own poster/player chrome before onLoad, so our overlay
+  // was hiding content that was already visible.
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoaded(true), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="relative bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden">
       <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
@@ -16,6 +24,8 @@ const HeroVideo = memo(function HeroVideo() {
           frameBorder="0"
           allow="autoplay; fullscreen"
           allowFullScreen
+          loading="eager"
+          fetchPriority="high"
           onLoad={() => setIsLoaded(true)}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#1a1a2e' }}
           title="Video"
@@ -46,7 +56,7 @@ function Hero() {
   const urgencyText = getUrgencyText();
 
   return (
-    <section className="relative pt-20 md:pt-28 pb-12 md:pb-20 overflow-hidden">
+    <section className="relative pt-3 md:pt-5 pb-12 md:pb-20 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple/10 via-transparent to-transparent" />
       <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-purple/20 rounded-full blur-3xl" />
@@ -54,13 +64,30 @@ function Hero() {
 
       <div className="relative w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6">
         <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex items-center justify-center mb-3 md:mb-5"
+        >
+          <a
+            href="/"
+            className="font-display font-bold tracking-tight select-none leading-none text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+            aria-label="IntentLedSales home"
+          >
+            <span className="text-white">Intent</span>
+            <span className="text-gold">Led</span>
+            <span className="text-white">Sales</span>
+          </a>
+        </motion.div>
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
           {/* Social Proof Bar */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-4 md:mb-6">
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-2 md:mb-3">
             <span className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs md:text-sm">
               <HiFire className="w-3 h-3 md:w-4 md:h-4" />
               <span className="hidden sm:inline">1132+ freelancers & agencies using this</span>
@@ -76,22 +103,23 @@ function Hero() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold leading-tight mb-3 md:mb-4">
-            <span className="gradient-text">30+ Qualified Sales Meetings</span>
-            <br />
-            <span className="text-white">Every Month. On Complete Autopilot.</span>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold leading-tight mb-2 md:mb-2">
+            <span className="text-white">How Freelancers & Agencies Are Booking </span>
+            <span className="gradient-text">30+ Sales Meetings Per Month</span>
+            <span className="text-white"> Using AI-Powered Cold Outreach </span>
+            <span className="text-white/80">(Without Ads or Cold Calling)</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-6 md:mb-8 max-w-2xl mx-auto">
-            The AI-powered system filling calendars for 1132+ companies and freelancers - without cold calling, without ads, without burning out
+          <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-3 md:mb-4 max-w-2xl mx-auto">
+            Built from sending 1.9M+ emails in 2025 — now simplified into a system you can implement in days.
           </p>
 
           {/* Loom Video — horizontal, directly under the subheading */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="relative max-w-4xl mx-auto mb-6 md:mb-8"
           >
             <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple to-gold opacity-30 blur-2xl rounded-3xl" />

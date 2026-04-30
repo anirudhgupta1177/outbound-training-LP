@@ -139,6 +139,24 @@ const comparison = [
                   <span className="text-gold text-xs md:text-sm font-medium">30-day money-back guarantee</span>
                 </motion.li>
               </ul>
+
+              {/* Honest tool-cost framing — top prospect objection */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8 }}
+                className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-white/10"
+              >
+                <p className="text-white text-xs md:text-sm font-semibold mb-1.5">
+                  What about monthly tool costs?
+                </p>
+                <p className="text-text-muted text-[11px] md:text-xs leading-relaxed">
+                  Start at <span className="text-gold font-medium">near-{isIndia ? '₹0' : '$0'}</span> using free trials + open-source LLMs taught inside.
+                  Mid-volume automation runs <span className="text-gold font-medium">{isIndia ? '₹30K–40K' : '$360–480'}/month</span>. Only domains are a one-time cost.
+                  <span className="block mt-1 text-[10px] md:text-[11px]">Full breakdown in the FAQ below.</span>
+                </p>
+              </motion.div>
             </div>
           </motion.div>
 

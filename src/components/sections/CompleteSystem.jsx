@@ -71,7 +71,7 @@ const techStackLogos = [
 const itemsBase = [
   {
     icon: HiOutlineAcademicCap,
-    title: '30+ Hours Video Training',
+    title: '45+ Hours Video Training',
     description: 'Every tool, every setting, every automation - recorded in 1080p quality',
     details: 'Watch me build the entire system from scratch, including ready-to-deploy automation agents',
     modules: ['ICP & Offer Creation', 'Email Deliverability', 'LinkedIn Outreach', 'Lead Scraping', 'Clay Mastery', 'Automation'],

@@ -1,6 +1,6 @@
 // Value in INR - will be converted dynamically based on currency
 export const cartItemsINR = [
-  { name: '30+ hours of video training', valueINR: 15000 },
+  { name: '45+ hours of video training', valueINR: 15000 },
   { name: '78-page Outbound guide', valueINR: 3000 },
   { name: 'All automation workflow maps', valueINR: 5000 },
   { name: '500K verified lead database', valueINR: 15000 },

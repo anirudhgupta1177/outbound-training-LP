@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/chat.js": {
+      "includeFiles": "course_knowledge_base_new.md"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

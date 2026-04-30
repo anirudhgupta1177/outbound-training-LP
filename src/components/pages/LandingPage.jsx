@@ -1,5 +1,4 @@
 import { Suspense, lazy } from 'react';
-import Navbar from '../sections/Navbar';
 import Hero from '../sections/Hero';
 import MobileCTA from '../ui/MobileCTA';
 
@@ -25,8 +24,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-dark">
       {/* Critical above-the-fold content - rendered immediately */}
-      <Navbar />
-      
       <main>
         <Hero />
 

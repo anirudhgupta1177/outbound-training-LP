@@ -25,6 +25,7 @@ dist-ssr
 
 # Large video files
 public/videos/
+Video Testimonials/
 
 # Environment variables
 .env
