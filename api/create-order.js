@@ -87,20 +87,39 @@ export default async function handler(req, res) {
       });
     }
 
+    // Razorpay on this account only supports INR. For USD orders, convert
+    // to INR so the payment can actually be processed.
+    const USD_TO_INR = 85; // approximate rate — update periodically
+    let razorpayCurrency = currency;
+    let razorpayAmount = finalAmountSmallest;
+
+    if (currency === 'USD') {
+      razorpayCurrency = 'INR';
+      razorpayAmount = Math.round(finalAmountSmallest * USD_TO_INR);
+      // Re-apply INR minimum after conversion
+      if (razorpayAmount < RAZORPAY_MIN.INR) {
+        razorpayAmount = RAZORPAY_MIN.INR;
+      }
+    }
+
     console.log('=== CREATING RAZORPAY ORDER ===');
-    console.log('Amount (smallest):', finalAmountSmallest, 'Currency:', currency, 'Coupon:', couponCode || 'none');
+    console.log('Original:', finalAmountSmallest, currency, '→ Razorpay:', razorpayAmount, razorpayCurrency, 'Coupon:', couponCode || 'none');
 
     const orderPayload = {
-      amount: finalAmountSmallest,
-      currency: currency,
+      amount: razorpayAmount,
+      currency: razorpayCurrency,
       payment_capture: 1,
       receipt: receipt || `receipt_${Date.now()}_${Math.random().toString(36).substring(7)}`
     };
 
+    orderPayload.notes = {};
     if (couponCode) {
-      orderPayload.notes = {
-        coupon_code: couponCode
-      };
+      orderPayload.notes.coupon_code = couponCode;
+    }
+    if (currency === 'USD') {
+      orderPayload.notes.original_currency = 'USD';
+      orderPayload.notes.original_amount_cents = finalAmountSmallest;
+      orderPayload.notes.usd_to_inr_rate = USD_TO_INR;
     }
 
     const razorpayAuth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
