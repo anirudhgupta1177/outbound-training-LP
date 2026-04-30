@@ -98,8 +98,8 @@ export default function Checkout() {
 
   // Calculate GST on discounted price (only for India)
   const gstAmount = isIndia ? Math.round(discountedPrice * pricing.gstRate) : 0;
-  // Razorpay enforces minimums: ₹1 for INR, $0.50 for USD
-  const razorpayMin = pricing.currency === 'INR' ? 1 : 0.50;
+  // Razorpay enforces minimums: ₹1 for INR, $1 for USD
+  const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
   const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
   // Load Razorpay script
