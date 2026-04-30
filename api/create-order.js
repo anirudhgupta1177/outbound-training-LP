@@ -62,6 +62,9 @@ export default async function handler(req, res) {
     // backward compatibility, but coupon still enforces server-side validity.
     let finalAmountSmallest;
 
+    // Razorpay minimum order amounts (in smallest currency unit)
+    const RAZORPAY_MIN = { INR: 100, USD: 50 }; // ₹1.00 / $0.50
+
     if (typeof basePrice === 'number' && basePrice > 0) {
       const rate = typeof gstRate === 'number' && gstRate >= 0 ? gstRate : 0;
       const discountAmount = validatedCoupon ? validatedCoupon.discountAmount : 0;
@@ -69,6 +72,12 @@ export default async function handler(req, res) {
       const gstAmount = Math.round(discountedPrice * rate);
       const totalMajor = discountedPrice + gstAmount;
       finalAmountSmallest = Math.round(totalMajor * 100);
+
+      // Enforce Razorpay minimum so deep-discount coupons don't fail
+      const minAmount = RAZORPAY_MIN[currency] || 50;
+      if (finalAmountSmallest < minAmount) {
+        finalAmountSmallest = minAmount;
+      }
     } else if (typeof amount === 'number' && Number.isInteger(amount) && amount > 0) {
       finalAmountSmallest = amount;
     } else {

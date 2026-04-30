@@ -95,10 +95,12 @@ export default function Checkout() {
   const discountPercent = appliedCoupon?.discount || 0;
   const discountAmount = Math.round((basePrice * discountPercent) / 100);
   const discountedPrice = basePrice - discountAmount;
-  
+
   // Calculate GST on discounted price (only for India)
   const gstAmount = isIndia ? Math.round(discountedPrice * pricing.gstRate) : 0;
-  const totalAmount = discountedPrice + gstAmount;
+  // Razorpay enforces minimums: ₹1 for INR, $0.50 for USD
+  const razorpayMin = pricing.currency === 'INR' ? 1 : 0.50;
+  const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
   // Load Razorpay script
   useEffect(() => {
