@@ -14,7 +14,8 @@ import {
   HiRefresh,
   HiUsers,
   HiChartBar,
-  HiTicket
+  HiTicket,
+  HiCurrencyRupee
 } from 'react-icons/hi';
 
 export default function AdminDashboard() {
@@ -179,6 +180,13 @@ export default function AdminDashboard() {
               >
                 <HiTicket className="w-4 h-4" />
                 Coupons
+              </Link>
+              <Link
+                to="/admin/pricing"
+                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                <HiCurrencyRupee className="w-4 h-4" />
+                Pricing
               </Link>
               <Link 
                 to="/course" 

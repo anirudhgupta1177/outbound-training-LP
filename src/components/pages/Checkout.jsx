@@ -332,7 +332,8 @@ export default function Checkout() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            basePrice,
+            tier: pricing.tier, // server uses this to look up canonical price
+            basePrice,           // legacy fallback if tier lookup fails server-side
             gstRate: isIndia ? pricing.gstRate : 0,
             currency: pricing.currency,
             couponCode: appliedCoupon?.code || null,
