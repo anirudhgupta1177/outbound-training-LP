@@ -1,112 +1,115 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { detectCountry } from '../services/geolocation';
-import { getPricingByCountry } from '../constants/pricing';
+import {
+  buildPricing,
+  getPricingByCountry,
+  tierForCountry,
+  FALLBACK_TIERS,
+} from '../constants/pricing';
 
 const PricingContext = createContext(null);
 
+const resolveCountryOverride = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromUrl = urlParams.get('country')?.toUpperCase();
+  if (fromUrl && (fromUrl === 'IN' || fromUrl === 'US')) return { source: 'url', country: fromUrl };
+
+  const fromStorage = localStorage.getItem('testCountry');
+  if (fromStorage && (fromStorage === 'IN' || fromStorage === 'US')) {
+    return { source: 'localStorage', country: fromStorage };
+  }
+  return null;
+};
+
+const fetchTiersFromApi = async () => {
+  try {
+    const res = await fetch('/api/pricing', { headers: { Accept: 'application/json' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !data.tiers) return null;
+    return data.tiers;
+  } catch (err) {
+    console.warn('Failed to fetch /api/pricing, falling back to static defaults:', err);
+    return null;
+  }
+};
+
+const pricingFromTiers = (country, tiers) => {
+  if (!tiers) return getPricingByCountry(country); // static fallback path
+  const key = tierForCountry(country);
+  const row = tiers[key] || FALLBACK_TIERS[key];
+  return buildPricing(row);
+};
+
 export const PricingProvider = ({ children }) => {
-  // Initialize with India pricing immediately so components can render
-  const [country, setCountry] = useState('IN'); // Default to India
-  const [pricing, setPricing] = useState(getPricingByCountry('IN')); // Start with India pricing
+  const [country, setCountry] = useState('IN');
+  const [tiers, setTiers] = useState(null); // null => use FALLBACK_TIERS
+  const [pricing, setPricing] = useState(getPricingByCountry('IN'));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCountry = async () => {
+    let cancelled = false;
+
+    const resolve = async () => {
       setIsLoading(true);
       setError(null);
-      
-      // Check for test country override in URL (e.g., ?country=US or ?country=IN)
-      const urlParams = new URLSearchParams(window.location.search);
-      const testCountry = urlParams.get('country')?.toUpperCase();
-      
-      // Check for test country in localStorage (for manual testing)
-      const storedTestCountry = localStorage.getItem('testCountry');
-      
-      if (testCountry && (testCountry === 'IN' || testCountry === 'US')) {
-        // URL parameter override (for testing)
-        console.log('🌍 TEST MODE: Using country from URL parameter:', testCountry);
-        sessionStorage.removeItem('detectedCountry');
-        const pricingConfig = getPricingByCountry(testCountry);
-        setCountry(testCountry);
-        setPricing(pricingConfig);
-        setIsLoading(false);
-        return;
-      } else if (storedTestCountry && (storedTestCountry === 'IN' || storedTestCountry === 'US')) {
-        // localStorage override (for manual testing)
-        console.log('🌍 TEST MODE: Using country from localStorage:', storedTestCountry);
-        const pricingConfig = getPricingByCountry(storedTestCountry);
-        setCountry(storedTestCountry);
-        setPricing(pricingConfig);
-        setIsLoading(false);
-        return;
+
+      // Fire DB fetch and country detection in parallel.
+      const tiersPromise = fetchTiersFromApi();
+      const override = resolveCountryOverride();
+
+      let resolvedCountry = 'IN';
+      if (override) {
+        console.log(`🌍 TEST MODE (${override.source}): country =`, override.country);
+        if (override.source === 'url') sessionStorage.removeItem('detectedCountry');
+        resolvedCountry = override.country;
+      } else {
+        try {
+          resolvedCountry = await detectCountry();
+        } catch (err) {
+          console.error('❌ Country detection failed, defaulting to IN:', err);
+          if (!cancelled) setError(err);
+        }
       }
-      
-      try {
-        const detectedCountry = await detectCountry();
-        console.log('🌍 Detected country:', detectedCountry);
-        const pricingConfig = getPricingByCountry(detectedCountry);
-        console.log('💰 Pricing:', {
-          currency: pricingConfig.currency,
-          price: pricingConfig.displayPrice,
-          originalPrice: pricingConfig.displayOriginalPrice,
-          gst: detectedCountry === 'IN' ? '18%' : 'None'
-        });
-        
-        setCountry(detectedCountry);
-        setPricing(pricingConfig);
-      } catch (err) {
-        console.error('❌ Error detecting country:', err);
-        setError(err);
-        // Default to India on error
-        setCountry('IN');
-        setPricing(getPricingByCountry('IN'));
-        console.log('🔄 Defaulted to India pricing due to error');
-      } finally {
-        setIsLoading(false);
-      }
+
+      const fetchedTiers = await tiersPromise;
+      if (cancelled) return;
+
+      const nextPricing = pricingFromTiers(resolvedCountry, fetchedTiers);
+      console.log('💰 Pricing resolved:', {
+        country: resolvedCountry,
+        tier: nextPricing.tier,
+        currency: nextPricing.currency,
+        price: nextPricing.displayPrice,
+        source: fetchedTiers ? 'db' : 'fallback',
+      });
+
+      setCountry(resolvedCountry);
+      setTiers(fetchedTiers);
+      setPricing(nextPricing);
+      setIsLoading(false);
     };
 
-    fetchCountry();
-    
-    // Watch for URL changes (for testing with ?country=US)
-    const handlePopState = () => {
-      fetchCountry();
-    };
+    resolve();
+
+    // Re-resolve when the URL changes (lets ?country=US testing work after navigation).
+    const handlePopState = () => resolve();
     window.addEventListener('popstate', handlePopState);
-    
-    // Also check URL on any navigation (for React Router)
-    const checkUrl = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const testCountry = urlParams.get('country');
-      if (testCountry && (testCountry === 'IN' || testCountry === 'US')) {
-        fetchCountry();
-      }
-    };
-    
-    // Check URL every second (for testing purposes)
-    const interval = setInterval(checkUrl, 1000);
-    
     return () => {
+      cancelled = true;
       window.removeEventListener('popstate', handlePopState);
-      clearInterval(interval);
     };
   }, []);
 
-  // Use useMemo to ensure value object reference changes when pricing changes
-  // This forces React components to re-render when pricing updates
   const value = useMemo(() => ({
     country,
     pricing,
     isLoading,
     error,
     isIndia: country === 'IN',
+    tier: pricing.tier,
   }), [country, pricing, isLoading, error]);
-
-  // Debug logging when pricing changes
-  useEffect(() => {
-    console.log('💰 PricingContext updated - Currency:', pricing.currency, 'Price:', pricing.displayPrice, 'Country:', country);
-  }, [pricing, country]);
 
   return (
     <PricingContext.Provider value={value}>
@@ -117,9 +120,6 @@ export const PricingProvider = ({ children }) => {
 
 export const usePricing = () => {
   const context = useContext(PricingContext);
-  if (!context) {
-    throw new Error('usePricing must be used within PricingProvider');
-  }
+  if (!context) throw new Error('usePricing must be used within PricingProvider');
   return context;
 };
-

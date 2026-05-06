@@ -1,4 +1,34 @@
+import { createClient } from '@supabase/supabase-js';
 import { validateCouponAgainstDb } from './validate-coupon.js';
+
+const VALID_TIERS = new Set(['INDIA', 'SAARC', 'INTERNATIONAL']);
+
+// Look up the canonical price for a tier from Supabase. If the table or row
+// is missing, return null and let the caller fall back to the client-provided
+// values (preserves backward compatibility with the legacy payload shape).
+async function fetchCanonicalTier(tier) {
+  if (!VALID_TIERS.has(tier)) return null;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseServiceKey) return null;
+  try {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { data, error } = await supabase
+      .from('pricing_tiers')
+      .select('*')
+      .eq('tier', tier)
+      .single();
+    if (error || !data) return null;
+    return {
+      currency: data.currency,
+      basePrice: Number(data.base_price),
+      gstRate: Number(data.gst_rate),
+    };
+  } catch (err) {
+    console.error('fetchCanonicalTier error:', err);
+    return null;
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -21,14 +51,27 @@ export default async function handler(req, res) {
       }
     }
 
-    const {
-      basePrice,      // major units, pre-discount, pre-GST (preferred new field)
-      gstRate,        // decimal, e.g. 0.18 for India, 0 otherwise
+    let {
+      tier,           // 'INDIA' | 'SAARC' | 'INTERNATIONAL' — preferred, server looks up canonical price
+      basePrice,      // major units, pre-discount, pre-GST (legacy / fallback if tier lookup fails)
+      gstRate,        // decimal, e.g. 0.18 for India, 0 otherwise (ignored when tier resolves)
       amount,         // legacy: amount already in smallest currency unit
       currency,
       couponCode,
       receipt
     } = bodyData || {};
+
+    // When the client sends a tier, the server is the source of truth for
+    // basePrice + gstRate + currency. This prevents a tampered client from
+    // lowering the charged amount via the basePrice field.
+    if (tier) {
+      const canonical = await fetchCanonicalTier(tier);
+      if (canonical) {
+        basePrice = canonical.basePrice;
+        gstRate = canonical.gstRate;
+        currency = canonical.currency;
+      }
+    }
 
     if (!currency || (currency !== 'INR' && currency !== 'USD')) {
       return res.status(400).json({
