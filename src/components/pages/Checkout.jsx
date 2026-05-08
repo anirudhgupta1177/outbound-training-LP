@@ -101,6 +101,13 @@ export default function Checkout() {
   const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
   const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
+  // Fire Meta Pixel AddToCart when checkout page loads
+  useEffect(() => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'AddToCart');
+    }
+  }, []);
+
   // Load Razorpay script
   useEffect(() => {
     const loadRazorpay = () => {
@@ -305,6 +312,14 @@ export default function Checkout() {
 
     setIsSubmitting(true);
 
+    // Fire Meta Pixel InitiateCheckout
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'InitiateCheckout', {
+        value: totalAmount,
+        currency: pricing.currency,
+      });
+    }
+
     try {
       // Step 1: Convert amount to smallest currency unit (for the Razorpay
       // handler callback below). The server re-validates the coupon and
@@ -435,6 +450,12 @@ export default function Checkout() {
       };
 
       const razorpay = new window.Razorpay(options);
+
+      // Fire Meta Pixel AddPaymentInfo when Razorpay checkout opens
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'AddPaymentInfo');
+      }
+
       razorpay.open();
     } catch (error) {
       console.error('Error in payment flow:', error);

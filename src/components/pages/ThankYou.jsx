@@ -18,6 +18,11 @@ export default function ThankYou() {
       setIsValidSession(true);
       // Clear the session so page can't be accessed again by direct URL
       sessionStorage.removeItem('payment_completed');
+
+      // Fire Meta Pixel Purchase event
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Purchase', { currency: 'INR', value: 0 });
+      }
     } else {
       // No valid payment session - redirect to home
       navigate('/', { replace: true });
