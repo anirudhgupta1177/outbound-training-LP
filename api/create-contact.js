@@ -695,26 +695,29 @@ export default async function handler(req, res) {
         const valueDecimal = Math.round(((amount || 0) / 100) * 100) / 100;
 
         const redditPayload = {
-          events: [{
-            event_at: new Date().toISOString(),
-            event_type: { tracking_type: 'Purchase' },
-            event_metadata: {
-              currency: currency || 'INR',
-              value_decimal: valueDecimal,
-              item_count: 1,
-              conversion_id: razorpay_payment_id,
-            },
-            user: {
-              ...(customer_email && { email: hashSha256(customer_email) }),
-              ...(ip && { ip_address: ip }),
-              ...(req.headers['user-agent'] && { user_agent: req.headers['user-agent'] }),
-              ...(rdtUuid && { uuid: rdtUuid }),
-            },
-          }],
+          data: {
+            events: [{
+              event_at: Date.now(),
+              action_source: 'WEBSITE',
+              type: { tracking_type: 'Purchase' },
+              event_metadata: {
+                currency: currency || 'INR',
+                value_decimal: valueDecimal,
+                item_count: 1,
+                conversion_id: razorpay_payment_id,
+              },
+              user: {
+                ...(customer_email && { email: hashSha256(customer_email) }),
+                ...(ip && { ip_address: ip }),
+                ...(req.headers['user-agent'] && { user_agent: req.headers['user-agent'] }),
+                ...(rdtUuid && { uuid: rdtUuid }),
+              },
+            }],
+          },
         };
 
         const redditResp = await fetch(
-          `https://ads-api.reddit.com/api/v2.0/conversions/events/${REDDIT_PIXEL_ID}`,
+          `https://ads-api.reddit.com/api/v3/pixels/${REDDIT_PIXEL_ID}/conversion_events`,
           {
             method: 'POST',
             headers: {
