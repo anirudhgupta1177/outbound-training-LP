@@ -680,12 +680,20 @@ export default async function handler(req, res) {
       console.log('=== SENDING REDDIT CAPI PURCHASE ===');
       try {
         const hashSha256 = (s) => crypto.createHash('sha256').update(String(s).trim().toLowerCase()).digest('hex');
+        // Phone numbers must be E.164 (digits only, with country code) before hashing
+        const hashPhone = (p) => {
+          const digits = String(p).replace(/[^0-9]/g, '');
+          return digits ? hashSha256(digits) : null;
+        };
 
-        // Pull _rdt_uuid (Reddit's per-browser identifier) from the request cookie
-        const rdtUuid = (req.headers.cookie || '')
-          .split(';').map((c) => c.trim())
-          .find((c) => c.startsWith('_rdt_uuid='))
-          ?.split('=')[1];
+        // Reddit's per-browser identifiers (set by pixel.js)
+        const cookieJar = Object.fromEntries(
+          (req.headers.cookie || '').split(';')
+            .map((c) => c.trim().split('='))
+            .filter((kv) => kv.length === 2)
+        );
+        const rdtUuid = cookieJar['_rdt_uuid'];
+        const rdtClickId = cookieJar['_rdt_cid'];
 
         const ip = (req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim()
           || req.headers['x-real-ip']
@@ -694,23 +702,28 @@ export default async function handler(req, res) {
         // amount is in smallest currency unit (paise/cents). Reddit wants decimal.
         const valueDecimal = Math.round(((amount || 0) / 100) * 100) / 100;
 
+        const hashedPhone = customer_phone ? hashPhone(customer_phone) : null;
+
         const redditPayload = {
           data: {
             events: [{
               event_at: Date.now(),
               action_source: 'WEBSITE',
               type: { tracking_type: 'Purchase' },
-              event_metadata: {
-                currency: currency || 'INR',
-                value_decimal: valueDecimal,
-                item_count: 1,
-                conversion_id: razorpay_payment_id,
-              },
+              ...(rdtClickId && { click_id: rdtClickId }),
               user: {
                 ...(customer_email && { email: hashSha256(customer_email) }),
+                ...(hashedPhone && { phone_number: hashedPhone }),
+                ...(supabaseUser?.id && { external_id: hashSha256(supabaseUser.id) }),
                 ...(ip && { ip_address: ip }),
                 ...(req.headers['user-agent'] && { user_agent: req.headers['user-agent'] }),
                 ...(rdtUuid && { uuid: rdtUuid }),
+              },
+              metadata: {
+                currency: currency || 'INR',
+                value: valueDecimal,
+                item_count: 1,
+                conversion_id: razorpay_payment_id,
               },
             }],
           },
