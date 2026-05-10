@@ -675,6 +675,10 @@ export default async function handler(req, res) {
     // call fired in ThankYou.jsx, so attribution survives ad-blockers.
     const REDDIT_CONVERSION_TOKEN = process.env.REDDIT_CONVERSION_TOKEN;
     const REDDIT_PIXEL_ID = process.env.REDDIT_PIXEL_ID || 'a2_ixmbsful2p9m';
+    // Optional. When set, CAPI events are routed to Reddit's test bucket and only
+    // appear in the "Send test events" panel — they DO NOT count for ad attribution.
+    // Use only while verifying setup, then unset for production.
+    const REDDIT_CAPI_TEST_ID = process.env.REDDIT_CAPI_TEST_ID;
 
     if (REDDIT_CONVERSION_TOKEN && razorpay_payment_id) {
       console.log('=== SENDING REDDIT CAPI PURCHASE ===');
@@ -710,6 +714,7 @@ export default async function handler(req, res) {
               event_at: Date.now(),
               action_source: 'WEBSITE',
               type: { tracking_type: 'Purchase' },
+              ...(REDDIT_CAPI_TEST_ID && { test_id: REDDIT_CAPI_TEST_ID }),
               ...(rdtClickId && { click_id: rdtClickId }),
               user: {
                 ...(customer_email && { email: hashSha256(customer_email) }),
