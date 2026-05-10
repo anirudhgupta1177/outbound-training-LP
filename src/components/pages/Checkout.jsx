@@ -101,13 +101,16 @@ export default function Checkout() {
   const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
   const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
+  // Stable per-mount conversion ID for Reddit Pixel <-> CAPI deduplication
+  const addToCartConversionId = useRef(`atc_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
+
   // Fire Meta Pixel + Reddit Pixel AddToCart when checkout page loads
   useEffect(() => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'AddToCart');
     }
     if (typeof window.rdt === 'function') {
-      window.rdt('track', 'AddToCart');
+      window.rdt('track', 'AddToCart', { conversionId: addToCartConversionId.current });
     }
   }, []);
 
@@ -438,7 +441,13 @@ export default function Checkout() {
 
           // Set payment session flag so ThankYou page knows it's a valid visit
           sessionStorage.setItem('payment_completed', 'true');
-          
+          // Persist payment details so ThankYou can fire Purchase pixels with real value + dedup ID
+          sessionStorage.setItem('payment_details', JSON.stringify({
+            payment_id: response.razorpay_payment_id,
+            value: totalAmount,
+            currency: pricing.currency,
+          }));
+
           // Redirect to thank you page on success
           navigate('/thank-you');
         },

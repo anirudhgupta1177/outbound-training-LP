@@ -12,19 +12,35 @@ export default function ThankYou() {
   useEffect(() => {
     // Check if user came from a valid payment
     const paymentSession = sessionStorage.getItem('payment_completed');
-    
+
     if (paymentSession) {
       // Valid payment session exists
       setIsValidSession(true);
+
+      // Read payment details (may be absent for legacy sessions — fall back gracefully)
+      let payment = {};
+      try {
+        payment = JSON.parse(sessionStorage.getItem('payment_details') || '{}');
+      } catch (_) {}
+      const currency = payment.currency || 'INR';
+      const value = typeof payment.value === 'number' ? payment.value : 0;
+      const conversionId = payment.payment_id;
+
       // Clear the session so page can't be accessed again by direct URL
       sessionStorage.removeItem('payment_completed');
+      sessionStorage.removeItem('payment_details');
 
       // Fire Meta Pixel + Reddit Pixel Purchase event
       if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Purchase', { currency: 'INR', value: 0 });
+        window.fbq('track', 'Purchase', { currency, value, ...(conversionId && { eventID: conversionId }) });
       }
       if (typeof window.rdt === 'function') {
-        window.rdt('track', 'Purchase', { currency: 'INR', itemCount: 1, value: 0 });
+        window.rdt('track', 'Purchase', {
+          currency,
+          itemCount: 1,
+          value,
+          ...(conversionId && { conversionId }),
+        });
       }
     } else {
       // No valid payment session - redirect to home
