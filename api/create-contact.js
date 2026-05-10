@@ -667,6 +667,78 @@ export default async function handler(req, res) {
       }
     }
 
+    // ============================================
+    // STEP 4: Reddit Conversions API — Purchase event
+    // ============================================
+    // Server-side companion to the browser Reddit Pixel. Same `conversion_id`
+    // (razorpay_payment_id) lets Reddit dedupe against the rdt('track','Purchase')
+    // call fired in ThankYou.jsx, so attribution survives ad-blockers.
+    const REDDIT_CONVERSION_TOKEN = process.env.REDDIT_CONVERSION_TOKEN;
+    const REDDIT_PIXEL_ID = process.env.REDDIT_PIXEL_ID || 'a2_ixmbsful2p9m';
+
+    if (REDDIT_CONVERSION_TOKEN && razorpay_payment_id) {
+      console.log('=== SENDING REDDIT CAPI PURCHASE ===');
+      try {
+        const hashSha256 = (s) => crypto.createHash('sha256').update(String(s).trim().toLowerCase()).digest('hex');
+
+        // Pull _rdt_uuid (Reddit's per-browser identifier) from the request cookie
+        const rdtUuid = (req.headers.cookie || '')
+          .split(';').map((c) => c.trim())
+          .find((c) => c.startsWith('_rdt_uuid='))
+          ?.split('=')[1];
+
+        const ip = (req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim()
+          || req.headers['x-real-ip']
+          || req.socket?.remoteAddress;
+
+        // amount is in smallest currency unit (paise/cents). Reddit wants decimal.
+        const valueDecimal = Math.round(((amount || 0) / 100) * 100) / 100;
+
+        const redditPayload = {
+          events: [{
+            event_at: new Date().toISOString(),
+            event_type: { tracking_type: 'Purchase' },
+            event_metadata: {
+              currency: currency || 'INR',
+              value_decimal: valueDecimal,
+              item_count: 1,
+              conversion_id: razorpay_payment_id,
+            },
+            user: {
+              ...(customer_email && { email: hashSha256(customer_email) }),
+              ...(ip && { ip_address: ip }),
+              ...(req.headers['user-agent'] && { user_agent: req.headers['user-agent'] }),
+              ...(rdtUuid && { uuid: rdtUuid }),
+            },
+          }],
+        };
+
+        const redditResp = await fetch(
+          `https://ads-api.reddit.com/api/v2.0/conversions/events/${REDDIT_PIXEL_ID}`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${REDDIT_CONVERSION_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(redditPayload),
+          }
+        );
+
+        if (redditResp.ok) {
+          console.log('Reddit CAPI Purchase sent. conversion_id:', razorpay_payment_id);
+        } else {
+          const errText = await redditResp.text();
+          console.error('Reddit CAPI error:', redditResp.status, errText);
+        }
+      } catch (redditError) {
+        console.error('Reddit CAPI exception:', redditError);
+        // Do not fail the request — the browser-side pixel fires independently.
+      }
+    } else if (!REDDIT_CONVERSION_TOKEN) {
+      console.log('REDDIT_CONVERSION_TOKEN not configured, skipping CAPI');
+    }
+
     // Return success response
     return res.status(200).json({
       success: true,
