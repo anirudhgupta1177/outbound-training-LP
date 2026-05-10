@@ -19,9 +19,12 @@ export default function ThankYou() {
       // Clear the session so page can't be accessed again by direct URL
       sessionStorage.removeItem('payment_completed');
 
-      // Fire Meta Pixel Purchase event
+      // Fire Meta Pixel + Reddit Pixel Purchase event
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'Purchase', { currency: 'INR', value: 0 });
+      }
+      if (typeof window.rdt === 'function') {
+        window.rdt('track', 'Purchase', { currency: 'INR', itemCount: 1, value: 0 });
       }
     } else {
       // No valid payment session - redirect to home

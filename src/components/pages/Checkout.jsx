@@ -101,10 +101,13 @@ export default function Checkout() {
   const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
   const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
-  // Fire Meta Pixel AddToCart when checkout page loads
+  // Fire Meta Pixel + Reddit Pixel AddToCart when checkout page loads
   useEffect(() => {
     if (typeof window.fbq === 'function') {
       window.fbq('track', 'AddToCart');
+    }
+    if (typeof window.rdt === 'function') {
+      window.rdt('track', 'AddToCart');
     }
   }, []);
 
