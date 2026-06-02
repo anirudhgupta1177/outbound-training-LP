@@ -185,7 +185,7 @@ export function AuthProvider({ children }) {
         password: newPassword,
       });
       if (error) throw error;
-      // Recovery complete — clear the flag so the recovery gate stops
+      // Recovery complete - clear the flag so the recovery gate stops
       // redirecting the user back to /reset-password.
       setPasswordRecovery(false);
       return { data, error: null };

@@ -18,7 +18,7 @@ export default function ResetPassword() {
   // parsing the reset token from the URL before we give up.
   useEffect(() => {
     if (loading) return; // wait for auth to settle
-    if (user || passwordRecovery) return; // valid recovery context — stay
+    if (user || passwordRecovery) return; // valid recovery context - stay
 
     const timer = setTimeout(() => {
       if (!user && !passwordRecovery) {
