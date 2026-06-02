@@ -1,25 +1,27 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { HiArrowRight } from 'react-icons/hi';
 
 const PAYMENT_URL = '/checkout';
 
-export default function Button({ 
-  children, 
-  variant = 'primary', 
-  size = 'lg', 
+export default function Button({
+  children,
+  variant = 'primary',
+  size = 'lg',
   href,
   className = '',
+  showArrow = false,
   onClick,
-  ...props 
+  ...props
 }) {
-  const baseStyles = 'font-display font-bold rounded-xl transition-all duration-300 inline-flex items-center justify-center gap-2';
-  
+  const baseStyles = 'font-display font-bold rounded-xl transition-all duration-300 inline-flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold';
+
   const variants = {
-    primary: 'btn-gold text-dark',
+    primary: 'hero-cta text-dark',
     secondary: 'bg-purple border-2 border-purple-light text-white hover:bg-purple-light',
     outline: 'bg-transparent border-2 border-gold text-gold hover:bg-gold hover:text-dark',
   };
-  
+
   const sizes = {
     sm: 'px-4 py-2 text-sm',
     md: 'px-6 py-3 text-base',
@@ -27,16 +29,13 @@ export default function Button({
     xl: 'px-10 py-5 text-xl',
   };
 
-  // Default to payment URL for checkout links
   const finalHref = href === '#checkout' || !href ? PAYMENT_URL : href;
   const isExternal = finalHref && finalHref.startsWith('http');
   const isInternal = finalHref && finalHref.startsWith('/');
-  const isHash = finalHref && finalHref.startsWith('#');
-  
-  // Use Link for internal routes, anchor for external/hash links, button if no href
+
   let Component;
   let componentProps = {};
-  
+
   if (!finalHref) {
     Component = motion.button;
   } else if (isInternal) {
@@ -61,6 +60,7 @@ export default function Button({
       {...props}
     >
       {children}
+      {showArrow && <HiArrowRight className="arrow-icon w-5 h-5" />}
     </Component>
   );
 }

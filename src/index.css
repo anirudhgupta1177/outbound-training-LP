@@ -68,6 +68,49 @@
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
+
+  @keyframes pulse-scale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.015); }
+  }
+
+  @keyframes particle-float {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 0.3; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+  }
+
+  @keyframes scarcity-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  @keyframes scroll-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+}
+
+.animate-pulse-scale {
+  animation: pulse-scale 2.4s ease-in-out infinite;
+}
+.animate-particle-float {
+  animation: particle-float linear infinite;
+}
+.animate-scarcity-pulse {
+  animation: scarcity-pulse 2s ease-in-out infinite;
+}
+.animate-dot-pulse {
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+.animate-scroll-bounce {
+  animation: scroll-bounce 1.5s ease-in-out infinite;
 }
 
 /* Base styles */
@@ -425,4 +468,81 @@ h1, h2, h3, h4, h5, h6 {
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, var(--brand) 0%, #6366f1 100%);
   box-shadow: 0 4px 16px rgba(27, 79, 191, 0.3);
+}
+
+/* Hero background grid */
+.hero-grid-pattern {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 8px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 8px);
+}
+
+/* Vignette overlay */
+.hero-vignette {
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.15) 100%);
+}
+
+/* Cursor-follow glow (set via JS: --glow-x, --glow-y) */
+.cursor-glow {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: left 0.15s ease-out, top 0.15s ease-out;
+  mix-blend-mode: screen;
+}
+
+/* Hero CTA button */
+.hero-cta {
+  background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%);
+  box-shadow: 0 10px 40px rgba(34, 211, 238, 0.35), 0 0 0 1px rgba(34, 211, 238, 0.5) inset;
+  color: #050505;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+.hero-cta:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 50px rgba(34, 211, 238, 0.45), 0 0 0 1px rgba(34, 211, 238, 0.6) inset;
+}
+.hero-cta:active {
+  transform: translateY(0);
+}
+.hero-cta .arrow-icon {
+  transition: transform 0.3s ease;
+}
+.hero-cta:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+/* Trust pill inner glow */
+.trust-pill {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.15) inset;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.trust-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.15) inset, 0 4px 12px rgba(34, 211, 238, 0.15);
+}
+
+/* Focus visible for all interactive elements */
+*:focus-visible {
+  outline: 2px solid #22D3EE;
+  outline-offset: 2px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
