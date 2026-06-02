@@ -104,10 +104,10 @@ function Hero() {
 
           {/* Main Headline */}
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold leading-tight mb-2 md:mb-2">
-            <span className="text-white">How Freelancers & Agencies Are Booking </span>
-            <span className="gradient-text">30+ Sales Meetings Per Month</span>
-            <span className="text-white"> Using AI-Powered Cold Outreach </span>
-            <span className="text-white/80">(Without Ads or Cold Calling)</span>
+            <span className="text-white">How To Book </span>
+            <span className="gradient-text">5-10 Sales Calls/Week</span>
+            <span className="text-white"> By Installing This AI Outbound Funnel </span>
+            <span className="text-white/80">(used by top 0.1% marketing teams like Instantly)</span>
           </h1>
 
           {/* Subheadline */}
