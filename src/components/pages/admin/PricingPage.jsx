@@ -35,7 +35,7 @@ const TIER_ORDER = ['INDIA', 'SAARC', 'INTERNATIONAL'];
 
 const formatPreview = (amount, currency) => {
   const n = Number(amount);
-  if (!Number.isFinite(n)) return '-';
+  if (!Number.isFinite(n)) return '—';
   return currency === 'INR'
     ? `₹${n.toLocaleString('en-IN')}`
     : `$${n.toLocaleString('en-US')}`;
@@ -358,7 +358,7 @@ export default function PricingPage() {
 
                   <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
                     <p className="text-xs text-gray-500">
-                      Last updated: {row.updated_at ? new Date(row.updated_at).toLocaleString() : '-'}
+                      Last updated: {row.updated_at ? new Date(row.updated_at).toLocaleString() : '—'}
                     </p>
                     <div className="flex items-center gap-2">
                       <button
@@ -387,7 +387,7 @@ export default function PricingPage() {
           <p className="font-semibold text-gray-300 mb-1">How this propagates</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Landing page CTAs, value-stack card, mobile sticky bar, checkout summary all read from this row in real time.</li>
-            <li>The Razorpay order amount is recomputed server-side from the matching tier - clients cannot tamper with it.</li>
+            <li>The Razorpay order amount is recomputed server-side from the matching tier — clients cannot tamper with it.</li>
             <li>Visitors see at most a 60-second cache delay (CDN) before the new price appears.</li>
           </ul>
         </div>

@@ -140,7 +140,7 @@ const comparison = [
                 </motion.li>
               </ul>
 
-              {/* Honest tool-cost framing - top prospect objection */}
+              {/* Honest tool-cost framing — top prospect objection */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}

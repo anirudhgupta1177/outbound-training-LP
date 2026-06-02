@@ -28,13 +28,13 @@ const faqs = [
     question: "Do I need to pay for Clay, Apollo, or GPT API keys?",
     answer: (
       <>
-        <strong>No - not required.</strong> The course specifically teaches free and open-source alternatives for:
+        <strong>No — not required.</strong> The course specifically teaches free and open-source alternatives for:
         <br />
         • Lead research and enrichment
         <br />
         • AI personalization (using open-source LLMs instead of paid GPT APIs)
         <br /><br />
-        If you want to use paid tools like Clay or Apollo for faster execution, you can - but the system is designed so you can run it end-to-end without expensive subscriptions.
+        If you want to use paid tools like Clay or Apollo for faster execution, you can — but the system is designed so you can run it end-to-end without expensive subscriptions.
       </>
     ),
     defaultOpen: false,
@@ -49,9 +49,9 @@ const faqs = [
         <br />
         • <strong>10+ hours</strong> dedicated to <strong>Clay</strong> from scratch
         <br />
-        • <strong>Ready-to-import blueprints</strong> for Make.com and n8n - you don't build workflows from zero
+        • <strong>Ready-to-import blueprints</strong> for Make.com and n8n — you don't build workflows from zero
         <br />
-        • <strong>No coding required</strong> - everything runs on no-code tools
+        • <strong>No coding required</strong> — everything runs on no-code tools
         <br /><br />
         The 1,100+ member WhatsApp community is there for every step, and Ani personally responds to relevant queries.
       </>
@@ -60,13 +60,13 @@ const faqs = [
   },
   {
     question: "How quickly can I get started?",
-    answer: "Instant course access after payment. Most students launch their first campaign within 2–3 weeks of starting - results (replies, meetings) typically show up in the first week of a live campaign.",
+    answer: "Instant course access after payment. Most students launch their first campaign within 2–3 weeks of starting — results (replies, meetings) typically show up in the first week of a live campaign.",
     defaultOpen: false,
   },
   {
     question: "Does this only work for Indian companies targeting Indian clients?",
     answer: ({ isIndia }) =>
-      `No - the system is geography-agnostic. The 500K+ verified CXO email database covers US and EU decision-makers across SaaS, IT, Marketing, and other industries. Most students target international markets where budgets are higher - the same stack powers Instantly.ai's global outbound at 60K emails/day. If you want to charge $2,000–5,000 per project instead of ${isIndia ? '₹20,000' : '$240'}, this system helps you reach those international decision-makers.`,
+      `No — the system is geography-agnostic. The 500K+ verified CXO email database covers US and EU decision-makers across SaaS, IT, Marketing, and other industries. Most students target international markets where budgets are higher — the same stack powers Instantly.ai's global outbound at 60K emails/day. If you want to charge $2,000–5,000 per project instead of ${isIndia ? '₹20,000' : '$240'}, this system helps you reach those international decision-makers.`,
     defaultOpen: false,
   },
   {
@@ -75,13 +75,13 @@ const faqs = [
       <>
         Because generic cold email is missing three critical pieces:
         <br /><br />
-        • <strong>Intent signals</strong> - You were emailing random people. This system targets companies showing ACTIVE buying intent (hiring, funding, tech changes).
+        • <strong>Intent signals</strong> — You were emailing random people. This system targets companies showing ACTIVE buying intent (hiring, funding, tech changes).
         <br />
-        • <strong>AI personalization at scale</strong> - You were using templates. This system writes 1,000+ unique emails per day tailored to each prospect.
+        • <strong>AI personalization at scale</strong> — You were using templates. This system writes 1,000+ unique emails per day tailored to each prospect.
         <br />
-        • <strong>Infrastructure</strong> - Your emails went to spam. You'll set up diversified sending (multiple domains, warmup, SPF/DKIM/DMARC) with a target <strong>99% email health score</strong>.
+        • <strong>Infrastructure</strong> — Your emails went to spam. You'll set up diversified sending (multiple domains, warmup, SPF/DKIM/DMARC) with a target <strong>99% email health score</strong>.
         <br /><br />
-        The course also includes <strong>12 cold email sequence frameworks tested across 1,000+ campaigns</strong> - so you're not guessing at copy either.
+        The course also includes <strong>12 cold email sequence frameworks tested across 1,000+ campaigns</strong> — so you're not guessing at copy either.
       </>
     ),
     defaultOpen: false,
@@ -119,7 +119,7 @@ const faqs = [
         <br />
         • <strong>BONUS:</strong> Complete end-to-end setup guide
         <br />
-        • Ani's proprietary <strong>Instagram Outbound System</strong> - included free
+        • Ani's proprietary <strong>Instagram Outbound System</strong> — included free
         <br /><br />
         Total stated value: {isIndia ? '₹44,000+' : '$530+'}. Lifetime access, one-time payment.
       </>
@@ -130,24 +130,24 @@ const faqs = [
     question: "How is this different from other cold email courses?",
     answer: (
       <>
-        • <strong>Practitioner, not guru</strong> - Ani heads Outbound at <strong>Instantly.ai</strong> (helped scale it to $45M+ ARR) and runs 60,000 emails/day live.
+        • <strong>Practitioner, not guru</strong> — Ani heads Outbound at <strong>Instantly.ai</strong> (helped scale it to $45M+ ARR) and runs 60,000 emails/day live.
         <br />
-        • <strong>Free / open-source paths</strong> - You're not locked into paid Clay or GPT API subscriptions.
+        • <strong>Free / open-source paths</strong> — You're not locked into paid Clay or GPT API subscriptions.
         <br />
-        • <strong>Ready-to-deploy assets</strong> - 500K lead database + Make/n8n blueprints you import and run. Not starting from zero.
+        • <strong>Ready-to-deploy assets</strong> — 500K lead database + Make/n8n blueprints you import and run. Not starting from zero.
         <br />
-        • <strong>Deep-dive modules</strong> - 10+ hours on Cursor, 10+ hours on Clay.
+        • <strong>Deep-dive modules</strong> — 10+ hours on Cursor, 10+ hours on Clay.
         <br />
-        • <strong>Multi-channel</strong> - Cold email + LinkedIn (HeyReach, Trigify) + Instagram outbound, not just email.
+        • <strong>Multi-channel</strong> — Cold email + LinkedIn (HeyReach, Trigify) + Instagram outbound, not just email.
         <br />
-        • <strong>Active community</strong> - 1,100+ members, not a dead Slack channel.
+        • <strong>Active community</strong> — 1,100+ members, not a dead Slack channel.
       </>
     ),
     defaultOpen: false,
   },
   {
     question: "What's the refund policy?",
-    answer: "30-day money-back guarantee. Complete 100% of the course - if you don't find value, you get a full refund, no questions asked.",
+    answer: "30-day money-back guarantee. Complete 100% of the course — if you don't find value, you get a full refund, no questions asked.",
     defaultOpen: false,
   },
   {
@@ -158,9 +158,9 @@ const faqs = [
         <br /><br />
         Optional (not required) offers that exist separately:
         <br />
-        • <strong>$97 Cold Email DFY Setup</strong> - team builds your first campaign for you
+        • <strong>$97 Cold Email DFY Setup</strong> — team builds your first campaign for you
         <br />
-        • <strong>DFY BuildOut ($4,000+)</strong> - full 4-month managed implementation
+        • <strong>DFY BuildOut ($4,000+)</strong> — full 4-month managed implementation
       </>
     ),
     defaultOpen: false,
@@ -202,7 +202,7 @@ const faqs = [
         <br />
         • B2B service providers
         <br /><br />
-        The ICP targeting - taught in Stage 1 - is what makes it work for your specific offer. Only the targeting criteria and messaging change based on your ideal customer profile.
+        The ICP targeting — taught in Stage 1 — is what makes it work for your specific offer. Only the targeting criteria and messaging change based on your ideal customer profile.
       </>
     ),
     defaultOpen: false,
