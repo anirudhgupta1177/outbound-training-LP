@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors — IntentLedSales brand */
+  /* Colors - IntentLedSales brand */
   --color-dark: #050505;
   --color-dark-secondary: #0A0A0A;
   --color-dark-tertiary: #111111;
@@ -22,7 +22,7 @@
   --color-success: #10B981;
   --color-error: #EF4444;
 
-  /* Typography — IntentLedSales fonts */
+  /* Typography - IntentLedSales fonts */
   --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-accent: 'Playfair Display', serif;
@@ -129,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-/* Gradient text utility — cyan (replaces gold) */
+/* Gradient text utility - cyan (replaces gold) */
 .gradient-text {
   background: linear-gradient(135deg, #00D4FF 0%, #67E8F9 50%, #00D4FF 100%);
   -webkit-background-clip: text;
@@ -298,7 +298,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ═══════════════════════════════════════════
-   CHAT WIDGET — custom properties + styles
+   CHAT WIDGET - custom properties + styles
    ═══════════════════════════════════════════ */
 
 :root {

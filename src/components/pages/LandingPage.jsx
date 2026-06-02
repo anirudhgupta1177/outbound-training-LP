@@ -29,18 +29,6 @@ export default function LandingPage() {
       <main>
         <Hero />
 
-        {/* Trusted By Strip */}
-        <div className="py-6 md:py-8 border-y border-white/5">
-          <div className="max-w-5xl mx-auto px-4">
-            <p className="text-center text-xs text-text-muted uppercase tracking-widest mb-4">Trusted by teams using</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-40 grayscale">
-              {['Instantly', 'Clay', 'Make', 'HeyReach', 'Smartlead'].map(name => (
-                <span key={name} className="font-display font-bold text-lg md:text-xl text-white select-none">{name}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Section divider */}
         <div className="relative">
           <div className="section-divider" />
@@ -49,7 +37,7 @@ export default function LandingPage() {
 
         {/* Below-the-fold content - lazy loaded */}
         <div className="text-center pt-8 md:pt-12">
-          <span className="text-xs uppercase tracking-[0.2em] text-gold/60 font-medium">01 — Results</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-gold/60 font-medium">01 - Results</span>
           <div className="w-8 h-px bg-gold/30 mx-auto mt-2" />
         </div>
         <Suspense fallback={<SectionLoader />}>

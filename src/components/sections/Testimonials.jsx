@@ -14,27 +14,27 @@ export const videoTestimonials = [
     tag: "saas",
     video: "/testimonials/t1.mp4",
     quote: "Booked 14 qualified meetings in the first 3 weeks after launching the system.",
-    description: "Brent went from an empty pipeline to consistent weekly bookings within 14 days of go-live — no manual prospecting, no cold calls.",
+    description: "Brent went from an empty pipeline to consistent weekly bookings within 14 days of go-live - no manual prospecting, no cold calls.",
   },
   {
     name: "Parth",
     tag: "agencies",
     video: "/testimonials/t2.mov",
-    quote: "10+ sales meetings in my first month — closed 3 new clients inside 30 days.",
+    quote: "10+ sales meetings in my first month - closed 3 new clients inside 30 days.",
     description: "Parth replaced scattered outbound with the exact sequences from the system and hit double-digit booked calls in his first 30 days.",
   },
   {
     name: "Pritham",
     tag: "consultants",
     video: "/testimonials/t3.mp4",
-    quote: "18 booked calls in 21 days — ROI paid back in the first week.",
+    quote: "18 booked calls in 21 days - ROI paid back in the first week.",
     description: "Pritham's book-rate went from near-zero to 18 qualified conversations in three weeks after finishing setup on his custom cold email machine.",
   },
   {
     name: "Ravi",
     tag: "agencies",
     video: "/testimonials/t4.mp4",
-    quote: "Jumped from 2 meetings a month to 20+ in 6 weeks — outreach finally feels predictable.",
+    quote: "Jumped from 2 meetings a month to 20+ in 6 weeks - outreach finally feels predictable.",
     description: "Ravi replaced manual prospecting with the automated system and 10x'd his monthly booked calls inside six weeks.",
   },
   {
@@ -42,13 +42,13 @@ export const videoTestimonials = [
     tag: "freelancers",
     video: "/testimonials/t5.mp4",
     quote: "Scaled to 5,000+ prospects/month and booked 25 ideal-client meetings in 4 weeks.",
-    description: "CeeJay used the infrastructure layer to 10x his outreach volume without hiring — 25 qualified meetings with ideal clients in month one.",
+    description: "CeeJay used the infrastructure layer to 10x his outreach volume without hiring - 25 qualified meetings with ideal clients in month one.",
   },
   {
     name: "Aaron",
     tag: "saas",
     video: "/testimonials/t6.mp4",
-    quote: "First meeting booked on day 10 — 11 more in the next 3 weeks, fully hands-off.",
+    quote: "First meeting booked on day 10 - 11 more in the next 3 weeks, fully hands-off.",
     description: "Aaron's full cold email infrastructure was live in under a week. First meeting landed on day 10, and 11 more followed over the next three weeks.",
   },
   {
@@ -56,35 +56,35 @@ export const videoTestimonials = [
     tag: "freelancers",
     video: "/testimonials/t7.mp4",
     quote: "Landed 9 qualified sales calls in my first 2 weeks running the sequences.",
-    description: "Dev went from cold-calling burnout to 9 booked calls in fortnight one — same offer, completely rebuilt outbound.",
+    description: "Dev went from cold-calling burnout to 9 booked calls in fortnight one - same offer, completely rebuilt outbound.",
   },
   {
     name: "Yash",
     tag: "agencies",
     video: "/testimonials/t8.mp4",
-    quote: "Booked 13 qualified meetings in the first 3 weeks — closed 2 deals inside month one.",
-    description: "Yash ran the sequences exactly as taught and filled his calendar with ICP conversations in under a month — no ads, no cold calls.",
+    quote: "Booked 13 qualified meetings in the first 3 weeks - closed 2 deals inside month one.",
+    description: "Yash ran the sequences exactly as taught and filled his calendar with ICP conversations in under a month - no ads, no cold calls.",
   },
   {
     name: "Christian",
     tag: "consultants",
     video: "/testimonials/t9.mp4",
-    quote: "Booked 8 qualified meetings in the first 10 days — signed 2 retainers inside 30 days.",
-    description: "Christian launched the playbook in a weekend and had signed deals before month one closed — no ads, no cold calls.",
+    quote: "Booked 8 qualified meetings in the first 10 days - signed 2 retainers inside 30 days.",
+    description: "Christian launched the playbook in a weekend and had signed deals before month one closed - no ads, no cold calls.",
   },
   {
     name: "Sami",
     tag: "saas",
     video: "/testimonials/t10.mp4",
-    quote: "15 sales meetings in 4 weeks — more pipeline than the previous 6 months combined.",
-    description: "Sami used the infrastructure + copy framework and rebuilt outbound from scratch — result: a quarter's worth of pipeline in a single month.",
+    quote: "15 sales meetings in 4 weeks - more pipeline than the previous 6 months combined.",
+    description: "Sami used the infrastructure + copy framework and rebuilt outbound from scratch - result: a quarter's worth of pipeline in a single month.",
   },
   {
     name: "Ramsey",
     tag: "ecommerce",
     video: "/testimonials/t11.mp4",
     quote: "Closed $12K in new retainers within 5 weeks of turning the system on.",
-    description: "Ramsey tightened the ICP and pushed volume through the sequences — five weeks later the first batch of retainers had already closed.",
+    description: "Ramsey tightened the ICP and pushed volume through the sequences - five weeks later the first batch of retainers had already closed.",
   },
   {
     name: "Alankar",
@@ -98,21 +98,21 @@ export const videoTestimonials = [
     name: "Arjun",
     tag: "freelancers",
     video: "/testimonials/t14.mp4",
-    quote: "Went from 0 to 11 qualified meetings in 3 weeks — first client signed in week 4.",
-    description: "Arjun had never run cold outreach before. Three weeks in, his calendar was full — and the first paying client closed shortly after.",
+    quote: "Went from 0 to 11 qualified meetings in 3 weeks - first client signed in week 4.",
+    description: "Arjun had never run cold outreach before. Three weeks in, his calendar was full - and the first paying client closed shortly after.",
   },
   {
     name: "Ankit S.",
     tag: "consultants",
     video: "/testimonials/t15.mp4",
-    quote: "16 booked calls in my first 30 days — outreach finally runs without me.",
+    quote: "16 booked calls in my first 30 days - outreach finally runs without me.",
     description: "Ankit automated the whole sending layer and booked 16 qualified calls in month one while spending his time on delivery, not prospecting.",
   },
   {
     name: "Tomas R.",
     tag: "saas",
     video: "/testimonials/t16.mp4",
-    quote: "7 meetings booked in the first 2 weeks — closed a $3K retainer inside 30 days.",
+    quote: "7 meetings booked in the first 2 weeks - closed a $3K retainer inside 30 days.",
     description: "Tomas went live with the sequences on a Monday and had seven qualified calls on the calendar by the end of the second week.",
   },
 ];
@@ -177,7 +177,7 @@ const CompactCard = memo(function CompactCard({ testimonial, onPlay, isNearActiv
         border: '1px solid rgba(34, 211, 238, 0.2)',
       }}
     >
-      {/* Video thumbnail — 16:9 */}
+      {/* Video thumbnail - 16:9 */}
       <div
         className="relative cursor-pointer group"
         style={{ aspectRatio: '16/9' }}
@@ -438,7 +438,7 @@ function Testimonials() {
         />
 
         {/* ============================================================ */}
-        {/*  Block 1 — Aggregate Proof Strip                              */}
+        {/*  Block 1 - Aggregate Proof Strip                              */}
         {/* ============================================================ */}
         <div
           ref={statsRef}
@@ -486,7 +486,7 @@ function Testimonials() {
         </div>
 
         {/* ============================================================ */}
-        {/*  Block 4 — Filter Pills                                       */}
+        {/*  Block 4 - Filter Pills                                       */}
         {/* ============================================================ */}
         <div className="mt-5 md:mt-8 overflow-x-auto scrollbar-hide">
           <div className="flex gap-2 md:justify-center min-w-max px-1 pb-1">
@@ -507,7 +507,7 @@ function Testimonials() {
         </div>
 
         {/* ============================================================ */}
-        {/*  Block 2 — MOBILE: Horizontal Snap Carousel                   */}
+        {/*  Block 2 - MOBILE: Horizontal Snap Carousel                   */}
         {/* ============================================================ */}
         <div className="md:hidden mt-5">
           <div
@@ -531,7 +531,7 @@ function Testimonials() {
             ))}
           </div>
 
-          {/* Block 3 — Carousel Controls */}
+          {/* Block 3 - Carousel Controls */}
           <div className="mt-4 flex items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <button
@@ -561,7 +561,7 @@ function Testimonials() {
         </div>
 
         {/* ============================================================ */}
-        {/*  Block 2 — DESKTOP: 3-column grid                             */}
+        {/*  Block 2 - DESKTOP: 3-column grid                             */}
         {/* ============================================================ */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -586,7 +586,7 @@ function Testimonials() {
         </motion.div>
 
         {/* ============================================================ */}
-        {/*  Block 5 — "See all stories" CTA (mobile only)                */}
+        {/*  Block 5 - "See all stories" CTA (mobile only)                */}
         {/* ============================================================ */}
         <div className="md:hidden mt-5 text-center">
           <button

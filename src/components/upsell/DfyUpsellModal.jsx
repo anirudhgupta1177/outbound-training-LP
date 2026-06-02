@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DFY_UPSELL_URL } from '../../constants/upsell';
 
 /**
- * High-ticket DFY (done-for-you) upsell — center modal.
+ * High-ticket DFY (done-for-you) upsell - center modal.
  * Positioning: "Want me and my team to build and run this entire outbound
  * channel for you? Book a call with me..." -> dfy.intentledsales.com
  *
