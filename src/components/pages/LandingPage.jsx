@@ -12,8 +12,6 @@ const Personas = lazy(() => import('../sections/Personas'));
 const Instructor = lazy(() => import('../sections/Instructor'));
 const ValueStack = lazy(() => import('../sections/ValueStack'));
 const FAQ = lazy(() => import('../sections/FAQ'));
-const CursorGlow = lazy(() => import('../ui/CursorGlow'));
-const LiveActivityToast = lazy(() => import('../ui/LiveActivityToast'));
 
 // Minimal loading placeholder for sections
 const SectionLoader = () => (
@@ -30,16 +28,9 @@ export default function LandingPage() {
         <Hero />
 
         {/* Section divider */}
-        <div className="relative">
-          <div className="section-divider" />
-          <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-        </div>
+        <div className="section-divider" />
 
         {/* Below-the-fold content - lazy loaded */}
-        <div className="text-center pt-8 md:pt-12">
-          <span className="text-xs uppercase tracking-[0.2em] text-gold/60 font-medium">01 - Results</span>
-          <div className="w-8 h-px bg-gold/30 mx-auto mt-2" />
-        </div>
         <Suspense fallback={<SectionLoader />}>
           <Testimonials />
         </Suspense>
@@ -83,11 +74,6 @@ export default function LandingPage() {
 
       {/* Mobile sticky CTA */}
       <MobileCTA />
-
-      <Suspense fallback={null}>
-        <CursorGlow />
-        <LiveActivityToast />
-      </Suspense>
     </div>
   );
 }

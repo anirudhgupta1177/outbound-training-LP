@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Button } from './index';
 import { usePricing } from '../../contexts/PricingContext';
 
 export default function MobileCTA() {
@@ -9,9 +9,11 @@ export default function MobileCTA() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsVisible(window.scrollY > window.innerHeight * 0.6);
+      // Show after scrolling past hero section (roughly)
+      setIsVisible(window.scrollY > 400);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -26,23 +28,17 @@ export default function MobileCTA() {
           className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
         >
           <div className="bg-dark/95 backdrop-blur-lg border-t border-gold/30 px-4 py-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
-            <Link
-              to="/checkout"
-              className="hero-cta block w-full text-center rounded-xl px-4 py-3 font-display font-bold text-sm"
-            >
-              <span>Start Filling Your Calendar</span>
-              <span className="ml-2">
-                <span className="line-through opacity-50 text-xs">{pricing.displayOriginalPrice}</span>
-                {' '}
-                <span>{pricing.displayPrice}</span>
-              </span>
-            </Link>
-            <div className="flex items-center justify-center gap-3 mt-2 text-[10px] text-text-muted">
-              <span>🔒 Secure Checkout</span>
-              <span>·</span>
-              <span>30-day Guarantee</span>
-              <span>·</span>
-              <span>Instant Access</span>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-bold text-sm truncate">Get the Complete System</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-text-muted text-xs line-through">{pricing.displayOriginalPrice}</span>
+                  <span className="text-gold text-sm font-bold">{pricing.displayPrice}</span>
+                </div>
+              </div>
+              <Button size="md" className="flex-shrink-0 animate-pulse-gold">
+                Enroll Now
+              </Button>
             </div>
           </div>
         </motion.div>

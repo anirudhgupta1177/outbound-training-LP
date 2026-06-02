@@ -152,7 +152,7 @@ export default function CouponsPage() {
       const url = editingId ? `/api/admin/coupons?id=${editingId}` : '/api/admin/coupons';
       const method = editingId ? 'PUT' : 'POST';
 
-      // code is immutable on update - don't send it
+      // code is immutable on update — don't send it
       const submitPayload = editingId ? { ...payload } : payload;
       if (editingId) delete submitPayload.code;
 

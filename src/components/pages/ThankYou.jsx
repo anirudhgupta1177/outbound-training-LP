@@ -17,7 +17,7 @@ export default function ThankYou() {
       // Valid payment session exists
       setIsValidSession(true);
 
-      // Read payment details (may be absent for legacy sessions - fall back gracefully)
+      // Read payment details (may be absent for legacy sessions — fall back gracefully)
       let payment = {};
       try {
         payment = JSON.parse(sessionStorage.getItem('payment_details') || '{}');
@@ -159,7 +159,7 @@ export default function ThankYou() {
                 <p className="text-text-secondary text-[15px] leading-relaxed mb-5">
                   You just unlocked the complete system. If you'd rather skip the build, my team
                   and I will set it all up, run it end-to-end, and book qualified meetings straight
-                  onto your calendar - fully done for you.
+                  onto your calendar — fully done for you.
                 </p>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-amber-400 text-black font-display font-bold text-base shadow-lg shadow-cyan-400/25 group-hover:shadow-cyan-400/45 transition-shadow whitespace-nowrap">

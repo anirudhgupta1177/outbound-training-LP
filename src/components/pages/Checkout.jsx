@@ -139,7 +139,7 @@ export default function Checkout() {
   }, []);
 
   // Auto-apply default coupon once on page load. We intentionally do not
-  // depend on `appliedCoupon` - otherwise removing the coupon would
+  // depend on `appliedCoupon` — otherwise removing the coupon would
   // re-trigger the effect and re-apply it.
   useEffect(() => {
     if (hasAttemptedDefaultCoupon.current || !DEFAULT_COUPON || !pricing) return;
@@ -335,8 +335,8 @@ export default function Checkout() {
         : Math.round(totalAmount * 100); // USD: cents
 
       // Step 2: Create Razorpay order with auto-capture. We send the
-      // pre-discount base price and GST rate so the server - not the
-      // client - is the source of truth for the final charged amount
+      // pre-discount base price and GST rate so the server — not the
+      // client — is the source of truth for the final charged amount
       // after coupon validation.
       console.log('Creating Razorpay order...', {
         basePrice,

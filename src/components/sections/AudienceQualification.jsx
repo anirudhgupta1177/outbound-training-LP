@@ -32,7 +32,7 @@ function AudienceQualification() {
             Is This For You?
           </h2>
           <p className="text-text-secondary text-xs md:text-sm max-w-2xl mx-auto">
-            A straight answer before you read further - so you know whether this will actually move the needle for you.
+            A straight answer before you read further — so you know whether this will actually move the needle for you.
           </p>
         </motion.div>
 

@@ -31,7 +31,7 @@ export default function WelcomeCard() {
         <div className="mt-3 flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[11px] text-emerald-400/80">
-            Online - typically responds in seconds
+            Online — typically responds in seconds
           </span>
         </div>
       </div>
