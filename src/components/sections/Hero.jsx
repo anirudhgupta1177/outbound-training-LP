@@ -1,9 +1,8 @@
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { memo, useState, useEffect, useMemo, useRef } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { HiArrowRight } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { usePricing } from '../../contexts/PricingContext';
-import { useRef } from 'react';
 
 /* ------------------------------------------------------------------ */
 /*  Urgency helpers (stable across renders - recalculates only daily)  */
@@ -17,7 +16,7 @@ const getSpotsFilled = () => {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Background Particles (15-20 on desktop, 8-10 on mobile)            */
+/*  Background Particles                                               */
 /* ------------------------------------------------------------------ */
 const PARTICLE_COUNT = 18;
 const particles = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
@@ -58,85 +57,26 @@ const BackgroundParticles = memo(function BackgroundParticles() {
         @media (prefers-reduced-motion: reduce) {
           .animate-particle-drift { animation: none !important; }
         }
-        .animate-particle-drift {
-          animation: particle-drift linear infinite;
-        }
+        .animate-particle-drift { animation: particle-drift linear infinite; }
       `}</style>
     </div>
   );
 });
 
 /* ------------------------------------------------------------------ */
-/*  Video component with gradient border + speed badge                 */
-/* ------------------------------------------------------------------ */
-const HeroVideo = memo(function HeroVideo() {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoaded(true), 1000);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <div className="relative max-w-[640px] mx-auto">
-      <div
-        className="rounded-xl md:rounded-2xl overflow-hidden"
-        style={{
-          padding: '1px',
-          background: 'linear-gradient(135deg, rgba(34,211,238,0.4), transparent)',
-        }}
-      >
-        <div className="relative bg-[#1a1a2e] rounded-xl md:rounded-2xl overflow-hidden">
-          <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-            <iframe
-              src="https://www.loom.com/embed/bf92afc68fe444c7ad49088ff502c225?hide_title=true&hideEmbedTopBar=true&hide_owner=true&hide_share=true&hideEmbedCaptions=true&t=0"
-              frameBorder="0"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              loading="eager"
-              fetchPriority="high"
-              onLoad={() => setIsLoaded(true)}
-              style={{
-                position: 'absolute',
-                top: 0, left: 0,
-                width: '100%', height: '100%',
-                backgroundColor: '#1a1a2e',
-              }}
-              title="How to book 5-10 sales calls per week with AI outbound"
-            />
-          </div>
-          {!isLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a2e] z-10">
-              <div className="w-10 h-10 border-4 border-gold/30 border-t-gold rounded-full animate-spin" />
-            </div>
-          )}
-          <div
-            className="absolute top-2 right-2 md:top-3 md:right-3 z-20 flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] md:text-xs font-medium"
-            style={{
-              background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(34,211,238,0.3)',
-              color: '#22D3EE',
-            }}
-          >
-            <span style={{ textDecoration: 'line-through', opacity: 0.5, color: '#9CA3AF' }}>45 min</span>
-            <span>1.2x speed</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-/* ------------------------------------------------------------------ */
-/*  Scarcity Bar                                                       */
+/*  Scarcity Bar (no pseudo-elements, no list markers)                 */
 /* ------------------------------------------------------------------ */
 const ScarcityBar = memo(function ScarcityBar({ spotsFilled, prefersReducedMotion }) {
   const spotsLeft = 50 - spotsFilled;
   const pct = (spotsFilled / 50) * 100;
 
   return (
-    <div className="w-full max-w-xs mx-auto mt-3" role="status" aria-label={`${spotsFilled} of 50 spots filled`}>
+    <div
+      className="w-full max-w-xs mx-auto"
+      role="status"
+      aria-label={`${spotsFilled} of 50 spots filled`}
+      style={{ listStyle: 'none' }}
+    >
       <div className="relative h-5 rounded-full overflow-hidden bg-white/5 border border-white/10">
         <div
           className="absolute inset-y-0 left-0 rounded-full"
@@ -168,7 +108,7 @@ const ScarcityBar = memo(function ScarcityBar({ spotsFilled, prefersReducedMotio
 });
 
 /* ------------------------------------------------------------------ */
-/*  Logo Strip                                                         */
+/*  Logo Strip - mobile-safe with scroll-snap + fade mask              */
 /* ------------------------------------------------------------------ */
 const LOGOS = ['Instantly', 'Clay', 'Apollo', 'Smartlead', 'n8n', 'Anthropic'];
 
@@ -179,45 +119,52 @@ const LogoStrip = memo(function LogoStrip({ prefersReducedMotion }) {
       animate={prefersReducedMotion ? {} : { opacity: 1 }}
       transition={prefersReducedMotion ? {} : { delay: 2.0, duration: 0.6 }}
     >
-      <p className="text-center text-[10px] uppercase tracking-[0.18em] text-gray-500 mb-5 md:mb-6">
+      <p
+        className="text-center uppercase text-gray-500"
+        style={{ fontSize: '10px', letterSpacing: '0.18em', marginBottom: '16px' }}
+      >
         Trusted by the best B2B outbound teams
       </p>
-      <div className="max-w-[800px] mx-auto overflow-x-auto scrollbar-hide">
-        <div className="flex items-center justify-center gap-8 md:gap-12 min-w-max px-4">
+      <div
+        className="logo-strip-container mx-auto"
+        style={{ maxWidth: '700px' }}
+      >
+        <div className="logo-strip flex items-center justify-center gap-8 md:gap-12 px-6">
           {LOGOS.map((name) => (
             <span
               key={name}
-              className="font-display font-bold text-base md:text-lg text-gray-500 select-none transition-colors duration-200 hover:text-white cursor-default"
+              className="font-display font-bold text-sm md:text-base text-gray-500 select-none transition-colors duration-200 hover:text-white cursor-default flex-shrink-0"
             >
               {name}
             </span>
           ))}
         </div>
       </div>
+
+      {/* Mobile logo strip: scroll-snap + fade mask */}
+      <style>{`
+        @media (max-width: 768px) {
+          .logo-strip {
+            justify-content: flex-start;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 32px;
+            padding: 0 24px;
+            scrollbar-width: none;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+          }
+          .logo-strip::-webkit-scrollbar { display: none; }
+          .logo-strip > * { scroll-snap-align: center; flex-shrink: 0; }
+        }
+      `}</style>
     </motion.div>
   );
 });
 
 /* ------------------------------------------------------------------ */
-/*  Scroll Indicator                                                    */
-/* ------------------------------------------------------------------ */
-const ScrollIndicator = memo(function ScrollIndicator({ prefersReducedMotion }) {
-  return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-60" aria-hidden="true">
-      <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Scroll</span>
-      <motion.svg
-        width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gray-500"
-        animate={prefersReducedMotion ? {} : { y: [0, 4, 0] }}
-        transition={prefersReducedMotion ? {} : { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </motion.svg>
-    </div>
-  );
-});
-
-/* ------------------------------------------------------------------ */
 /*  Main Hero Component - 3-Beat Emotional Journey                     */
+/*  All copy UNCHANGED. Only typography sizes, spacing, layout fixed.  */
 /* ------------------------------------------------------------------ */
 function Hero() {
   const { pricing } = usePricing();
@@ -259,13 +206,11 @@ function Hero() {
   return (
     <section
       ref={heroRef}
-      className="relative overflow-hidden"
+      className="hero-section relative overflow-hidden"
       style={{ background: '#0A0A0F' }}
       aria-label="Hero"
     >
       {/* ============ Background Layers ============ */}
-
-      {/* Grid pattern - 16x16, 2% opacity */}
       <div
         className="absolute inset-0 pointer-events-none"
         aria-hidden="true"
@@ -275,8 +220,6 @@ function Hero() {
             'repeating-linear-gradient(0deg, rgba(255,255,255,0.1) 0px, transparent 1px, transparent 16px), repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0px, transparent 1px, transparent 16px)',
         }}
       />
-
-      {/* Radial cyan glow behind headline */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
         aria-hidden="true"
@@ -286,28 +229,27 @@ function Hero() {
           background: 'radial-gradient(ellipse 1400px 700px at center top, rgba(34, 211, 238, 0.10), transparent 70%)',
         }}
       />
-
-      {/* Particles */}
       {!prefersReducedMotion && <BackgroundParticles />}
 
       {/* ============ Main Content ============ */}
+      {/* Desktop: 80px top / 48px bottom. Mobile: 32px / 32px. Max 900px total height on desktop. */}
       <div
         className="relative max-w-[1100px] mx-auto px-4 sm:px-6 text-center"
-        style={{
-          paddingTop: 'clamp(80px, 12vh, 120px)',
-          paddingBottom: 'clamp(60px, 8vh, 80px)',
-        }}
+        style={{ paddingTop: '80px', paddingBottom: '48px' }}
       >
         {/* ---- BEAT 1: Pain Mirror (dim) ---- */}
+        {/* Desktop: 22px, Mobile: 15px */}
         <motion.p
           {...fade(0.2)}
-          className="font-body mb-7 max-w-2xl mx-auto"
+          className="beat-1 font-body mx-auto"
           style={{
             fontWeight: 500,
             color: '#9CA3AF',
-            fontSize: 'clamp(16px, 2.4vw, 28px)',
-            lineHeight: 1.4,
+            fontSize: '22px',
+            lineHeight: 1.45,
             letterSpacing: '-0.01em',
+            maxWidth: '720px',
+            marginBottom: '32px',
           }}
         >
           You sent the emails. They landed in spam.{' '}
@@ -315,24 +257,27 @@ function Hero() {
         </motion.p>
 
         {/* ---- BEAT 2: Solution Release (bright) ---- */}
+        {/* Desktop: 56px HARD-CODED, Mobile: 32px HARD-CODED */}
         <motion.h1
           {...fadeSlow(0.9)}
-          className="font-display mb-5 max-w-[1100px] mx-auto"
+          className="beat-2 font-display mx-auto"
           style={{
             fontWeight: 800,
-            lineHeight: 1.08,
-            letterSpacing: '-0.03em',
-            fontSize: 'clamp(26px, 5.5vw, 64px)',
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
+            fontSize: '56px',
+            maxWidth: '880px',
+            marginBottom: '16px',
           }}
         >
-          <span className="text-white">
+          <span className="block text-white">
             Here's the AI outbound system that books
           </span>
-          <br />
           <span
-            className="inline-block"
+            className="block"
             style={{
               color: '#22D3EE',
+              marginTop: '4px',
               textShadow: glowActive
                 ? '0 0 32px rgba(34, 211, 238, 0.5)'
                 : '0 0 16px rgba(34, 211, 238, 0.25)',
@@ -344,30 +289,34 @@ function Hero() {
         </motion.h1>
 
         {/* ---- BEAT 3: Trust Unlock (mid-tone, italic) ---- */}
+        {/* Desktop: 20px, Mobile: 15px */}
         <motion.p
           {...fade(1.5)}
-          className="font-body mx-auto"
+          className="beat-3 font-body mx-auto"
           style={{
             fontWeight: 400,
             fontStyle: 'italic',
             color: '#D1D5DB',
-            fontSize: 'clamp(16px, 2.2vw, 24px)',
+            fontSize: '20px',
             lineHeight: 1.4,
-            marginBottom: '36px',
+            marginTop: '24px',
+            marginBottom: '32px',
           }}
         >
           - even if your last campaigns failed.
         </motion.p>
 
         {/* ---- Subheading ---- */}
+        {/* Desktop: 16px, Mobile: 14px */}
         <motion.p
           {...fade(1.9)}
-          className="font-body max-w-[720px] mx-auto"
+          className="hero-subheading font-body mx-auto"
           style={{
             fontWeight: 400,
             color: '#9CA3AF',
-            fontSize: 'clamp(15px, 1.4vw, 17px)',
-            lineHeight: 1.5,
+            fontSize: '16px',
+            lineHeight: 1.55,
+            maxWidth: '640px',
             marginBottom: '36px',
           }}
         >
@@ -381,35 +330,25 @@ function Hero() {
         </motion.p>
 
         {/* ---- Logo Strip ---- */}
-        <div className="mb-10 md:mb-12">
+        {/* Logos -> CTA: 32px desktop / 24px mobile */}
+        <div style={{ marginBottom: '32px' }}>
           <LogoStrip prefersReducedMotion={prefersReducedMotion} />
         </div>
 
         {/* ---- CTA Button ---- */}
-        <motion.div
-          {...fadeSlow(2.2)}
-          className="mb-4"
-        >
+        <motion.div {...fadeSlow(2.2)}>
           <motion.div
-            animate={
-              prefersReducedMotion
-                ? {}
-                : { scale: [1, 1.015, 1] }
-            }
-            transition={
-              prefersReducedMotion
-                ? {}
-                : { duration: 2.4, repeat: Infinity, ease: 'easeInOut' }
-            }
+            animate={prefersReducedMotion ? {} : { scale: [1, 1.015, 1] }}
+            transition={prefersReducedMotion ? {} : { duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
             className="inline-block"
           >
             <Link
               to="/checkout"
-              className="group relative inline-flex items-center justify-center gap-2.5 font-display font-bold rounded-xl px-12 py-4 md:py-5 text-[#0A0A0F] transition-all duration-300 w-full sm:w-auto focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#22D3EE]"
+              className="group relative inline-flex items-center justify-center gap-2.5 font-display font-bold rounded-xl px-10 py-4 text-[#0A0A0F] transition-all duration-300 w-full sm:w-auto focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#22D3EE]"
               style={{
                 background: 'linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%)',
                 boxShadow: '0 10px 40px rgba(34, 211, 238, 0.35), 0 0 0 1px rgba(34, 211, 238, 0.4) inset',
-                fontSize: 'clamp(17px, 1.6vw, 18px)',
+                fontSize: '18px',
               }}
               onMouseEnter={() => setCtaHovered(true)}
               onMouseLeave={() => setCtaHovered(false)}
@@ -428,39 +367,43 @@ function Hero() {
             </Link>
           </motion.div>
 
-          {/* Micro-trust line */}
-          <p className="mt-4 text-[13px] text-gray-500 tracking-wide">
+          {/* Micro-trust line - 16px below CTA */}
+          <p className="text-[13px] text-gray-500 tracking-wide" style={{ marginTop: '16px' }}>
             <span aria-hidden="true">🔒</span> 30-day guarantee
             <span className="mx-1.5 text-gray-700" aria-hidden="true">·</span>
             <span aria-hidden="true">⚡</span> Instant access
             <span className="mx-1.5 text-gray-700" aria-hidden="true">·</span>
             <span aria-hidden="true">💳</span> One-time payment
           </p>
-        </motion.div>
 
-        {/* ---- Scarcity Bar ---- */}
-        <motion.div {...fadeSlow(2.4)}>
-          <ScarcityBar spotsFilled={spotsFilled} prefersReducedMotion={prefersReducedMotion} />
-        </motion.div>
-
-        {/* ---- Video below CTA ---- */}
-        <motion.div
-          {...fadeSlow(2.6)}
-          className="mt-10 md:mt-14 relative"
-        >
-          <div className="absolute -inset-3 md:-inset-4 bg-gradient-to-r from-purple/20 to-gold/20 blur-2xl rounded-3xl pointer-events-none" aria-hidden="true" />
-          <div className="relative">
-            <HeroVideo />
+          {/* Scarcity Bar - 16px below trust line */}
+          <div style={{ marginTop: '16px' }}>
+            <ScarcityBar spotsFilled={spotsFilled} prefersReducedMotion={prefersReducedMotion} />
           </div>
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
-      <ScrollIndicator prefersReducedMotion={prefersReducedMotion} />
+      {/* ============ Mobile overrides ============ */}
+      <style>{`
+        @media (max-width: 767px) {
+          .hero-section { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .hero-section > div:not([aria-hidden]) { padding-top: 32px !important; padding-bottom: 32px !important; }
+          .hero-section::before { content: none !important; }
+
+          .beat-1 { font-size: 15px !important; line-height: 1.5 !important; padding: 0 20px; margin-bottom: 20px !important; }
+          .beat-2 { font-size: 32px !important; line-height: 1.1 !important; padding: 0 16px; margin-bottom: 12px !important; }
+          .beat-3 { font-size: 15px !important; padding: 0 24px; margin-top: 18px !important; margin-bottom: 22px !important; }
+          .hero-subheading { font-size: 14px !important; padding: 0 24px; margin-bottom: 28px !important; }
+        }
+
+        /* Scarcity bar artifact fix */
+        .hero-section [role="status"]::before { content: none !important; }
+        .hero-section [role="status"] { list-style: none !important; }
+      `}</style>
 
       {/* Section transition gradient */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-[120px] pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-[80px] pointer-events-none"
         aria-hidden="true"
         style={{ background: 'linear-gradient(to bottom, transparent, #0A0A0F)' }}
       />
