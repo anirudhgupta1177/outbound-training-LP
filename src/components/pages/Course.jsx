@@ -3,6 +3,7 @@ import CourseLayout from '../course/CourseLayout';
 import VideoPlayer from '../course/VideoPlayer';
 import ModuleCard from '../course/ModuleCard';
 import CourseProgressBar from '../course/CourseProgressBar';
+import DfyUpsellModal from '../upsell/DfyUpsellModal';
 import { getCourseData, getIntroVideoUrl } from '../../services/courseService';
 import {
   calculateCourseProgress,
@@ -10,9 +11,11 @@ import {
   getTotalModules,
 } from '../../utils/progress';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDfyUpsell } from '../../hooks/useDfyUpsell';
 
 export default function Course() {
   const { user, getProgress, saveProgress } = useAuth();
+  const { open: upsellOpen, close: closeUpsell } = useDfyUpsell();
   const [completedLessons, setCompletedLessons] = useState([]);
   const [courseData, setCourseData] = useState(null);
   const [introVideoUrl, setIntroVideoUrl] = useState('');
@@ -68,6 +71,7 @@ export default function Course() {
 
   return (
     <CourseLayout course={courseData} completedLessons={completedLessons}>
+      <DfyUpsellModal open={upsellOpen} onClose={closeUpsell} />
       <div className="w-full">
         <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-5xl">
           {/* Course Title and Description */}

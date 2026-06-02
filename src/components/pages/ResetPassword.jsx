@@ -9,19 +9,24 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const { updatePassword, user } = useAuth();
+  const { updatePassword, user, passwordRecovery, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if user is not logged in (they need to click the reset link)
+  // Only bounce to /login if there's genuinely no recovery context. We allow
+  // the page when EITHER a recovery session was detected (PASSWORD_RECOVERY)
+  // OR a user/session exists. A short grace period lets Supabase finish
+  // parsing the reset token from the URL before we give up.
   useEffect(() => {
-    // Small delay to allow Supabase to process the reset link
+    if (loading) return; // wait for auth to settle
+    if (user || passwordRecovery) return; // valid recovery context — stay
+
     const timer = setTimeout(() => {
-      if (!user) {
+      if (!user && !passwordRecovery) {
         navigate('/login');
       }
-    }, 2000);
+    }, 3000);
     return () => clearTimeout(timer);
-  }, [user, navigate]);
+  }, [user, passwordRecovery, loading, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

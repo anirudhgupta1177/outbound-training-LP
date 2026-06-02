@@ -1,8 +1,8 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './components/pages/LandingPage';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
 
 function ScrollToTop() {
@@ -10,6 +10,23 @@ function ScrollToTop() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+  return null;
+}
+
+// When a user arrives via a password-reset link, Supabase establishes a
+// recovery session but may land them on the Site URL (e.g. the landing page)
+// instead of /reset-password if that path isn't allow-listed. This gate
+// detects the recovery session anywhere in the app and routes them to the
+// reset form so they can actually set a new password.
+function PasswordRecoveryGate() {
+  const { passwordRecovery } = useAuth();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (passwordRecovery && pathname !== '/reset-password') {
+      navigate('/reset-password', { replace: true });
+    }
+  }, [passwordRecovery, pathname, navigate]);
   return null;
 }
 
@@ -38,6 +55,11 @@ const ProtectedAdminRoute = lazy(() => import('./components/auth/ProtectedAdminR
 // Chatbot widget - lazy loaded on every page (separate bundle)
 const ChatWidget = lazy(() => import('./components/chatbot/ChatWidget'));
 
+// DEV-only: preview harness for the DFY upsell modal (not shipped in prod)
+const DevUpsellPreview = import.meta.env.DEV
+  ? lazy(() => import('./components/pages/DevUpsellPreview'))
+  : null;
+
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-screen bg-[#0D0D12] flex items-center justify-center">
@@ -50,6 +72,7 @@ function App() {
     <AuthProvider>
       <AdminAuthProvider>
         <ScrollToTop />
+        <PasswordRecoveryGate />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes - Landing page not lazy loaded for speed */}
@@ -57,6 +80,11 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/thank-you" element={<ThankYou />} />
             
+            {/* DEV-only upsell modal preview */}
+            {DevUpsellPreview && (
+              <Route path="/dev/dfy-upsell" element={<DevUpsellPreview />} />
+            )}
+
             {/* Auth routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

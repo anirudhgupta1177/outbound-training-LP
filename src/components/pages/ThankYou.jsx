@@ -133,11 +133,55 @@ export default function ThankYou() {
             </ul>
           </motion.div>
 
+          {/* DFY High-Ticket Upsell */}
+          <motion.a
+            href="https://dfy.intentledsales.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="group block relative overflow-hidden rounded-2xl p-[1.5px] mb-8 text-left bg-gradient-to-r from-cyan-400 via-amber-400 to-cyan-400 bg-[length:200%_100%] hover:bg-[position:100%_0] transition-[background-position] duration-500"
+          >
+            <div className="relative rounded-2xl bg-[#0b0b0f] p-6 sm:p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-amber-400/5 pointer-events-none" />
+              <div className="relative">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-400 font-bold mb-2">
+                  Want it done for you?
+                </p>
+                <h3 className="font-display text-2xl sm:text-[26px] leading-tight font-extrabold text-white mb-3">
+                  Want me and my team to{' '}
+                  <span className="bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent">
+                    build and run
+                  </span>{' '}
+                  this entire outbound channel for you?
+                </h3>
+                <p className="text-text-secondary text-[15px] leading-relaxed mb-5">
+                  You just unlocked the complete system. If you'd rather skip the build, my team
+                  and I will set it all up, run it end-to-end, and book qualified meetings straight
+                  onto your calendar — fully done for you.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <span className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-amber-400 text-black font-display font-bold text-base shadow-lg shadow-cyan-400/25 group-hover:shadow-cyan-400/45 transition-shadow whitespace-nowrap">
+                    Book a call with me
+                    <svg className="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                  <span className="flex items-center gap-2 text-[12px] text-amber-300/90">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    Application only · Limited build slots
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.a>
+
           {/* Support */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.65 }}
             className="mb-8 p-4 bg-gold/10 border border-gold/30 rounded-lg"
           >
             <p className="text-text-secondary mb-2">

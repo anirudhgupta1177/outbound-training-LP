@@ -21,6 +21,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // True while the user is in a Supabase password-recovery session (clicked a
+  // reset link). Used to force-route them to /reset-password even if Supabase
+  // lands them on another page (e.g. the Site URL / landing page).
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -60,7 +64,12 @@ export function AuthProvider({ children }) {
     getSession();
 
     // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Fired when the user arrives via a password-reset link (token parsed
+      // from the URL). Flag it so the app can route them to the reset form.
+      if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecovery(true);
+      }
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -147,6 +156,7 @@ export function AuthProvider({ children }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
+      setPasswordRecovery(false);
     } catch (err) {
       setError(err.message);
     }
@@ -175,6 +185,9 @@ export function AuthProvider({ children }) {
         password: newPassword,
       });
       if (error) throw error;
+      // Recovery complete — clear the flag so the recovery gate stops
+      // redirecting the user back to /reset-password.
+      setPasswordRecovery(false);
       return { data, error: null };
     } catch (err) {
       setError(err.message);
@@ -201,6 +214,23 @@ export function AuthProvider({ children }) {
       return data;
     } catch (err) {
       console.error('Error getting progress:', err);
+      return null;
+    }
+  }, [user]);
+
+  // Record a login (atomic increment) and return the user's NEW login count.
+  // Used to schedule the DFY upsell popup on the dashboard.
+  const recordLogin = useCallback(async () => {
+    if (!user) return null;
+
+    try {
+      const { data, error } = await supabase.rpc('increment_login_count', {
+        p_user_id: user.id,
+      });
+      if (error) throw error;
+      return typeof data === 'number' ? data : null;
+    } catch (err) {
+      console.error('Error recording login:', err);
       return null;
     }
   }, [user]);
@@ -241,6 +271,8 @@ export function AuthProvider({ children }) {
     updatePassword,
     getProgress,
     saveProgress,
+    recordLogin,
+    passwordRecovery,
   };
 
   return (
