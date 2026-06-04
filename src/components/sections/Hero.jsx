@@ -2,7 +2,7 @@ import { memo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiStar, HiFire } from 'react-icons/hi';
 import { Button } from '../ui';
-import { usePricing } from '../../contexts/PricingContext';
+import PriceText from '../ui/PriceText';
 
 // Video component with loading state
 const HeroVideo = memo(function HeroVideo() {
@@ -52,7 +52,6 @@ const getUrgencyText = () => {
 };
 
 function Hero() {
-  const { pricing } = usePricing();
   const urgencyText = getUrgencyText();
 
   return (
@@ -131,7 +130,7 @@ function Hero() {
           {/* CTA */}
           <div className="flex justify-center mb-4">
             <Button size="lg" className="animate-pulse-gold w-full sm:w-auto text-sm md:text-base px-6 md:px-8 py-3 md:py-4">
-              Start Filling Your Calendar for {pricing.displayPrice}
+              Start Filling Your Calendar for <PriceText />
             </Button>
           </div>
 

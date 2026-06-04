@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiChevronDown } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import PriceText from '../ui/PriceText';
 import { usePricing } from '../../contexts/PricingContext';
 
 const faqs = [
@@ -336,7 +337,7 @@ export default function FAQ() {
           className="text-center mt-8 md:mt-12"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Get Started for {pricing.displayPrice}
+            Get Started for <PriceText />
           </Button>
         </motion.div>
       </div>

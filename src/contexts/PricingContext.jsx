@@ -21,6 +21,14 @@ const resolveCountryOverride = () => {
   return null;
 };
 
+// Detect country but never let a hung geolocation request block the price
+// reveal forever. Resolves to null on timeout so we fall back to default.
+const detectCountryWithTimeout = (ms = 2500) =>
+  Promise.race([
+    detectCountry(),
+    new Promise((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
+
 const fetchTiersFromApi = async () => {
   try {
     const res = await fetch('/api/pricing', { headers: { Accept: 'application/json' } });
@@ -62,11 +70,15 @@ export const PricingProvider = ({ children }) => {
       let resolvedCountry = 'IN';
       if (override) {
         console.log(`🌍 TEST MODE (${override.source}): country =`, override.country);
-        if (override.source === 'url') sessionStorage.removeItem('detectedCountry');
+        if (override.source === 'url') {
+          sessionStorage.removeItem('detectedCountry');
+          localStorage.removeItem('detectedCountry');
+        }
         resolvedCountry = override.country;
       } else {
         try {
-          resolvedCountry = await detectCountry();
+          const detected = await detectCountryWithTimeout();
+          if (detected) resolvedCountry = detected;
         } catch (err) {
           console.error('❌ Country detection failed, defaulting to IN:', err);
           if (!cancelled) setError(err);
@@ -106,6 +118,9 @@ export const PricingProvider = ({ children }) => {
     country,
     pricing,
     isLoading,
+    // True once the canonical (DB/geo-resolved) price is known. Components should
+    // gate price *display* on this so the fallback number is never shown.
+    priceReady: !isLoading,
     error,
     isIndia: country === 'IN',
     tier: pricing.tier,

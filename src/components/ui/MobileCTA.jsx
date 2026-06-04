@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './index';
-import { usePricing } from '../../contexts/PricingContext';
+import PriceText from './PriceText';
 
 export default function MobileCTA() {
-  const { pricing } = usePricing();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -32,8 +31,8 @@ export default function MobileCTA() {
               <div className="flex-1 min-w-0">
                 <p className="text-white font-bold text-sm truncate">Get the Complete System</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-text-muted text-xs line-through">{pricing.displayOriginalPrice}</span>
-                  <span className="text-gold text-sm font-bold">{pricing.displayPrice}</span>
+                  <span className="text-text-muted text-xs line-through"><PriceText original /></span>
+                  <span className="text-gold text-sm font-bold"><PriceText /></span>
                 </div>
               </div>
               <Button size="md" className="flex-shrink-0 animate-pulse-gold">

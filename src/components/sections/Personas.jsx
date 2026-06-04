@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiOutlineUser, HiOutlineOfficeBuilding, HiOutlineBriefcase, HiOutlineTrendingUp, HiShieldCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import PriceText from '../ui/PriceText';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice, convertINRToUSD, formatLargeAmount } from '../../constants/pricing';
 
@@ -198,7 +199,7 @@ export default function Personas() {
               className="text-center mt-6 md:mt-8 mt-auto"
         >
           <Button size="lg" className="w-full sm:w-auto">
-                Try It Risk-Free for 30 Days - {pricing.displayPrice}
+                Try It Risk-Free for 30 Days - <PriceText />
           </Button>
         </motion.div>
           </motion.div>

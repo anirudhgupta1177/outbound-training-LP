@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiCheck } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import PriceText from '../ui/PriceText';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice, convertINRToUSD } from '../../constants/pricing';
 import { getCartItems } from '../../constants/cartItems';
@@ -97,9 +98,9 @@ const comparison = [
             <div className="relative glass-card rounded-xl md:rounded-2xl p-5 md:p-8 border border-gold/30">
               {/* Price header */}
               <div className="text-center mb-4 md:mb-6">
-                <p className="text-text-muted line-through text-lg md:text-xl">{pricing.displayOriginalPrice}</p>
+                <p className="text-text-muted line-through text-lg md:text-xl"><PriceText original /></p>
                 <p className="text-4xl md:text-5xl font-display font-bold gradient-text">
-                  {pricing.displayPrice} {isIndia && <span className="text-text-muted text-sm md:text-base font-normal">+ GST</span>}
+                  <PriceText /> {isIndia && <span className="text-text-muted text-sm md:text-base font-normal">+ GST</span>}
                 </p>
                 <p className="text-text-secondary text-xs md:text-sm mt-1">• One-time payment • Lifetime access</p>
               </div>
@@ -185,7 +186,7 @@ const comparison = [
               </ul>
               <div className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-white/10">
                 <p className="text-gold font-medium text-center text-sm md:text-base">
-                  Or learn the system once for <span className="text-xl md:text-2xl font-bold">{pricing.displayPrice}</span>
+                  Or learn the system once for <span className="text-xl md:text-2xl font-bold"><PriceText /></span>
                 </p>
               </div>
             </div>

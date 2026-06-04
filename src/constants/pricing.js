@@ -7,7 +7,7 @@ export const TIER_KEYS = ['INDIA', 'SAARC', 'INTERNATIONAL'];
 // these aligned with the seeded `pricing_tiers` rows in supabase/pricing-schema.sql,
 // but the DB is the source of truth at runtime.
 export const FALLBACK_TIERS = {
-  INDIA:         { tier: 'INDIA',         currency: 'INR', symbol: '₹', basePrice: 3999, originalPrice: 49999, gstRate: 0.18 },
+  INDIA:         { tier: 'INDIA',         currency: 'INR', symbol: '₹', basePrice: 7999, originalPrice: 49999, gstRate: 0.18 },
   SAARC:         { tier: 'SAARC',         currency: 'USD', symbol: '$', basePrice:   47, originalPrice:  1499, gstRate: 0    },
   INTERNATIONAL: { tier: 'INTERNATIONAL', currency: 'USD', symbol: '$', basePrice:  129, originalPrice:  3999, gstRate: 0    },
 };

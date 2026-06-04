@@ -9,9 +9,13 @@
  * @returns {Promise<string>} Country code (e.g., 'IN', 'US', 'FR')
  */
 export const detectCountry = async () => {
-  // Check cache first
-  const cachedCountry = sessionStorage.getItem('detectedCountry');
+  // Check cache first — sessionStorage (this tab) then localStorage (cross-session).
+  // A cached country lets repeat visitors resolve the price instantly (no detection
+  // round-trip), so the price skeleton doesn't show on return visits.
+  const cachedCountry =
+    sessionStorage.getItem('detectedCountry') || localStorage.getItem('detectedCountry');
   if (cachedCountry) {
+    sessionStorage.setItem('detectedCountry', cachedCountry);
     return cachedCountry;
   }
 
@@ -49,6 +53,7 @@ export const detectCountry = async () => {
         if (countryCode) {
           console.log(`🌍 Detected country via ${api.name}:`, countryCode);
           sessionStorage.setItem('detectedCountry', countryCode);
+          localStorage.setItem('detectedCountry', countryCode);
           return countryCode;
         }
       } else {

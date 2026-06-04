@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineAcademicCap, HiOutlineBookOpen, HiOutlineMap, HiOutlineDatabase, HiOutlineUserGroup, HiOutlineGift, HiOutlineChip, HiOutlineTemplate } from 'react-icons/hi';
 import { SectionHeading, Button } from '../ui';
+import PriceText from '../ui/PriceText';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice, convertINRToUSD } from '../../constants/pricing';
 
@@ -432,7 +433,7 @@ export default function CompleteSystem() {
               <div>
                 <p className="text-text-muted text-xs md:text-sm">You Pay Today</p>
                 <p className="text-3xl md:text-4xl font-display font-bold gradient-text">
-                  {pricing.displayPrice}{isIndia && ' + GST'}
+                  <PriceText />{isIndia && ' + GST'}
                 </p>
               </div>
               <div className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-success/20 border border-success/30">
@@ -451,7 +452,7 @@ export default function CompleteSystem() {
           className="text-center mt-8 md:mt-12"
         >
           <Button size="lg" className="w-full sm:w-auto">
-            Get Everything for {pricing.displayPrice}
+            Get Everything for <PriceText />
           </Button>
         </motion.div>
       </div>
