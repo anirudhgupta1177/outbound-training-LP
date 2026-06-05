@@ -8,6 +8,43 @@ import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
 import { videoTestimonials, VideoCard } from '../sections/Testimonials';
 
+const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
+
+// Load the Razorpay checkout script exactly once (deduped across mounts/clicks).
+// Resolves true when window.Razorpay is available, false on load failure.
+// On failure the cached promise is cleared so a later click can retry.
+let razorpayScriptPromise = null;
+const loadRazorpayScript = () => {
+  if (typeof window !== 'undefined' && window.Razorpay) return Promise.resolve(true);
+  if (razorpayScriptPromise) return razorpayScriptPromise;
+
+  razorpayScriptPromise = new Promise((resolve) => {
+    const finish = (ok) => {
+      const ready = ok && typeof window !== 'undefined' && !!window.Razorpay;
+      if (!ready) razorpayScriptPromise = null; // allow a retry on next attempt
+      resolve(ready);
+    };
+
+    // Reuse an existing tag if one is already in the DOM (e.g. after remount).
+    const existing = document.querySelector(`script[src="${RAZORPAY_SRC}"]`);
+    if (existing) {
+      if (window.Razorpay) return finish(true);
+      existing.addEventListener('load', () => finish(true), { once: true });
+      existing.addEventListener('error', () => finish(false), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = RAZORPAY_SRC;
+    script.async = true;
+    script.onload = () => finish(true);
+    script.onerror = () => finish(false);
+    document.body.appendChild(script);
+  });
+
+  return razorpayScriptPromise;
+};
+
 // Indian states with GST codes
 const INDIAN_STATES = [
   { code: '01', name: 'Jammu & Kashmir' },
@@ -60,7 +97,6 @@ export default function Checkout() {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
@@ -77,32 +113,10 @@ export default function Checkout() {
   });
   const [gstErrors, setGstErrors] = useState({});
 
-  // Wait for pricing to load
-  if (pricingLoading || !pricing) {
-    return (
-      <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
-  }
-
-  // Get cart items with correct currency
-  const cartItems = getCartItems(pricing.currency);
-
-  // Calculate pricing with coupon discount
-  const basePrice = pricing.basePrice;
-  const discountPercent = appliedCoupon?.discount || 0;
-  const discountAmount = Math.round((basePrice * discountPercent) / 100);
-  const discountedPrice = basePrice - discountAmount;
-
-  // Calculate GST on discounted price (only for India)
-  const gstAmount = isIndia ? Math.round(discountedPrice * pricing.gstRate) : 0;
-  // Razorpay enforces minimums: ₹1 for INR, $1 for USD
-  const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
-  const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
-
-  // Stable per-mount conversion ID for Reddit Pixel <-> CAPI deduplication
-  const addToCartConversionId = useRef(`atc_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
+  // Stable per-mount conversion ID for Reddit Pixel <-> CAPI deduplication.
+  // Lazy useState initializer so the (impure) Date.now()/Math.random() run once,
+  // not on every render.
+  const [addToCartConversionId] = useState(() => `atc_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
 
   // Fire Meta Pixel + Reddit Pixel AddToCart when checkout page loads
   useEffect(() => {
@@ -110,32 +124,14 @@ export default function Checkout() {
       window.fbq('track', 'AddToCart');
     }
     if (typeof window.rdt === 'function') {
-      window.rdt('track', 'AddToCart', { conversionId: addToCartConversionId.current });
+      window.rdt('track', 'AddToCart', { conversionId: addToCartConversionId });
     }
   }, []);
 
-  // Load Razorpay script
+  // Preload the Razorpay script on mount so it's ready by the time the user
+  // clicks Pay. Failures are tolerated — handleSubmit retries the load on click.
   useEffect(() => {
-    const loadRazorpay = () => {
-      return new Promise((resolve) => {
-        if (window.Razorpay) {
-          resolve(true);
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload = () => {
-          setRazorpayLoaded(true);
-          resolve(true);
-        };
-        script.onerror = () => {
-          resolve(false);
-        };
-        document.body.appendChild(script);
-      });
-    };
-
-    loadRazorpay();
+    loadRazorpayScript();
   }, []);
 
   // Auto-apply default coupon once on page load. We intentionally do not
@@ -167,6 +163,30 @@ export default function Checkout() {
       cancelled = true;
     };
   }, [pricing]);
+
+  // Wait for pricing to load
+  if (pricingLoading || !pricing) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Get cart items with correct currency
+  const cartItems = getCartItems(pricing.currency);
+
+  // Calculate pricing with coupon discount
+  const basePrice = pricing.basePrice;
+  const discountPercent = appliedCoupon?.discount || 0;
+  const discountAmount = Math.round((basePrice * discountPercent) / 100);
+  const discountedPrice = basePrice - discountAmount;
+
+  // Calculate GST on discounted price (only for India)
+  const gstAmount = isIndia ? Math.round(discountedPrice * pricing.gstRate) : 0;
+  // Razorpay enforces minimums: ₹1 for INR, $1 for USD
+  const razorpayMin = pricing.currency === 'INR' ? 1 : 1;
+  const totalAmount = Math.max(discountedPrice + gstAmount, razorpayMin);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -311,9 +331,18 @@ export default function Checkout() {
       return;
     }
 
-    if (!razorpayLoaded || !window.Razorpay) {
-      alert('Payment gateway is loading. Please try again in a moment.');
-      return;
+    // Ensure the payment gateway is actually ready. If the initial preload
+    // failed or hasn't finished, retry the load here (don't dead-end the user).
+    if (!window.Razorpay) {
+      setIsSubmitting(true);
+      await loadRazorpayScript();
+      if (!window.Razorpay) {
+        setIsSubmitting(false);
+        alert(
+          "We couldn't load the payment gateway. Please disable any ad blocker or VPN, check your internet connection, and try again. If the problem persists, try a different browser."
+        );
+        return;
+      }
     }
 
     setIsSubmitting(true);
