@@ -52,7 +52,7 @@ With:
 
 ### Stage 3 — Multi-Inbox Automation Infrastructure
 - Sending 1,000+ emails/day without hitting spam
-- Tools covered: Instantly, Smartlead, Hypertide, Scalemail
+- Tools covered: Smartlead, Hypertide, Scalemail
 - Target: **99% email health score** and **8%+ reply rates** (industry average ~1%)
 
 ### Stage 4 — Auto-Qualification & Meeting Booking
@@ -102,7 +102,7 @@ With:
 | Lead Discovery | Apollo.io, Clay, LinkedIn Sales Navigator, Ocean.io |
 | Scraping & Automation | Apify, Phantombuster, Zenrows, Firecrawl |
 | AI & Personalization | OpenAI, Anthropic (Claude), Perplexity, Open-source LLMs |
-| Email Infrastructure | Instantly, Smartlead, Zapmail, Better Contacts, Findymail |
+| Email Infrastructure | Smartlead, Zapmail, Better Contacts, Findymail |
 | Workflow Automation | Make.com, n8n, Zapier |
 | LinkedIn Outbound | HeyReach, Trigify |
 | Other | Serper, Cal.com, Cursor |
@@ -162,8 +162,8 @@ With:
 
 - **Name:** Anirudh Gupta (Ani)
 - **Background:** IIT Kharagpur graduate
-- **Current role:** Heads Outbound at **Instantly.ai** (one of the largest outreach tools in the world); helped scale it to **$45M+ ARR**
-- **Scale:** Sends 60,000 emails daily for this client, books 20–50 demos/month from that single account
+- **Current role:** Runs outbound systems for enterprise clients, scaling them to $50K–$100K+ MRR
+- **Scale:** Sends 60,000 emails daily, books 20–50 demos/month for enterprise accounts
 - **Credentials (India-relevant):**
   - ₹4.2 Cr generated from 1.9M emails sent in 2025
   - Booked meetings with high-profile figures including Sam Altman
@@ -202,7 +202,7 @@ There's no fixed answer — it depends on how serious you are.
 - **Mid-volume outreach:** Typically **₹30,000–₹40,000/month** in tools.
 - **Heavy/enterprise:** Some companies spend **₹2L+/month** on tech stack for high-volume automated outbound.
 
-**Note:** Only **domain costs are one-time** — the rest (mailboxes, Instantly, etc.) are recurring.
+**Note:** Only **domain costs are one-time** — the rest (mailboxes, sending tools, etc.) are recurring.
 
 Some companies get meeting bookings with zero tool spend using manual outreach and trials. Others spend ₹2L+/month for the same number of meetings but via automation and high volume. Pick the path that matches your goals.
 
@@ -307,7 +307,7 @@ Yes — pre-verified emails of CXOs and directors of **US and EU businesses** ac
 
 ### Q: How current is the content?
 
-The course is built from systems **actively being run** by the creator for $5,000+/month enterprise clients including Instantly.ai. It reflects what's working right now, not outdated theory.
+The course is built from systems **actively being run** by the creator for $5,000+/month enterprise clients. It reflects what's working right now, not outdated theory.
 
 ---
 
@@ -349,7 +349,7 @@ When answering user questions, the chatbot should:
 - Acknowledge the 30-day guarantee when risk comes up
 - Offer the 40-min overview video (https://youtu.be/ZQfbELJrtOM) for prospects wanting deeper context before buying
 - Route complex/1-on-1 questions to WhatsApp community or support email
-- Mention the founder's credentials (Instantly.ai, $45M ARR, IIT Kharagpur) when trust/skepticism arises
+- Mention the founder's credentials ($50K–$100K+ MRR for clients, 1.9M emails sent, IIT Kharagpur) when trust/skepticism arises
 
 ### 🚫 Never Do
 - Promise specific income or meeting numbers not listed in "Proven Results"

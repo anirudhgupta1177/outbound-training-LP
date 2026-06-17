@@ -106,12 +106,12 @@ function Hero() {
             <span className="text-white">How To Book </span>
             <span className="gradient-text">5-10 Sales Calls/Week</span>
             <span className="text-white"> By Installing This AI Outbound Funnel </span>
-            <span className="text-white/80">(used by top 0.1% marketing teams like Instantly)</span>
+            <span className="text-white/80">(used by top 0.1% marketing teams)</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg text-text-secondary mb-3 md:mb-4 max-w-2xl mx-auto">
-            Built from sending 1.9M+ emails in 2025. The same system used by Instantly.ai, Clay, and 282+ B2B teams.
+            Built from sending 1.9M+ emails in 2025. The same system used by 282+ B2B teams worldwide.
           </p>
 
           {/* Loom Video — horizontal, directly under the subheading */}
