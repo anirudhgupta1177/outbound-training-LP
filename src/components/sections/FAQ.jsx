@@ -18,7 +18,7 @@ const faqs = [
         <br />
         • <strong>High-volume automation:</strong> Some companies spend <strong>{isIndia ? '₹2L+' : '$2,400+'}/month</strong> for the same meeting count but at massive scale.
         <br /><br />
-        <strong>One-time cost:</strong> only domains. Everything else (mailboxes, Instantly, AI credits) is recurring.
+        <strong>One-time cost:</strong> only domains. Everything else (mailboxes, sending tools, AI credits) is recurring.
         <br /><br />
         The course also teaches <strong>free / open-source alternatives</strong> (including open-source LLMs) so you can run the whole system without paid Clay or GPT API subscriptions if budget is the constraint.
       </>
@@ -67,7 +67,7 @@ const faqs = [
   {
     question: "Does this only work for Indian companies targeting Indian clients?",
     answer: ({ isIndia }) =>
-      `No — the system is geography-agnostic. The 500K+ verified CXO email database covers US and EU decision-makers across SaaS, IT, Marketing, and other industries. Most students target international markets where budgets are higher — the same stack powers Instantly.ai's global outbound at 60K emails/day. If you want to charge $2,000–5,000 per project instead of ${isIndia ? '₹20,000' : '$240'}, this system helps you reach those international decision-makers.`,
+      `No — the system is geography-agnostic. The 500K+ verified CXO email database covers US and EU decision-makers across SaaS, IT, Marketing, and other industries. Most students target international markets where budgets are higher — this system is built on the same stack powering outbound for some of the world's biggest outreach platforms. If you want to charge $2,000–5,000 per project instead of ${isIndia ? '₹20,000' : '$240'}, this system helps you reach those international decision-makers.`,
     defaultOpen: false,
   },
   {
@@ -131,7 +131,7 @@ const faqs = [
     question: "How is this different from other cold email courses?",
     answer: (
       <>
-        • <strong>Practitioner, not guru</strong> — Ani heads Outbound at <strong>Instantly.ai</strong> (helped scale it to $45M+ ARR) and runs 60,000 emails/day live.
+        • <strong>Practitioner, not guru</strong> — Ani has scaled outbound systems generating $50K–$100K+ MRR for clients and sends 60,000 emails/day live.
         <br />
         • <strong>Free / open-source paths</strong> — You're not locked into paid Clay or GPT API subscriptions.
         <br />

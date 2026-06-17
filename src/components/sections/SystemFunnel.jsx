@@ -15,7 +15,6 @@ import zenrowsLogo from '../../assets/tech-stack/Zenrows logo.webp';
 import linkedinLogo from '../../assets/tech-stack/linkedin.png';
 import hypertideLogo from '../../assets/tech-stack/hypertide.png';
 import scaledmailLogo from '../../assets/tech-stack/scaledmail.jpeg';
-import instantlyLogo from '../../assets/tech-stack/Instantly.ai logo.webp';
 import smartleadLogo from '../../assets/tech-stack/Smartlead Logo.webp';
 import zapmailLogo from '../../assets/tech-stack/Zapmail Logo.ico';
 import makeLogo from '../../assets/tech-stack/makecm.jpeg';
@@ -61,7 +60,6 @@ const stages = [
     technicalLogos: [
       { name: 'Hypertide', logo: hypertideLogo },
       { name: 'Scalemail', logo: scaledmailLogo },
-      { name: 'Instantly', logo: instantlyLogo },
       { name: 'Smartlead', logo: smartleadLogo },
     ],
     outcome: '1000+ emails daily without hitting spam, 8% reply rate',

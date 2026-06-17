@@ -18,7 +18,6 @@ import card5Image from '../../assets/card5.png';
 // Import tech stack logos
 import apolloLogo from '../../assets/tech-stack/apollonew.png';
 import clayLogo from '../../assets/tech-stack/Clay-Logo-Light-1024x548.png';
-import instantlyLogo from '../../assets/tech-stack/Instantly.ai logo.webp';
 import makeLogo from '../../assets/tech-stack/makecm.jpeg';
 import n8nLogo from '../../assets/tech-stack/n8n-logo.png';
 import apifyLogo from '../../assets/tech-stack/Apify_Logo.svg.png';
@@ -44,7 +43,6 @@ import phantombusterLogo from '../../assets/tech-stack/Phantombuster+logo.png';
 const techStackLogos = [
   { name: 'Apollo.io', logo: apolloLogo },
   { name: 'Clay', logo: clayLogo },
-  { name: 'Instantly', logo: instantlyLogo },
   { name: 'Make.com', logo: makeLogo },
   { name: 'n8n', logo: n8nLogo },
   { name: 'Apify', logo: apifyLogo },

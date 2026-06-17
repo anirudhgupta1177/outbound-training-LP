@@ -43,7 +43,7 @@ Students learn to identify prospects showing **active buying signals** instead o
 Generic templates die here. Using ChatGPT, Claude, Perplexity, and Zenrows (web scraping), the system generates **1,000+ completely unique emails daily**, each tailored to the prospect's company, recent news, and pain points. The course also teaches how to do this using **free open-source models** — eliminating paid GPT API keys or Clay subscriptions.
 
 ### Stage 3 — Multi-Inbox Automation Infrastructure
-Sending 1,000+ emails daily without landing in spam requires serious infrastructure. Students learn to set up and manage multiple sending domains and inboxes using Instantly, Smartlead, Hypertide, and Scalemail. **Target: 99% email health score, 8%+ reply rates** (industry average is 1%).
+Sending 1,000+ emails daily without landing in spam requires serious infrastructure. Students learn to set up and manage multiple sending domains and inboxes using Smartlead, Hypertide, and Scalemail. **Target: 99% email health score, 8%+ reply rates** (industry average is 1%).
 
 ### Stage 4 — Auto-Qualification & Meeting Booking
 When prospects reply, the system auto-qualifies them and books meetings straight into the calendar — no manual back-and-forth. Built with Make.com, n8n, Zapier, and Cal.com. Result: **30+ qualified meetings/month appearing automatically**.
@@ -86,7 +86,7 @@ When prospects reply, the system auto-qualifies them and books meetings straight
 | **Lead Discovery** | Apollo.io, Clay, LinkedIn Sales Navigator, Ocean.io |
 | **Scraping & Automation** | Apify, Phantombuster, Zenrows, Firecrawl |
 | **AI & Personalization** | OpenAI, Anthropic (Claude), Perplexity, Open-source LLMs |
-| **Email Infrastructure** | Instantly, Smartlead, Zapmail, Better Contacts, Findymail |
+| **Email Infrastructure** | Smartlead, Zapmail, Better Contacts, Findymail |
 | **Workflow Automation** | Make.com, n8n, Zapier |
 | **LinkedIn Outbound** | HeyReach, Trigify |
 | **Other** | Serper, Cal.com, Cursor |
@@ -143,8 +143,8 @@ When prospects reply, the system auto-qualifies them and books meetings straight
 ## 9. About the Creator — Ani (Anirudh Gupta)
 
 - **Background:** IIT Kharagpur graduate
-- **Current role:** Heading Outbound at **Instantly.ai** (one of the world's largest outreach platforms) — helped scale to **$45M+ ARR**
-- **Operations:** Runs 60,000 emails/day for Instantly.ai, books 20–50 demos/month for that single client
+- **Current role:** Runs outbound systems for enterprise clients, scaling them to $50K–$100K+ MRR
+- **Operations:** Sends 60,000 emails/day, books 20–50 demos/month for enterprise accounts
 - **Credentials (India-relevant):**
   - ₹4.2 Cr generated from 1.9M emails sent in 2025
   - Booked meetings with high-profile figures including Sam Altman
@@ -243,7 +243,7 @@ The course specifically teaches **free and open-source alternatives**. Stage 2 (
 
 ### Q: Does this work outside India? Will US/EU audiences respond?
 
-Yes. The 500K+ verified CXO email database included covers **US and EU businesses** across SAAS, IT, Marketing, and more. The system is geography-agnostic — it's built on the same stack used for Instantly.ai's global outbound operations.
+Yes. The 500K+ verified CXO email database included covers **US and EU businesses** across SAAS, IT, Marketing, and more. The system is geography-agnostic — it's built on the same stack used for global enterprise outbound operations.
 
 ---
 
@@ -306,7 +306,7 @@ Key differences:
 | "I've bought courses before, they don't work" | 30-day money-back guarantee. Plus 1,132+ students, 7,847 meetings booked, ₹4.2 Cr pipeline — results documented. |
 | "Will this work for my niche?" | System is niche-agnostic. Works for B2B across SAAS, IT, Marketing, agencies, consultants, coaches. The ICP targeting is what makes it work — taught in Stage 1. |
 | "I don't have time" | Self-paced, lifetime access. Most students implement while watching. Ready-to-import blueprints cut setup time dramatically. |
-| "Is this just theory?" | Taught by someone currently running 60K emails/day for Instantly.ai. Live campaigns, live results shared. |
+| "Is this just theory?" | Taught by someone currently running 60K emails/day for enterprise clients. Live campaigns, live results shared. |
 | "Do I need to be technical?" | No. 10+ hours dedicated to each core tool (Cursor, Clay). Beginner-friendly. |
 
 ---

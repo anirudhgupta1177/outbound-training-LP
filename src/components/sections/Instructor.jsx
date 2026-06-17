@@ -39,7 +39,7 @@ export default function Instructor() {
   const revenueDisplay = formatLargeAmount(revenueAmount, pricing.currency);
   
   const credentials = [
-    'Heading Outbound for Instantly AI - sending 60K emails daily',
+    'Scaled outbound systems generating $50K-$100K+ MRR for clients',
     `${revenueDisplay} generated from 1.9M emails sent in 2025`,
     'Booked meetings with billionaires like Sam Altman',
     'Active Community of 1000+ Members',
@@ -57,7 +57,7 @@ export default function Instructor() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="I Send 60K Emails Daily for Instantly AI. Now I'm Teaching You How."
+          title="I've Sent 1.9M+ Emails and Booked Thousands of Meetings. Now I'm Teaching You How."
           subtitle="(Practitioner First. Teacher Second.)"
           gradient
         />

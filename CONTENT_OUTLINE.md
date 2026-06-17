@@ -171,7 +171,7 @@
 - "My Credentials:"
 
 **Credentials List (5 items):**
-1. Heading Outbound for Instantly AI (one of the biggest outbound companies) — sending 60K emails/day for them
+1. Scaled outbound systems generating $50K-$100K+ MRR for clients — sending 60K emails/day
 2. Studied from IIT Kharagpur
 3. Sent 1.9M Emails in 2025 and generated over ₹2.45 CR in direct Revenue
 4. Booked calls with billionaires like Sam Altman from Cold Emails
@@ -248,7 +248,7 @@
 **Card 8: Tools You'll Master in This Course**
 - Title: "Tools You'll Master in This Course"
 - Description: "You'll master 20+ industry-leading tools for outbound automation — here are a few of them:"
-- Tech Stack Logos: Apollo.io, Clay, Instantly, Make.com, n8n, Apify, Anthropic, Zenrows, HeyReach, Trigify, Better Contacts, Findymail, Smartlead, LinkedIn Sales Navigator, Serper, Firecrawl, OpenAI
+- Tech Stack Logos: Apollo.io, Clay, Make.com, n8n, Apify, Anthropic, Zenrows, HeyReach, Trigify, Better Contacts, Findymail, Smartlead, LinkedIn Sales Navigator, Serper, Firecrawl, OpenAI
 
 **Value Stack Summary:**
 - Total Value: ₹37,000+ (strikethrough)
