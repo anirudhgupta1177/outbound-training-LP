@@ -15,7 +15,8 @@ import {
   HiUsers,
   HiChartBar,
   HiTicket,
-  HiCurrencyRupee
+  HiCurrencyRupee,
+  HiChatAlt2
 } from 'react-icons/hi';
 
 export default function AdminDashboard() {
@@ -188,8 +189,15 @@ export default function AdminDashboard() {
                 <HiCurrencyRupee className="w-4 h-4" />
                 Pricing
               </Link>
-              <Link 
-                to="/course" 
+              <Link
+                to="/admin/chatbot-kb"
+                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+              >
+                <HiChatAlt2 className="w-4 h-4" />
+                Chatbot KB
+              </Link>
+              <Link
+                to="/course"
                 className="text-gray-400 hover:text-white transition-colors text-sm"
               >
                 View Course →

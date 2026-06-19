@@ -1,3 +1,46 @@
+-- Chatbot Knowledge Base (editable prose document)
+-- Run this in Supabase SQL Editor (supabase.com > Your Project > SQL Editor)
+--
+-- Holds the chatbot's prose knowledge base (identity, promise, what's-included
+-- value framing, results, instructor, FAQs, policies, contact, behaviour rules)
+-- as a single editable Markdown row. The chatbot backend (api/chat.js) reads
+-- this at request time (cached ~60s) and APPENDS live sections built from other
+-- tables — pricing (pricing_tiers), the curriculum (modules + lessons), and the
+-- included resources (resources). So this document must NOT contain hardcoded
+-- course prices or a hardcoded curriculum; those come from live data.
+--
+-- The bundled course_knowledge_base_new.md is the seed + offline fallback.
+-- Edit this document from the admin UI at /admin/chatbot-kb.
+
+CREATE TABLE IF NOT EXISTS chatbot_kb (
+  id TEXT PRIMARY KEY DEFAULT 'default' CHECK (id = 'default'),
+  content TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE chatbot_kb ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON chatbot_kb TO service_role;
+
+-- Auto-update updated_at on every change (mirrors pricing-schema.sql)
+CREATE OR REPLACE FUNCTION update_chatbot_kb_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_chatbot_kb_updated_at ON chatbot_kb;
+CREATE TRIGGER update_chatbot_kb_updated_at
+  BEFORE UPDATE ON chatbot_kb
+  FOR EACH ROW
+  EXECUTE FUNCTION update_chatbot_kb_updated_at();
+
+-- Seed with the price-stripped, curriculum-delegated prose (mirrors the bundled
+-- course_knowledge_base_new.md). Idempotent: re-running will not clobber edits.
+INSERT INTO chatbot_kb (id, content) VALUES (
+  'default',
+  $kb$
 # AI-Powered Outbound System by Ani — Chatbot Knowledge Base
 
 > **Purpose:** This document is the prose source of truth for the chatbot handling queries about the IntentLedSales course (`course.intentledsales.com`). Use it to answer prospect or student questions about the offer, results, instructor, policies, and support.
@@ -298,3 +341,5 @@ Key differences:
 ---
 
 *End of prose knowledge base. Pricing, curriculum, and resources are appended live from the course platform.*
+$kb$
+) ON CONFLICT (id) DO NOTHING;

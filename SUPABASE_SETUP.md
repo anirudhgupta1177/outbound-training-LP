@@ -32,6 +32,16 @@ Follow these steps to set up Supabase for the course platform.
 3. Copy and paste the contents of `supabase/schema.sql`
 4. Click "Run" (or Cmd/Ctrl + Enter)
 5. You should see "Success" message
+6. Repeat the run step for each of the other schema files (one query per file):
+   - `supabase/pricing-schema.sql` — geo pricing tiers
+   - `supabase/admin-schema.sql` — modules / lessons / resources
+   - `supabase/orders-schema.sql` — orders + invoices
+   - `supabase/coupons-schema.sql` — discount codes
+   - `supabase/chatbot-kb-schema.sql` — the chatbot's editable knowledge-base
+     document. Its seed already contains the price-stripped prose; after running
+     it you can edit the document from the admin UI at `/admin/chatbot-kb`. The
+     chatbot reads this row plus live pricing, curriculum, and resources, so do
+     not hardcode prices or the curriculum inside it.
 
 ## 4. Get API Keys
 
