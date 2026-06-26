@@ -73,8 +73,10 @@ export default async function handler(req, res) {
     console.log('=== VALIDATION PASSED ===');
     
     // Get environment variables
-    const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
-    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
+    // Razorpay credentials from env ONLY (accept legacy VITE_ name). Used below
+    // to verify the payment — must match the keys used in create-order.js.
+    const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
     const SYSTEME_API_KEY = process.env.SYSTEME_API_KEY || 'aeesw3ifk1lkefyqi87uke4cpyswnppvvb86at3firzx2vhh1cq8a7u85ul8jyao';
     const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
     const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
