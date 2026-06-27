@@ -155,7 +155,9 @@ export default function Checkout() {
       hasAttemptedDefaultCoupon.current = true;
       if (result.valid) {
         setCouponCode(DEFAULT_COUPON);
-        setAppliedCoupon(result);
+        // Tag as the auto-applied default coupon so GA4 can distinguish it
+        // from a user-entered coupon at purchase time (coupon_type).
+        setAppliedCoupon({ ...result, isDefault: true });
       }
     };
     applyDefaultCoupon();
@@ -225,7 +227,8 @@ export default function Checkout() {
     });
 
     if (result.valid) {
-      setAppliedCoupon(result);
+      // User-entered coupon — not the auto-applied default.
+      setAppliedCoupon({ ...result, isDefault: false });
       setCouponError('');
     } else {
       setCouponError(result.error || 'Invalid coupon code');
@@ -470,11 +473,24 @@ export default function Checkout() {
 
           // Set payment session flag so ThankYou page knows it's a valid visit
           sessionStorage.setItem('payment_completed', 'true');
-          // Persist payment details so ThankYou can fire Purchase pixels with real value + dedup ID
+          // Persist payment details so ThankYou can fire Purchase pixels with real value + dedup ID.
+          // We capture the LIVE coupon state at click time (appliedCoupon) plus the full
+          // integer pricing breakdown so GA4's course_purchase can separate revenue (price
+          // after discount, before GST) from total charged (final_amount, incl. GST).
           sessionStorage.setItem('payment_details', JSON.stringify({
             payment_id: response.razorpay_payment_id,
+            order_id: response.razorpay_order_id || '',
             value: totalAmount,
             currency: pricing.currency,
+            // Full pricing breakdown — all integers (already rounded above)
+            base_price: basePrice,
+            discount_percent: discountPercent,
+            discount_amount: discountAmount,
+            price_after_discount: discountedPrice,
+            gst_amount: gstAmount,
+            final_amount: totalAmount,
+            coupon_code: appliedCoupon?.code || 'none',
+            is_default_coupon: appliedCoupon?.isDefault || false,
           }));
 
           // Redirect to thank you page on success

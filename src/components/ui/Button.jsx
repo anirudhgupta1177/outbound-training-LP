@@ -32,6 +32,36 @@ export default function Button({
   const isExternal = finalHref && finalHref.startsWith('http');
   const isInternal = finalHref && finalHref.startsWith('/');
   const isHash = finalHref && finalHref.startsWith('#');
+
+  // Fire GA4 course_checkout on any CTA that leads to the checkout page.
+  // Centralizing here covers every checkout CTA (hero, final CTA, mobile sticky,
+  // section CTAs) — including ones mounted later — in one place. The displayed
+  // price is read from the rendered button text at click time; integers only.
+  const handleClick = (e) => {
+    if (finalHref === PAYMENT_URL && typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      try {
+        const text = (e.currentTarget?.innerText || '').trim();
+        const priceMatch = text.match(/([₹$])\s?([\d,]+)/);
+        const displayedPrice = priceMatch ? parseInt(priceMatch[2].replace(/,/g, ''), 10) : 7999;
+        const currency = priceMatch && priceMatch[1] === '$' ? 'USD' : 'INR';
+
+        window.gtag('event', 'course_checkout', {
+          event_category: 'conversion',
+          event_label: 'course_checkout_click',
+          value: displayedPrice,
+          currency,
+          base_price: 7999,
+          offer_type: 'course',
+          cta_location: window.location.pathname,
+          cta_text: text.substring(0, 100),
+          source_domain: window.location.hostname,
+        });
+      } catch (_) {
+        // Never let analytics block navigation
+      }
+    }
+    if (onClick) onClick(e);
+  };
   
   // Use Link for internal routes, anchor for external/hash links, button if no href
   let Component;
@@ -54,7 +84,7 @@ export default function Button({
   return (
     <Component
       {...componentProps}
-      onClick={onClick}
+      onClick={handleClick}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.98 }}

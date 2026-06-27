@@ -42,6 +42,53 @@ export default function ThankYou() {
           ...(conversionId && { conversionId }),
         });
       }
+
+      // Fire GA4 course_purchase with the full, dynamic pricing/coupon breakdown
+      // captured at click time on the checkout page. All monetary values are
+      // integers. `value` = revenue (price after discount, before GST);
+      // `final_amount_paid` = total charged (incl. GST). Works for any coupon.
+      if (typeof window.gtag === 'function') {
+        const basePrice = typeof payment.base_price === 'number' ? payment.base_price : 0;
+        const priceAfterDiscount = typeof payment.price_after_discount === 'number'
+          ? payment.price_after_discount
+          : value;
+        const couponCode = payment.coupon_code || 'none';
+        const isDefaultCoupon = payment.is_default_coupon === true;
+
+        // Categorize coupon for cleaner reporting
+        let couponType = 'none';
+        if (couponCode !== 'none') {
+          couponType = isDefaultCoupon ? 'default_auto_applied' : 'user_applied';
+        }
+
+        window.gtag('event', 'course_purchase', {
+          event_category: 'conversion',
+          event_label: 'course_purchase_completed',
+
+          // Primary revenue metric (price after discount, before GST)
+          value: priceAfterDiscount,
+          currency,
+
+          // Dynamic coupon details — works for any coupon
+          coupon_code: couponCode,
+          coupon_type: couponType,
+          discount_percent: typeof payment.discount_percent === 'number' ? payment.discount_percent : 0,
+          discount_amount: typeof payment.discount_amount === 'number' ? payment.discount_amount : 0,
+
+          // Full pricing breakdown
+          base_price: basePrice,
+          gst_amount: typeof payment.gst_amount === 'number' ? payment.gst_amount : 0,
+          final_amount_paid: typeof payment.final_amount === 'number' ? payment.final_amount : value,
+
+          // Transaction identifiers
+          offer_type: 'course',
+          transaction_id: conversionId || `course_${Date.now()}`,
+          order_id: payment.order_id || '',
+          source_domain: window.location.hostname,
+        });
+      } else {
+        console.warn('gtag not loaded — course_purchase event skipped');
+      }
     } else {
       // No valid payment session - redirect to home
       navigate('/', { replace: true });
