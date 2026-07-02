@@ -67,7 +67,7 @@ function chatbotDevApiPlugin() {
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // Load .env.local into process.env so the serverless handlers can read
-  // CLAUDE_VPS_URL / CLAUDE_VPS_API_KEY / CHATBOT_SUPABASE_* in dev.
+  // DEEPINFRA_API_KEY / CHATBOT_SUPABASE_* in dev.
   const env = loadEnv(mode, process.cwd(), '');
   for (const key of Object.keys(env)) {
     if (process.env[key] === undefined) process.env[key] = env[key];
