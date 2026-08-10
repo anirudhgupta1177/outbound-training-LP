@@ -36,9 +36,30 @@ CREATE TABLE IF NOT EXISTS public.portal_offers (
   updated_at          timestamptz DEFAULT now()
 );
 
+-- An offer can be split into ordered parts (phases), each with its own video
+-- and its own resource/tool list.
+CREATE TABLE IF NOT EXISTS public.portal_offer_parts (
+  id             uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+  offer_id       uuid NOT NULL REFERENCES public.portal_offers(id) ON DELETE CASCADE,
+  title          text NOT NULL,
+  subtitle       text,
+  description    text,
+  video_url      text,
+  duration_label text,
+  order_index    integer NOT NULL DEFAULT 0,
+  is_published   boolean NOT NULL DEFAULT true,
+  created_at     timestamptz DEFAULT now(),
+  updated_at     timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS portal_offer_parts_offer_id_idx
+  ON public.portal_offer_parts(offer_id);
+
+-- part_id NULL means the resource belongs to the offer as a whole rather than
+-- to one phase.
 CREATE TABLE IF NOT EXISTS public.portal_offer_resources (
   id          uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   offer_id    uuid NOT NULL REFERENCES public.portal_offers(id) ON DELETE CASCADE,
+  part_id     uuid REFERENCES public.portal_offer_parts(id) ON DELETE CASCADE,
   title       text NOT NULL,
   url         text NOT NULL,
   type        text NOT NULL DEFAULT 'link'
@@ -50,6 +71,8 @@ CREATE TABLE IF NOT EXISTS public.portal_offer_resources (
 );
 CREATE INDEX IF NOT EXISTS portal_offer_resources_offer_id_idx
   ON public.portal_offer_resources(offer_id);
+CREATE INDEX IF NOT EXISTS portal_offer_resources_part_id_idx
+  ON public.portal_offer_resources(part_id);
 
 CREATE TABLE IF NOT EXISTS public.user_entitlements (
   id         uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
@@ -73,6 +96,7 @@ CREATE TABLE IF NOT EXISTS public.portal_settings (
 );
 
 ALTER TABLE public.portal_offers          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.portal_offer_parts     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portal_offer_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_entitlements      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portal_settings        ENABLE ROW LEVEL SECURITY;
@@ -84,6 +108,11 @@ CREATE POLICY "Users read own entitlements" ON public.user_entitlements
 DROP TRIGGER IF EXISTS portal_offers_updated_at ON public.portal_offers;
 CREATE TRIGGER portal_offers_updated_at
   BEFORE UPDATE ON public.portal_offers
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+DROP TRIGGER IF EXISTS portal_offer_parts_updated_at ON public.portal_offer_parts;
+CREATE TRIGGER portal_offer_parts_updated_at
+  BEFORE UPDATE ON public.portal_offer_parts
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 DROP TRIGGER IF EXISTS portal_offer_resources_updated_at ON public.portal_offer_resources;

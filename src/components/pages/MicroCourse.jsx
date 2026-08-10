@@ -1,4 +1,5 @@
-import { HiExternalLink, HiTemplate, HiFolder, HiLink, HiSparkles, HiDocumentText } from 'react-icons/hi';
+import { useState } from 'react';
+import { HiExternalLink, HiTemplate, HiFolder, HiLink, HiSparkles, HiDocumentText, HiChevronDown } from 'react-icons/hi';
 import PortalHeader from '../portal/PortalHeader';
 import VideoPlayer from '../course/VideoPlayer';
 import { useOffers, OFFER_SLUGS } from '../../contexts/OffersContext';
@@ -78,14 +79,117 @@ function ToolCard({ resource, index }) {
   );
 }
 
+// One phase of the marathon: its own video, its own tool stack, its own files.
+function PhaseSection({ part, index, expanded, onToggle }) {
+  const panelId = `phase-panel-${part.id}`;
+  const resources = part.resources || [];
+  const tools = resources.filter((r) => r.type === 'tool');
+  const materials = resources.filter((r) => r.type !== 'tool');
+
+  return (
+    <section className="rounded-2xl border border-gray-800 bg-[#111111] overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        className="w-full flex items-center gap-4 p-5 sm:p-6 text-left hover:bg-gray-800/30 transition-colors"
+      >
+        <span className="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-300 text-lg font-bold">
+          {index + 1}
+        </span>
+
+        <span className="flex-1 min-w-0">
+          <span className="block text-base sm:text-lg font-bold text-white">{part.title}</span>
+          {part.subtitle && (
+            <span className="block text-sm text-gray-400 mt-0.5">{part.subtitle}</span>
+          )}
+        </span>
+
+        <HiChevronDown
+          className={`flex-shrink-0 w-5 h-5 text-gray-500 transition-transform ${
+            expanded ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {expanded && (
+        <div id={panelId} className="px-5 sm:px-6 pb-6 space-y-6">
+          {part.description && (
+            <p className="text-sm sm:text-base text-gray-400 leading-relaxed">{part.description}</p>
+          )}
+
+          {part.video_url ? (
+            <VideoPlayer loomUrl={part.video_url} title={part.title} />
+          ) : (
+            <div className="w-full aspect-video rounded-xl border border-gray-800 bg-gray-900 flex items-center justify-center">
+              <p className="text-sm text-gray-500">Video coming soon</p>
+            </div>
+          )}
+
+          {tools.length > 0 && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5">
+                Tools you need for this phase
+              </h3>
+              <p className="text-sm text-gray-300 mb-5">
+                Open each one and get your account ready before you follow along.
+              </p>
+              <div className="grid gap-4">
+                {tools.map((resource, toolIndex) => (
+                  <ToolCard key={resource.id} resource={resource} index={toolIndex} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {materials.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">
+                Resources for this phase
+              </h3>
+              <div className="grid gap-3">
+                {materials.map((resource) => (
+                  <ResourceTile key={resource.id} resource={resource} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function MicroCourse() {
   const { getOffer, settings } = useOffers();
   const offer = getOffer(OFFER_SLUGS.microCourse);
 
+  const parts = offer?.parts || [];
+  // Resources left unassigned to a phase still belong to the offer as a whole.
   const resources = offer?.resources || [];
   const tools = resources.filter((r) => r.type === 'tool');
   const materials = resources.filter((r) => r.type !== 'tool');
   const bookingUrl = getOffer(OFFER_SLUGS.expertCall)?.cta_url || settings.booking_url;
+
+  // Phase 1 opens on arrival; the rest stay collapsed so the page is scannable.
+  // Null means "untouched", so the default survives parts arriving asynchronously
+  // without needing an effect to seed it.
+  const [expandedOverride, setExpandedOverride] = useState(null);
+  const [showFullRecording, setShowFullRecording] = useState(false);
+
+  const expanded =
+    expandedOverride ?? (parts.length > 0 ? new Set([parts[0].id]) : new Set());
+
+  const togglePart = (partId) => {
+    const next = new Set(expanded);
+    if (next.has(partId)) next.delete(partId);
+    else next.add(partId);
+    setExpandedOverride(next);
+  };
+
+  const allExpanded = parts.length > 0 && expanded.size === parts.length;
+  const nothingToShow = parts.length === 0 && materials.length === 0 && tools.length === 0;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -119,30 +223,75 @@ export default function MicroCourse() {
           )}
         </div>
 
-        <section className="bg-[#111111] border border-gray-800 rounded-2xl p-4 sm:p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-1">
-            {offer?.primary_video_title || 'The Full Session'}
-          </h2>
-          <p className="text-sm text-gray-400 mb-5">
-            Watch start to finish, then work through the resources below.
-          </p>
-          <VideoPlayer loomUrl={offer?.primary_video_url} title={offer?.primary_video_title} />
-        </section>
+        {parts.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-end justify-between gap-4 flex-wrap mb-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">
+                  Work through it in {parts.length} phases
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  Each phase has its own video and the exact tools you need for it.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedOverride(allExpanded ? new Set() : new Set(parts.map((p) => p.id)))
+                }
+                className="text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
+              >
+                {allExpanded ? 'Collapse all' : 'Expand all'}
+              </button>
+            </div>
 
-        {tools.length > 0 && (
-          <section className="rounded-2xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-7 mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Tools used in this training
-            </h2>
-            <p className="text-base text-gray-300 mb-6">
-              Set these up as you follow along — open each one and get your account ready before the
-              next step.
-            </p>
             <div className="grid gap-4">
-              {tools.map((resource, index) => (
-                <ToolCard key={resource.id} resource={resource} index={index} />
+              {parts.map((part, index) => (
+                <PhaseSection
+                  key={part.id}
+                  part={part}
+                  index={index}
+                  expanded={expanded.has(part.id)}
+                  onToggle={() => togglePart(part.id)}
+                />
               ))}
             </div>
+          </section>
+        )}
+
+        {/* The uncut recording, behind a toggle so it doesn't compete with the
+            phase breakdown above. */}
+        {offer?.primary_video_url && (
+          <section className="rounded-2xl border border-gray-800 bg-[#111111] overflow-hidden mb-8">
+            <button
+              type="button"
+              onClick={() => setShowFullRecording((value) => !value)}
+              aria-expanded={showFullRecording}
+              aria-controls="full-session-panel"
+              className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left hover:bg-gray-800/30 transition-colors"
+            >
+              <span className="min-w-0">
+                <span className="block text-base sm:text-lg font-bold text-white">
+                  {offer.primary_video_title || 'The Full Session'}
+                </span>
+                <span className="block text-sm text-gray-400 mt-0.5">
+                  Prefer it in one sitting? Watch the complete, unsplit recording.
+                </span>
+              </span>
+              <HiChevronDown
+                className={`flex-shrink-0 w-5 h-5 text-gray-500 transition-transform ${
+                  showFullRecording ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+            {showFullRecording && (
+              <div id="full-session-panel" className="px-5 sm:px-6 pb-6">
+                <VideoPlayer
+                  loomUrl={offer.primary_video_url}
+                  title={offer.primary_video_title}
+                />
+              </div>
+            )}
           </section>
         )}
 
@@ -162,6 +311,23 @@ export default function MicroCourse() {
           </section>
         )}
 
+        {tools.length > 0 && (
+          <section className="rounded-2xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-7 mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              Tools used in this training
+            </h2>
+            <p className="text-base text-gray-300 mb-6">
+              Set these up as you follow along — open each one and get your account ready before the
+              next step.
+            </p>
+            <div className="grid gap-4">
+              {tools.map((resource, index) => (
+                <ToolCard key={resource.id} resource={resource} index={index} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {materials.length > 0 && (
           <section className="mb-8">
             <h2 className="text-xl font-bold text-white mb-1">Resources</h2>
@@ -176,9 +342,9 @@ export default function MicroCourse() {
           </section>
         )}
 
-        {materials.length === 0 && tools.length === 0 && (
+        {nothingToShow && (
           <section className="mb-8 p-6 rounded-2xl border border-gray-800 bg-[#111111] text-center">
-            <p className="text-gray-400">Resources for this session are being added shortly.</p>
+            <p className="text-gray-400">Content for this session is being added shortly.</p>
           </section>
         )}
 

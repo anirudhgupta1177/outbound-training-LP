@@ -39,6 +39,7 @@ export async function fetchOffers() {
       ...offer,
       highlights: offer.highlights || [],
       resources: offer.resources || [],
+      parts: (offer.parts || []).map((part) => ({ ...part, resources: part.resources || [] })),
     })),
     entitlements: data.entitlements || [],
     settings: { ...EMPTY.settings, ...(data.settings || {}) },

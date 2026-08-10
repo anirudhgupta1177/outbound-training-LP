@@ -10,6 +10,9 @@ import {
   HiX,
   HiExternalLink,
   HiLink,
+  HiVideoCamera,
+  HiChevronUp,
+  HiChevronDown,
 } from 'react-icons/hi';
 
 const KIND_OPTIONS = [
@@ -36,7 +39,15 @@ const RESOURCE_TYPES = [
   { value: 'file', label: 'File' },
 ];
 
-const EMPTY_RESOURCE = { title: '', url: '', type: 'link', description: '' };
+const EMPTY_RESOURCE = { title: '', url: '', type: 'link', description: '', part_id: '' };
+
+const EMPTY_PART = {
+  title: '',
+  subtitle: '',
+  description: '',
+  video_url: '',
+  duration_label: '',
+};
 
 const inputClass =
   'w-full px-4 py-2.5 bg-[#0a0a0a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold';
@@ -68,6 +79,12 @@ export default function OfferEditor() {
   const [newResource, setNewResource] = useState(EMPTY_RESOURCE);
   const [editingResourceId, setEditingResourceId] = useState(null);
   const [resourceDraft, setResourceDraft] = useState(EMPTY_RESOURCE);
+
+  const [parts, setParts] = useState([]);
+  const [isAddingPart, setIsAddingPart] = useState(false);
+  const [newPart, setNewPart] = useState(EMPTY_PART);
+  const [editingPartId, setEditingPartId] = useState(null);
+  const [partDraft, setPartDraft] = useState(EMPTY_PART);
 
   useEffect(() => {
     fetchOffer();
@@ -115,6 +132,7 @@ export default function OfferEditor() {
         is_active: !!offer.is_active,
       });
       setResources(data.resources || []);
+      setParts(data.parts || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -158,6 +176,102 @@ export default function OfferEditor() {
     }
   };
 
+  const handleAddPart = async (e) => {
+    e.preventDefault();
+    if (!newPart.title.trim()) return;
+
+    setError(null);
+    try {
+      const response = await fetch('/api/admin/offers?entity=part', {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify({ ...newPart, offer_id: offerId }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to add phase');
+
+      setParts((prev) => [...prev, data.part]);
+      setNewPart(EMPTY_PART);
+      setIsAddingPart(false);
+      flashSuccess('Phase added');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleUpdatePart = async (partId) => {
+    if (!partDraft.title.trim()) return;
+
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/offers?entity=part&id=${partId}`, {
+        method: 'PUT',
+        headers: authHeaders(true),
+        body: JSON.stringify(partDraft),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to update phase');
+
+      setParts((prev) => prev.map((p) => (p.id === partId ? data.part : p)));
+      setEditingPartId(null);
+      flashSuccess('Phase updated');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeletePart = async (part) => {
+    if (
+      !confirm(
+        `Delete "${part.title}"? Resources attached to this phase are deleted with it.`
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/offers?entity=part&id=${part.id}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to delete phase');
+
+      setParts((prev) => prev.filter((p) => p.id !== part.id));
+      setResources((prev) => prev.filter((r) => r.part_id !== part.id));
+      flashSuccess('Phase deleted');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleReorderPart = async (partId, direction) => {
+    const currentIndex = parts.findIndex((p) => p.id === partId);
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= parts.length) return;
+
+    const reordered = [...parts];
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.splice(newIndex, 0, moved);
+    setParts(reordered);
+
+    try {
+      const response = await fetch('/api/admin/offers?entity=reorder-parts', {
+        method: 'POST',
+        headers: authHeaders(true),
+        body: JSON.stringify({ partIds: reordered.map((p) => p.id) }),
+      });
+      if (!response.ok) throw new Error('Failed to reorder phases');
+    } catch (err) {
+      setError(err.message);
+      fetchOffer();
+    }
+  };
+
   const handleAddResource = async (e) => {
     e.preventDefault();
     if (!newResource.title.trim() || !newResource.url.trim()) return;
@@ -167,7 +281,11 @@ export default function OfferEditor() {
       const response = await fetch('/api/admin/offers?entity=resource', {
         method: 'POST',
         headers: authHeaders(true),
-        body: JSON.stringify({ ...newResource, offer_id: offerId }),
+        body: JSON.stringify({
+          ...newResource,
+          part_id: newResource.part_id || null,
+          offer_id: offerId,
+        }),
       });
 
       const data = await response.json();
@@ -584,6 +702,250 @@ export default function OfferEditor() {
           </section>
         </form>
 
+        {/* Phases */}
+        <section className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden mt-8">
+          <div className="flex items-center justify-between p-6 border-b border-gray-800 gap-4 flex-wrap">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Phases</h2>
+              <p className="text-sm text-gray-400">
+                Split this offer into ordered parts, each with its own video. Members see them as a
+                numbered breakdown. Leave empty to show only the main video.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsAddingPart(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <HiPlus className="w-5 h-5" />
+              Add Phase
+            </button>
+          </div>
+
+          {isAddingPart && (
+            <form onSubmit={handleAddPart} className="p-6 border-b border-gray-800 bg-gray-900/50 space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="Phase title" htmlFor="new_part_title">
+                  <input
+                    id="new_part_title"
+                    type="text"
+                    value={newPart.title}
+                    onChange={(e) => setNewPart({ ...newPart, title: e.target.value })}
+                    className={inputClass}
+                    placeholder="Phase 1 — Infrastructure Setup"
+                    autoFocus
+                  />
+                </Field>
+                <Field label="Subtitle" htmlFor="new_part_subtitle">
+                  <input
+                    id="new_part_subtitle"
+                    type="text"
+                    value={newPart.subtitle}
+                    onChange={(e) => setNewPart({ ...newPart, subtitle: e.target.value })}
+                    className={inputClass}
+                    placeholder="Domains, mailboxes and deliverability"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Video URL" htmlFor="new_part_video">
+                <input
+                  id="new_part_video"
+                  type="url"
+                  value={newPart.video_url}
+                  onChange={(e) => setNewPart({ ...newPart, video_url: e.target.value })}
+                  className={inputClass}
+                  placeholder="https://www.loom.com/share/..."
+                />
+              </Field>
+
+              <Field label="Description (optional)" htmlFor="new_part_description">
+                <textarea
+                  id="new_part_description"
+                  rows={2}
+                  value={newPart.description}
+                  onChange={(e) => setNewPart({ ...newPart, description: e.target.value })}
+                  className={`${inputClass} resize-none`}
+                  placeholder="What this phase covers..."
+                />
+              </Field>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddingPart(false);
+                    setNewPart(EMPTY_PART);
+                  }}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-gold text-black font-medium rounded-lg hover:bg-gold-light transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+          )}
+
+          {parts.length === 0 ? (
+            <div className="p-12 text-center">
+              <HiVideoCamera className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-400">No phases yet</p>
+              <button
+                onClick={() => setIsAddingPart(true)}
+                className="mt-4 text-gold hover:underline"
+              >
+                Add the first phase
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-800">
+              {parts.map((part, index) =>
+                editingPartId === part.id ? (
+                  <div key={part.id} className="p-6 bg-gray-900/50 space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <Field label="Phase title" htmlFor={`edit_part_title_${part.id}`}>
+                        <input
+                          id={`edit_part_title_${part.id}`}
+                          type="text"
+                          value={partDraft.title}
+                          onChange={(e) => setPartDraft({ ...partDraft, title: e.target.value })}
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label="Subtitle" htmlFor={`edit_part_subtitle_${part.id}`}>
+                        <input
+                          id={`edit_part_subtitle_${part.id}`}
+                          type="text"
+                          value={partDraft.subtitle || ''}
+                          onChange={(e) => setPartDraft({ ...partDraft, subtitle: e.target.value })}
+                          className={inputClass}
+                        />
+                      </Field>
+                    </div>
+
+                    <Field label="Video URL" htmlFor={`edit_part_video_${part.id}`}>
+                      <input
+                        id={`edit_part_video_${part.id}`}
+                        type="url"
+                        value={partDraft.video_url || ''}
+                        onChange={(e) => setPartDraft({ ...partDraft, video_url: e.target.value })}
+                        className={inputClass}
+                        placeholder="https://www.loom.com/share/..."
+                      />
+                    </Field>
+
+                    <Field label="Description" htmlFor={`edit_part_description_${part.id}`}>
+                      <textarea
+                        id={`edit_part_description_${part.id}`}
+                        rows={2}
+                        value={partDraft.description || ''}
+                        onChange={(e) =>
+                          setPartDraft({ ...partDraft, description: e.target.value })
+                        }
+                        className={`${inputClass} resize-none`}
+                      />
+                    </Field>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setEditingPartId(null)}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <HiX className="w-4 h-4" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleUpdatePart(part.id)}
+                        className="flex items-center gap-2 px-6 py-2 bg-gold text-black font-medium rounded-lg hover:bg-gold-light transition-colors"
+                      >
+                        <HiCheck className="w-4 h-4" />
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    key={part.id}
+                    className="flex items-center gap-4 p-4 hover:bg-gray-900/50 transition-colors"
+                  >
+                    <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                      <button
+                        onClick={() => handleReorderPart(part.id, 'up')}
+                        disabled={index === 0}
+                        title="Move up"
+                        className="p-1 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <HiChevronUp className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs text-gray-500 font-mono">{index + 1}</span>
+                      <button
+                        onClick={() => handleReorderPart(part.id, 'down')}
+                        disabled={index === parts.length - 1}
+                        title="Move down"
+                        className="p-1 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <HiChevronDown className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white truncate">{part.title}</p>
+                      {part.subtitle && (
+                        <p className="text-sm text-gray-400 truncate">{part.subtitle}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-1 text-xs">
+                        {part.video_url ? (
+                          <span className="flex items-center gap-1 text-green-400">
+                            <HiVideoCamera className="w-3.5 h-3.5" />
+                            Video added
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-yellow-500">
+                            <HiVideoCamera className="w-3.5 h-3.5" />
+                            No video
+                          </span>
+                        )}
+                        <span className="text-gray-500">
+                          {resources.filter((r) => r.part_id === part.id).length} resources
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingPartId(part.id);
+                          setPartDraft({
+                            title: part.title,
+                            subtitle: part.subtitle || '',
+                            description: part.description || '',
+                            video_url: part.video_url || '',
+                            duration_label: part.duration_label || '',
+                          });
+                        }}
+                        className="px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeletePart(part)}
+                        title="Delete phase"
+                        className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                      >
+                        <HiTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </section>
+
         {/* Resources */}
         <section className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden mt-8">
           <div className="flex items-center justify-between p-6 border-b border-gray-800 gap-4 flex-wrap">
@@ -643,16 +1005,37 @@ export default function OfferEditor() {
                 </Field>
               </div>
 
-              <Field label="Description (optional)" htmlFor="new_resource_description">
-                <input
-                  id="new_resource_description"
-                  type="text"
-                  value={newResource.description}
-                  onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
-                  className={inputClass}
-                  placeholder="What this is for..."
-                />
-              </Field>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="Description (optional)" htmlFor="new_resource_description">
+                  <input
+                    id="new_resource_description"
+                    type="text"
+                    value={newResource.description}
+                    onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                    className={inputClass}
+                    placeholder="What this is for..."
+                  />
+                </Field>
+                <Field
+                  label="Show under"
+                  htmlFor="new_resource_part"
+                  hint="Attach to a phase, or leave on the whole offer."
+                >
+                  <select
+                    id="new_resource_part"
+                    value={newResource.part_id}
+                    onChange={(e) => setNewResource({ ...newResource, part_id: e.target.value })}
+                    className={inputClass}
+                  >
+                    <option value="">Whole offer</option>
+                    {parts.map((part, index) => (
+                      <option key={part.id} value={part.id}>
+                        {index + 1}. {part.title}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
 
               <div className="flex justify-end gap-3">
                 <button
@@ -732,17 +1115,36 @@ export default function OfferEditor() {
                       </Field>
                     </div>
 
-                    <Field label="Description" htmlFor={`edit_description_${resource.id}`}>
-                      <input
-                        id={`edit_description_${resource.id}`}
-                        type="text"
-                        value={resourceDraft.description || ''}
-                        onChange={(e) =>
-                          setResourceDraft({ ...resourceDraft, description: e.target.value })
-                        }
-                        className={inputClass}
-                      />
-                    </Field>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <Field label="Description" htmlFor={`edit_description_${resource.id}`}>
+                        <input
+                          id={`edit_description_${resource.id}`}
+                          type="text"
+                          value={resourceDraft.description || ''}
+                          onChange={(e) =>
+                            setResourceDraft({ ...resourceDraft, description: e.target.value })
+                          }
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label="Show under" htmlFor={`edit_part_${resource.id}`}>
+                        <select
+                          id={`edit_part_${resource.id}`}
+                          value={resourceDraft.part_id || ''}
+                          onChange={(e) =>
+                            setResourceDraft({ ...resourceDraft, part_id: e.target.value })
+                          }
+                          className={inputClass}
+                        >
+                          <option value="">Whole offer</option>
+                          {parts.map((part, index) => (
+                            <option key={part.id} value={part.id}>
+                              {index + 1}. {part.title}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
 
                     <div className="flex justify-end gap-3">
                       <button
@@ -771,7 +1173,17 @@ export default function OfferEditor() {
                     </span>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white truncate">{resource.title}</p>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className="font-medium text-white truncate">{resource.title}</p>
+                        {(() => {
+                          const partIndex = parts.findIndex((p) => p.id === resource.part_id);
+                          return partIndex >= 0 ? (
+                            <span className="px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 text-[10px] font-semibold uppercase tracking-wide flex-shrink-0">
+                              Phase {partIndex + 1}
+                            </span>
+                          ) : null;
+                        })()}
+                      </div>
                       <p className="text-xs text-gray-500 truncate">{resource.url}</p>
                       {resource.description && (
                         <p className="text-sm text-gray-400 truncate mt-0.5">
@@ -798,6 +1210,7 @@ export default function OfferEditor() {
                             url: resource.url,
                             type: resource.type,
                             description: resource.description || '',
+                            part_id: resource.part_id || '',
                           });
                         }}
                         className="px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"

@@ -4,7 +4,8 @@ import { verifyAdminToken } from '../admin-auth.js';
 // Admin CRUD for the Offer Vault. Everything the vault needs lives behind one
 // function, selected by `?entity=`:
 //   (none)        offers
-//   resource      per-offer resource links
+//   part          ordered phases within an offer, each with its own video
+//   resource      resource links, attached to an offer or to one of its parts
 //   settings      portal-wide settings (booking link, vault copy)
 //   entitlement   grant/revoke a member's access to an offer
 //   reorder       persist offer card order
@@ -28,6 +29,15 @@ const OFFER_FIELDS = [
   'accent',
   'unlocked_by_default',
   'is_active',
+];
+
+const PART_FIELDS = [
+  'title',
+  'subtitle',
+  'description',
+  'video_url',
+  'duration_label',
+  'is_published',
 ];
 
 const RESOURCE_FIELDS = ['title', 'url', 'type', 'description'];
@@ -162,18 +172,88 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // ------------------------------------------------------------------- parts
+    if (entity === 'part') {
+      if (req.method === 'POST') {
+        const { offer_id: offerId } = body;
+        if (!offerId || !body.title) {
+          return res.status(400).json({ error: 'offer_id and title are required' });
+        }
+
+        const { data: maxOrder } = await supabase
+          .from('portal_offer_parts')
+          .select('order_index')
+          .eq('offer_id', offerId)
+          .order('order_index', { ascending: false })
+          .limit(1);
+
+        const { data, error } = await supabase
+          .from('portal_offer_parts')
+          .insert({
+            offer_id: offerId,
+            ...pick(body, PART_FIELDS),
+            title: body.title,
+            order_index: (maxOrder?.[0]?.order_index || 0) + 1,
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        return res.status(201).json({ part: data });
+      }
+
+      if (req.method === 'PUT') {
+        if (!id) return res.status(400).json({ error: 'Part ID is required' });
+        const { data, error } = await supabase
+          .from('portal_offer_parts')
+          .update(pick(body, PART_FIELDS))
+          .eq('id', id)
+          .select()
+          .single();
+        if (error) throw error;
+        return res.status(200).json({ part: data });
+      }
+
+      if (req.method === 'DELETE') {
+        if (!id) return res.status(400).json({ error: 'Part ID is required' });
+        // Resources attached to this part cascade away with it.
+        const { error } = await supabase.from('portal_offer_parts').delete().eq('id', id);
+        if (error) throw error;
+        return res.status(200).json({ success: true });
+      }
+
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    if (entity === 'reorder-parts') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const { partIds } = body;
+      if (!Array.isArray(partIds) || partIds.length === 0) {
+        return res.status(400).json({ error: 'partIds array is required' });
+      }
+      await Promise.all(
+        partIds.map((partId, index) =>
+          supabase.from('portal_offer_parts').update({ order_index: index + 1 }).eq('id', partId)
+        )
+      );
+      return res.status(200).json({ success: true });
+    }
+
     // --------------------------------------------------------------- resources
     if (entity === 'resource') {
       if (req.method === 'POST') {
-        const { offer_id: offerId } = body;
+        const { offer_id: offerId, part_id: partId } = body;
         if (!offerId || !body.title || !body.url) {
           return res.status(400).json({ error: 'offer_id, title and url are required' });
         }
 
-        const { data: maxOrder } = await supabase
+        // Order within the list the resource actually renders in.
+        let orderQuery = supabase
           .from('portal_offer_resources')
           .select('order_index')
-          .eq('offer_id', offerId)
+          .eq('offer_id', offerId);
+        orderQuery = partId ? orderQuery.eq('part_id', partId) : orderQuery.is('part_id', null);
+
+        const { data: maxOrder } = await orderQuery
           .order('order_index', { ascending: false })
           .limit(1);
 
@@ -181,6 +261,7 @@ export default async function handler(req, res) {
           .from('portal_offer_resources')
           .insert({
             offer_id: offerId,
+            part_id: partId || null,
             ...pick(body, RESOURCE_FIELDS),
             type: body.type || 'link',
             order_index: (maxOrder?.[0]?.order_index || 0) + 1,
@@ -195,6 +276,8 @@ export default async function handler(req, res) {
         if (!id) return res.status(400).json({ error: 'Resource ID is required' });
         const updates = pick(body, RESOURCE_FIELDS);
         if (body.order_index !== undefined) updates.order_index = body.order_index;
+        // Lets an admin move a resource between phases (or back to the offer).
+        if (body.part_id !== undefined) updates.part_id = body.part_id || null;
 
         const { data, error } = await supabase
           .from('portal_offer_resources')
@@ -235,39 +318,60 @@ export default async function handler(req, res) {
     // ------------------------------------------------------------------ offers
     if (req.method === 'GET') {
       if (id) {
-        const [{ data: offer, error: offerError }, { data: resources, error: resError }] =
-          await Promise.all([
-            supabase.from('portal_offers').select('*').eq('id', id).single(),
-            supabase
-              .from('portal_offer_resources')
-              .select('*')
-              .eq('offer_id', id)
-              .order('order_index'),
-          ]);
+        const [
+          { data: offer, error: offerError },
+          { data: parts, error: partsError },
+          { data: resources, error: resError },
+        ] = await Promise.all([
+          supabase.from('portal_offers').select('*').eq('id', id).single(),
+          supabase
+            .from('portal_offer_parts')
+            .select('*')
+            .eq('offer_id', id)
+            .order('order_index'),
+          supabase
+            .from('portal_offer_resources')
+            .select('*')
+            .eq('offer_id', id)
+            .order('order_index'),
+        ]);
 
         if (offerError) throw offerError;
+        if (partsError) throw partsError;
         if (resError) throw resError;
 
-        return res.status(200).json({ offer, resources: resources || [] });
+        return res.status(200).json({
+          offer,
+          parts: parts || [],
+          resources: resources || [],
+        });
       }
 
-      const [{ data: offers, error }, { data: resources }, { data: settings }] = await Promise.all([
-        supabase.from('portal_offers').select('*').order('order_index'),
-        supabase.from('portal_offer_resources').select('offer_id'),
-        supabase.from('portal_settings').select('*').eq('id', 'default').maybeSingle(),
-      ]);
+      const [{ data: offers, error }, { data: resources }, { data: parts }, { data: settings }] =
+        await Promise.all([
+          supabase.from('portal_offers').select('*').order('order_index'),
+          supabase.from('portal_offer_resources').select('offer_id'),
+          supabase.from('portal_offer_parts').select('offer_id'),
+          supabase.from('portal_settings').select('*').eq('id', 'default').maybeSingle(),
+        ]);
 
       if (error) throw error;
 
       const counts = {};
       for (const r of resources || []) counts[r.offer_id] = (counts[r.offer_id] || 0) + 1;
+      const partCounts = {};
+      for (const p of parts || []) partCounts[p.offer_id] = (partCounts[p.offer_id] || 0) + 1;
 
       const { count: entitlementCount } = await supabase
         .from('user_entitlements')
         .select('*', { count: 'exact', head: true });
 
       return res.status(200).json({
-        offers: (offers || []).map((o) => ({ ...o, resource_count: counts[o.id] || 0 })),
+        offers: (offers || []).map((o) => ({
+          ...o,
+          resource_count: counts[o.id] || 0,
+          part_count: partCounts[o.id] || 0,
+        })),
         settings: settings || {},
         entitlement_count: entitlementCount || 0,
       });
