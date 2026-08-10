@@ -61,19 +61,25 @@ export default async function handler(req, res) {
       if (!error && data?.user) user = data.user;
     }
 
-    const [offersResult, settingsResult] = await Promise.all([
+    const [offersResult, settingsResult, partCountResult] = await Promise.all([
       supabase
         .from('portal_offers')
         .select('*')
         .eq('is_active', true)
         .order('order_index'),
       supabase.from('portal_settings').select('*').eq('id', 'default').maybeSingle(),
+      supabase.from('portal_offer_parts').select('offer_id').eq('is_published', true),
     ]);
 
     if (offersResult.error) throw offersResult.error;
 
     const offers = offersResult.data || [];
     const settings = settingsResult.data || {};
+
+    const partCounts = {};
+    for (const p of partCountResult.data || []) {
+      partCounts[p.offer_id] = (partCounts[p.offer_id] || 0) + 1;
+    }
 
     let entitlements = [];
     if (user) {
@@ -90,24 +96,55 @@ export default async function handler(req, res) {
       (o) => user && (o.unlocked_by_default || entitlements.includes(o.slug))
     );
 
-    // One query for every unlocked offer's resources.
-    let resourcesByOffer = {};
+    // One round trip for every unlocked offer's parts and resources.
+    const resourcesByOffer = {};
+    const partsByOffer = {};
     if (unlockedOffers.length > 0) {
-      const { data: resources, error: resError } = await supabase
-        .from('portal_offer_resources')
-        .select('*')
-        .in('offer_id', unlockedOffers.map((o) => o.id))
-        .order('order_index');
+      const unlockedIds = unlockedOffers.map((o) => o.id);
+      const [{ data: parts, error: partsError }, { data: resources, error: resError }] =
+        await Promise.all([
+          supabase
+            .from('portal_offer_parts')
+            .select('*')
+            .in('offer_id', unlockedIds)
+            .eq('is_published', true)
+            .order('order_index'),
+          supabase
+            .from('portal_offer_resources')
+            .select('*')
+            .in('offer_id', unlockedIds)
+            .order('order_index'),
+        ]);
 
+      if (partsError) throw partsError;
       if (resError) throw resError;
 
+      const resourcesByPart = {};
       for (const r of resources || []) {
-        (resourcesByOffer[r.offer_id] ||= []).push({
+        const entry = {
           id: r.id,
           title: r.title,
           url: r.url,
           type: r.type,
           description: r.description,
+        };
+        if (r.part_id) {
+          (resourcesByPart[r.part_id] ||= []).push(entry);
+        } else {
+          (resourcesByOffer[r.offer_id] ||= []).push(entry);
+        }
+      }
+
+      for (const part of parts || []) {
+        (partsByOffer[part.offer_id] ||= []).push({
+          id: part.id,
+          title: part.title,
+          subtitle: part.subtitle,
+          description: part.description,
+          video_url: part.video_url,
+          duration_label: part.duration_label,
+          order_index: part.order_index,
+          resources: resourcesByPart[part.id] || [],
         });
       }
     }
@@ -123,11 +160,15 @@ export default async function handler(req, res) {
         base.primary_video_url = offer.primary_video_url;
         base.primary_video_title = offer.primary_video_title;
         base.resources = resourcesByOffer[offer.id] || [];
+        base.parts = partsByOffer[offer.id] || [];
       } else {
         base.primary_video_url = null;
         base.primary_video_title = null;
         base.resources = [];
+        base.parts = [];
       }
+      // Part count is safe to advertise on a locked card — it sells the offer.
+      base.part_count = partCounts[offer.id] || 0;
 
       // The consult upsell always points at the booking link the admin set.
       if (offer.kind === 'consult') {
