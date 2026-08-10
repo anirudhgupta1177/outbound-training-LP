@@ -43,6 +43,7 @@ const Resources = lazy(() => import('./components/pages/Resources'));
 const ProtectedRoute = lazy(() => import('./components/auth/ProtectedRoute'));
 const OfferVault = lazy(() => import('./components/pages/OfferVault'));
 const MicroCourse = lazy(() => import('./components/pages/MicroCourse'));
+const MicroCoursePhase = lazy(() => import('./components/pages/MicroCoursePhase'));
 const OfferGate = lazy(() => import('./components/portal/OfferGate'));
 
 // Admin imports - lazy loaded
@@ -112,6 +113,16 @@ function App() {
                   <ProtectedRoute>
                     <OfferGate slug={OFFER_SLUGS.microCourse}>
                       <MicroCourse />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/micro-course/:partId"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.microCourse}>
+                      <MicroCoursePhase />
                     </OfferGate>
                   </ProtectedRoute>
                 }

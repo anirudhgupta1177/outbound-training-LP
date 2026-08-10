@@ -1,163 +1,19 @@
-import { useState } from 'react';
-import { HiExternalLink, HiTemplate, HiFolder, HiLink, HiSparkles, HiDocumentText, HiChevronDown } from 'react-icons/hi';
+import { HiExternalLink } from 'react-icons/hi';
 import PortalHeader from '../portal/PortalHeader';
+import PhaseCard from '../portal/PhaseCard';
 import VideoPlayer from '../course/VideoPlayer';
+import { ResourceTile, ToolCard } from '../portal/OfferResources';
 import { useOffers, OFFER_SLUGS } from '../../contexts/OffersContext';
 
-const RESOURCE_ICONS = {
-  whimsical: HiTemplate,
-  drive: HiFolder,
-  doc: HiDocumentText,
-  notion: HiDocumentText,
-  file: HiDocumentText,
-  video: HiSparkles,
-  tool: HiSparkles,
-  link: HiLink,
-};
-
-// Strips the scheme so the link reads as a clean, quotable address.
-const displayUrl = (url) => url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-
-function ResourceTile({ resource }) {
-  const Icon = RESOURCE_ICONS[resource.type] || HiLink;
-
-  // min-w-0 on the card: as a grid item it defaults to min-width:auto, which
-  // lets a long URL push the card past the viewport instead of truncating.
+function StatTile({ value, label, accent, children }) {
   return (
-    <a
-      href={resource.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-start gap-4 p-4 sm:p-5 min-w-0 rounded-xl border border-gray-800 bg-[#111111] hover:border-amber-400/40 hover:bg-amber-400/5 transition-all"
-    >
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-amber-400/10 text-amber-400">
-        <Icon className="w-5 h-5" />
+    <div className="bg-[#111111] border border-gray-800 rounded-xl p-6">
+      <div className="flex items-center gap-3 mb-2">
+        <span className={accent}>{children}</span>
+        <span className="text-3xl font-bold text-white">{value}</span>
       </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-white transition-colors">{resource.title}</p>
-        {resource.description && (
-          <p className="text-sm text-gray-400 mt-1 leading-relaxed">{resource.description}</p>
-        )}
-        <p className="text-xs text-gray-600 mt-1.5 truncate">{resource.url}</p>
-      </div>
-
-      <HiExternalLink className="flex-shrink-0 w-4 h-4 text-gray-600 group-hover:text-gray-300 transition-colors mt-1" />
-    </a>
-  );
-}
-
-// Tools sit right under the video and are deliberately loud: members are meant
-// to open and sign up for these while the session is still playing.
-function ToolCard({ resource, index }) {
-  return (
-    <a
-      href={resource.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-5 sm:p-6 min-w-0 rounded-2xl border-2 border-emerald-400/25 bg-emerald-400/[0.04] hover:border-emerald-400/70 hover:bg-emerald-400/10 transition-all"
-    >
-      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 text-lg font-bold">
-        {index + 1}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="text-lg sm:text-xl font-bold text-white mb-1">{resource.title}</p>
-        {resource.description && (
-          <p className="text-sm text-gray-400 mb-2.5 leading-relaxed">{resource.description}</p>
-        )}
-        <p className="text-base sm:text-lg font-semibold text-emerald-400 group-hover:text-emerald-300 break-all leading-snug">
-          {displayUrl(resource.url)}
-        </p>
-      </div>
-
-      <span className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-400 text-black font-bold text-base group-hover:bg-emerald-300 transition-colors">
-        Open
-        <HiExternalLink className="w-5 h-5" />
-      </span>
-    </a>
-  );
-}
-
-// One phase of the marathon: its own video, its own tool stack, its own files.
-function PhaseSection({ part, index, expanded, onToggle }) {
-  const panelId = `phase-panel-${part.id}`;
-  const resources = part.resources || [];
-  const tools = resources.filter((r) => r.type === 'tool');
-  const materials = resources.filter((r) => r.type !== 'tool');
-
-  return (
-    <section className="rounded-2xl border border-gray-800 bg-[#111111] overflow-hidden">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        className="w-full flex items-center gap-4 p-5 sm:p-6 text-left hover:bg-gray-800/30 transition-colors"
-      >
-        <span className="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-300 text-lg font-bold">
-          {index + 1}
-        </span>
-
-        <span className="flex-1 min-w-0">
-          <span className="block text-base sm:text-lg font-bold text-white">{part.title}</span>
-          {part.subtitle && (
-            <span className="block text-sm text-gray-400 mt-0.5">{part.subtitle}</span>
-          )}
-        </span>
-
-        <HiChevronDown
-          className={`flex-shrink-0 w-5 h-5 text-gray-500 transition-transform ${
-            expanded ? 'rotate-180' : ''
-          }`}
-        />
-      </button>
-
-      {expanded && (
-        <div id={panelId} className="px-5 sm:px-6 pb-6 space-y-6">
-          {part.description && (
-            <p className="text-sm sm:text-base text-gray-400 leading-relaxed">{part.description}</p>
-          )}
-
-          {part.video_url ? (
-            <VideoPlayer loomUrl={part.video_url} title={part.title} />
-          ) : (
-            <div className="w-full aspect-video rounded-xl border border-gray-800 bg-gray-900 flex items-center justify-center">
-              <p className="text-sm text-gray-500">Video coming soon</p>
-            </div>
-          )}
-
-          {tools.length > 0 && (
-            <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5">
-                Tools you need for this phase
-              </h3>
-              <p className="text-sm text-gray-300 mb-5">
-                Open each one and get your account ready before you follow along.
-              </p>
-              <div className="grid gap-4">
-                {tools.map((resource, toolIndex) => (
-                  <ToolCard key={resource.id} resource={resource} index={toolIndex} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {materials.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">
-                Resources for this phase
-              </h3>
-              <div className="grid gap-3">
-                {materials.map((resource) => (
-                  <ResourceTile key={resource.id} resource={resource} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </section>
+      <p className="text-sm text-gray-400">{label}</p>
+    </div>
   );
 }
 
@@ -166,36 +22,26 @@ export default function MicroCourse() {
   const offer = getOffer(OFFER_SLUGS.microCourse);
 
   const parts = offer?.parts || [];
-  // Resources left unassigned to a phase still belong to the offer as a whole.
+  // Resources left unassigned to a phase belong to the offer as a whole.
   const resources = offer?.resources || [];
   const tools = resources.filter((r) => r.type === 'tool');
   const materials = resources.filter((r) => r.type !== 'tool');
   const bookingUrl = getOffer(OFFER_SLUGS.expertCall)?.cta_url || settings.booking_url;
 
-  // Phase 1 opens on arrival; the rest stay collapsed so the page is scannable.
-  // Null means "untouched", so the default survives parts arriving asynchronously
-  // without needing an effect to seed it.
-  const [expandedOverride, setExpandedOverride] = useState(null);
-  const [showFullRecording, setShowFullRecording] = useState(false);
-
-  const expanded =
-    expandedOverride ?? (parts.length > 0 ? new Set([parts[0].id]) : new Set());
-
-  const togglePart = (partId) => {
-    const next = new Set(expanded);
-    if (next.has(partId)) next.delete(partId);
-    else next.add(partId);
-    setExpandedOverride(next);
-  };
-
-  const allExpanded = parts.length > 0 && expanded.size === parts.length;
-  const nothingToShow = parts.length === 0 && materials.length === 0 && tools.length === 0;
+  const totalTools = parts.reduce(
+    (sum, p) => sum + (p.resources || []).filter((r) => r.type === 'tool').length,
+    tools.length
+  );
+  const totalResources = parts.reduce(
+    (sum, p) => sum + (p.resources || []).filter((r) => r.type !== 'tool').length,
+    materials.length
+  );
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <PortalHeader backTo="/portal" backLabel="Back to Vault" />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             {offer?.badge && (
@@ -223,80 +69,28 @@ export default function MicroCourse() {
           )}
         </div>
 
-        {parts.length > 0 && (
-          <section className="mb-8">
-            <div className="flex items-end justify-between gap-4 flex-wrap mb-4">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white">
-                  Work through it in {parts.length} phases
-                </h2>
-                <p className="text-sm text-gray-400 mt-1">
-                  Each phase has its own video and the exact tools you need for it.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setExpandedOverride(allExpanded ? new Set() : new Set(parts.map((p) => p.id)))
-                }
-                className="text-sm text-gray-400 hover:text-white transition-colors whitespace-nowrap"
-              >
-                {allExpanded ? 'Collapse all' : 'Expand all'}
-              </button>
-            </div>
-
-            <div className="grid gap-4">
-              {parts.map((part, index) => (
-                <PhaseSection
-                  key={part.id}
-                  part={part}
-                  index={index}
-                  expanded={expanded.has(part.id)}
-                  onToggle={() => togglePart(part.id)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* The uncut recording, behind a toggle so it doesn't compete with the
-            phase breakdown above. */}
-        {offer?.primary_video_url && (
-          <section className="rounded-2xl border border-gray-800 bg-[#111111] overflow-hidden mb-8">
-            <button
-              type="button"
-              onClick={() => setShowFullRecording((value) => !value)}
-              aria-expanded={showFullRecording}
-              aria-controls="full-session-panel"
-              className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left hover:bg-gray-800/30 transition-colors"
-            >
-              <span className="min-w-0">
-                <span className="block text-base sm:text-lg font-bold text-white">
-                  {offer.primary_video_title || 'The Full Session'}
-                </span>
-                <span className="block text-sm text-gray-400 mt-0.5">
-                  Prefer it in one sitting? Watch the complete, unsplit recording.
-                </span>
-              </span>
-              <HiChevronDown
-                className={`flex-shrink-0 w-5 h-5 text-gray-500 transition-transform ${
-                  showFullRecording ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-            {showFullRecording && (
-              <div id="full-session-panel" className="px-5 sm:px-6 pb-6">
-                <VideoPlayer
-                  loomUrl={offer.primary_video_url}
-                  title={offer.primary_video_title}
-                />
-              </div>
-            )}
-          </section>
-        )}
+        {/* Stats — same shape as the Outbound Mastery overview. */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <StatTile value={parts.length} label="Phases" accent="text-amber-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </StatTile>
+          <StatTile value={totalTools} label="Tools" accent="text-emerald-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </StatTile>
+          <StatTile value={totalResources} label="Resources" accent="text-cyan-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </StatTile>
+        </div>
 
         {offer?.highlights?.length > 0 && (
-          <section className="bg-[#111111] border border-gray-800 rounded-2xl p-6 sm:p-7 mb-8">
+          <section className="bg-[#111111] border border-gray-800 rounded-xl p-6 sm:p-7 mb-8">
             <h2 className="text-xl font-bold text-white mb-4">What you&apos;ll walk away with</h2>
             <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
               {offer.highlights.map((highlight, index) => (
@@ -311,14 +105,33 @@ export default function MicroCourse() {
           </section>
         )}
 
+        {/* Phase cards — the equivalent of Mastery's module list. */}
+        {parts.length > 0 ? (
+          <div className="space-y-6 mb-8">
+            <h2 className="text-2xl font-bold text-white">Course Phases</h2>
+            <div className="grid gap-6">
+              {parts.map((part, index) => (
+                <PhaseCard key={part.id} part={part} index={index} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          offer?.primary_video_url && (
+            // Fallback for an offer with no phases: show its single main video.
+            <section className="bg-[#111111] border border-gray-800 rounded-xl p-4 sm:p-6 mb-8">
+              <h2 className="text-xl font-bold text-white mb-4">
+                {offer.primary_video_title || 'The Full Session'}
+              </h2>
+              <VideoPlayer loomUrl={offer.primary_video_url} title={offer.primary_video_title} />
+            </section>
+          )
+        )}
+
         {tools.length > 0 && (
-          <section className="rounded-2xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-7 mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Tools used in this training
-            </h2>
+          <section className="rounded-xl border border-emerald-400/20 bg-gradient-to-b from-emerald-400/[0.06] to-transparent p-5 sm:p-7 mb-8">
+            <h2 className="text-2xl font-bold text-white mb-2">Tools used in this training</h2>
             <p className="text-base text-gray-300 mb-6">
-              Set these up as you follow along — open each one and get your account ready before the
-              next step.
+              Set these up as you follow along — open each one and get your account ready.
             </p>
             <div className="grid gap-4">
               {tools.map((resource, index) => (
@@ -330,10 +143,7 @@ export default function MicroCourse() {
 
         {materials.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-1">Resources</h2>
-            <p className="text-sm text-gray-400 mb-4">
-              Everything referenced in the session, ready to open.
-            </p>
+            <h2 className="text-xl font-bold text-white mb-4">Resources</h2>
             <div className="grid gap-3">
               {materials.map((resource) => (
                 <ResourceTile key={resource.id} resource={resource} />
@@ -342,14 +152,14 @@ export default function MicroCourse() {
           </section>
         )}
 
-        {nothingToShow && (
-          <section className="mb-8 p-6 rounded-2xl border border-gray-800 bg-[#111111] text-center">
+        {parts.length === 0 && materials.length === 0 && tools.length === 0 && (
+          <section className="mb-8 p-6 rounded-xl border border-gray-800 bg-[#111111] text-center">
             <p className="text-gray-400">Content for this session is being added shortly.</p>
           </section>
         )}
 
         {bookingUrl && (
-          <section className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
+          <section className="rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
             <div className="flex-1">
               <h2 className="text-lg font-bold text-white mb-1.5">Want this reviewed live?</h2>
               <p className="text-sm text-gray-400">
