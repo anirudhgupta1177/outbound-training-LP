@@ -12,7 +12,9 @@ import {
   HiUsers,
   HiX,
   HiCheck,
-  HiArrowLeft
+  HiArrowLeft,
+  HiKey,
+  HiLockOpen
 } from 'react-icons/hi';
 
 export default function MembersPage() {
@@ -33,11 +35,22 @@ export default function MembersPage() {
     phone: ''
   });
 
+  // Offer access
+  const [offers, setOffers] = useState([]);
+  const [entitlements, setEntitlements] = useState({});
+  const [newMemberOffers, setNewMemberOffers] = useState([]);
+  const [accessMember, setAccessMember] = useState(null);
+  const [pendingSlug, setPendingSlug] = useState(null);
+
   const { logout, adminEmail, getToken } = useAdminAuth();
   const navigate = useNavigate();
 
+  // Offers that require an explicit grant — the ones worth showing a toggle for.
+  const grantableOffers = offers.filter((o) => o.kind !== 'consult');
+
   useEffect(() => {
     fetchMembers();
+    fetchAccessData();
   }, []);
 
   useEffect(() => {
@@ -82,6 +95,85 @@ export default function MembersPage() {
     }
   };
 
+  const fetchAccessData = async () => {
+    try {
+      const [offersResponse, entitlementsResponse] = await Promise.all([
+        fetch('/api/admin/offers', { headers: { Authorization: `Bearer ${getToken()}` } }),
+        fetch('/api/admin/offers?entity=entitlements', {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        })
+      ]);
+
+      if (offersResponse.ok) {
+        const data = await offersResponse.json();
+        setOffers((data.offers || []).filter((o) => o.is_active));
+      }
+      if (entitlementsResponse.ok) {
+        const data = await entitlementsResponse.json();
+        setEntitlements(data.entitlements || {});
+      }
+    } catch (err) {
+      // Access management is additive — a failure here shouldn't break the
+      // members table, so surface it quietly.
+      console.error('Error loading offer access:', err);
+    }
+  };
+
+  const hasAccess = (member, offer) =>
+    offer.unlocked_by_default || (entitlements[member.id] || []).includes(offer.slug);
+
+  const grantOffer = async (userId, offerSlug) => {
+    const response = await fetch('/api/admin/offers?entity=entitlement', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ user_id: userId, offer_slug: offerSlug })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to grant access');
+  };
+
+  const handleToggleAccess = async (member, offer) => {
+    if (offer.unlocked_by_default) return;
+
+    const currently = (entitlements[member.id] || []).includes(offer.slug);
+    setPendingSlug(offer.slug);
+    setError(null);
+
+    try {
+      if (currently) {
+        const response = await fetch(
+          `/api/admin/offers?entity=entitlement&user_id=${member.id}&offer_slug=${encodeURIComponent(offer.slug)}`,
+          { method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` } }
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to revoke access');
+      } else {
+        await grantOffer(member.id, offer.slug);
+      }
+
+      setEntitlements((prev) => {
+        const current = prev[member.id] || [];
+        return {
+          ...prev,
+          [member.id]: currently
+            ? current.filter((slug) => slug !== offer.slug)
+            : [...current, offer.slug]
+        };
+      });
+      setSuccessMessage(
+        `${currently ? 'Revoked' : 'Granted'} "${offer.title}" for ${member.email}`
+      );
+      setTimeout(() => setSuccessMessage(''), 4000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPendingSlug(null);
+    }
+  };
+
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!newMember.email.trim()) return;
@@ -105,10 +197,22 @@ export default function MembersPage() {
         throw new Error(data.error || 'Failed to add member');
       }
 
+      // Access grants are separate records, so apply them once the account exists.
+      const newUserId = data.member?.id;
+      if (newUserId && newMemberOffers.length > 0) {
+        try {
+          await Promise.all(newMemberOffers.map((slug) => grantOffer(newUserId, slug)));
+        } catch (grantError) {
+          setError(`Member created, but access could not be granted: ${grantError.message}`);
+        }
+      }
+
       setSuccessMessage(`Member added! Welcome email sent to ${newMember.email}`);
       setNewMember({ email: '', first_name: '', last_name: '', phone: '' });
+      setNewMemberOffers([]);
       setIsAddingMember(false);
       fetchMembers();
+      fetchAccessData();
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
@@ -303,6 +407,7 @@ export default function MembersPage() {
                   onClick={() => {
                     setIsAddingMember(false);
                     setNewMember({ email: '', first_name: '', last_name: '', phone: '' });
+                    setNewMemberOffers([]);
                   }}
                   className="text-gray-400 hover:text-white"
                 >
@@ -366,6 +471,46 @@ export default function MembersPage() {
                   />
                 </div>
 
+                {grantableOffers.length > 0 && (
+                  <div className="pt-2">
+                    <p className="block text-sm font-medium text-gray-300 mb-2">Offer access</p>
+                    <div className="space-y-2">
+                      {grantableOffers.map((offer) => (
+                        <label
+                          key={offer.id}
+                          className={`flex items-start gap-3 p-3 rounded-lg border border-gray-800 ${
+                            offer.unlocked_by_default ? 'opacity-70' : 'cursor-pointer hover:border-gray-700'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-0.5 w-4 h-4 accent-[#00D4FF]"
+                            disabled={offer.unlocked_by_default}
+                            checked={
+                              offer.unlocked_by_default || newMemberOffers.includes(offer.slug)
+                            }
+                            onChange={(e) =>
+                              setNewMemberOffers((prev) =>
+                                e.target.checked
+                                  ? [...prev, offer.slug]
+                                  : prev.filter((slug) => slug !== offer.slug)
+                              )
+                            }
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-sm text-white">{offer.title}</span>
+                            {offer.unlocked_by_default && (
+                              <span className="block text-xs text-emerald-400 mt-0.5">
+                                Already included for every member
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-sm text-gray-500">
                   A welcome email with login credentials will be sent to the member.
                 </p>
@@ -400,6 +545,82 @@ export default function MembersPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Manage Offer Access Modal */}
+        {accessMember && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#111] border border-gray-800 rounded-xl w-full max-w-md">
+              <div className="flex items-center justify-between p-6 border-b border-gray-800">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold text-white">Offer Access</h3>
+                  <p className="text-sm text-gray-400 truncate">{accessMember.email}</p>
+                </div>
+                <button
+                  onClick={() => setAccessMember(null)}
+                  className="text-gray-400 hover:text-white flex-shrink-0"
+                  aria-label="Close"
+                >
+                  <HiX className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-3">
+                {grantableOffers.map((offer) => {
+                  const granted = hasAccess(accessMember, offer);
+                  const locked = offer.unlocked_by_default;
+                  const isPending = pendingSlug === offer.slug;
+
+                  return (
+                    <div
+                      key={offer.id}
+                      className="flex items-center justify-between gap-4 p-4 rounded-lg border border-gray-800"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{offer.title}</p>
+                        {locked ? (
+                          <p className="flex items-center gap-1 text-xs text-emerald-400 mt-0.5">
+                            <HiLockOpen className="w-3 h-3" />
+                            Unlocked for every member
+                          </p>
+                        ) : (
+                          <p className="text-xs text-gray-500 mt-0.5 font-mono truncate">
+                            {offer.slug}
+                          </p>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => handleToggleAccess(accessMember, offer)}
+                        disabled={locked || isPending}
+                        className={`flex-shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed ${
+                          granted
+                            ? 'bg-emerald-500/10 text-emerald-400 hover:bg-red-500/10 hover:text-red-400'
+                            : 'bg-gold text-black hover:bg-gold-light'
+                        } ${locked ? 'opacity-50' : ''}`}
+                      >
+                        {isPending ? 'Saving...' : granted ? 'Granted' : 'Grant'}
+                      </button>
+                    </div>
+                  );
+                })}
+
+                <p className="text-xs text-gray-500 pt-2">
+                  Granted access appears in the member&apos;s vault immediately on their next page
+                  load.
+                </p>
+              </div>
+
+              <div className="flex justify-end p-6 border-t border-gray-800">
+                <button
+                  onClick={() => setAccessMember(null)}
+                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -457,6 +678,9 @@ export default function MembersPage() {
                       Joined
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">
+                      Access
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">
                       Progress
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">
@@ -483,6 +707,26 @@ export default function MembersPage() {
                         <p className="text-gray-300">{formatDate(member.created_at)}</p>
                       </td>
                       <td className="px-6 py-4">
+                        <div className="flex items-center gap-1.5 flex-wrap max-w-[220px]">
+                          {grantableOffers.filter((offer) => hasAccess(member, offer)).length ===
+                          0 ? (
+                            <span className="text-sm text-gray-500">No offers</span>
+                          ) : (
+                            grantableOffers
+                              .filter((offer) => hasAccess(member, offer))
+                              .map((offer) => (
+                                <span
+                                  key={offer.id}
+                                  title={offer.title}
+                                  className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium truncate max-w-[110px]"
+                                >
+                                  {offer.title}
+                                </span>
+                              ))
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <span className="text-white font-medium">
                             {member.lessons_completed}
@@ -497,6 +741,15 @@ export default function MembersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setAccessMember(member)}
+                            disabled={grantableOffers.length === 0}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="Manage offer access"
+                          >
+                            <HiKey className="w-4 h-4" />
+                            Access
+                          </button>
                           <button
                             onClick={() => handleResendEmail(member)}
                             className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"

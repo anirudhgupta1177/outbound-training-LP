@@ -73,8 +73,10 @@ export default async function handler(req, res) {
     console.log('=== VALIDATION PASSED ===');
     
     // Get environment variables
-    const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
-    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
+    // Razorpay credentials from env ONLY (accept legacy VITE_ name). Used below
+    // to verify the payment — must match the keys used in create-order.js.
+    const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
     const SYSTEME_API_KEY = process.env.SYSTEME_API_KEY || 'aeesw3ifk1lkefyqi87uke4cpyswnppvvb86at3firzx2vhh1cq8a7u85ul8jyao';
     const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
     const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -188,6 +190,28 @@ export default async function handler(req, res) {
             console.error('Error creating progress record:', progressError);
           } else {
             console.log('User progress record initialized');
+          }
+
+          // Checkout only sells Outbound Mastery today, so that's what the
+          // purchase unlocks in the offer vault. Other offers are granted by
+          // the admin. Non-blocking: Outbound Mastery is also flagged
+          // unlocked-by-default, so a failure here can't lock the buyer out.
+          const { error: entitlementError } = await supabaseAdmin
+            .from('user_entitlements')
+            .upsert(
+              {
+                user_id: supabaseUser.id,
+                offer_slug: 'outbound-mastery',
+                source: 'purchase',
+                granted_by: razorpay_payment_id || 'checkout',
+              },
+              { onConflict: 'user_id,offer_slug' }
+            );
+
+          if (entitlementError) {
+            console.error('Error granting offer entitlement:', entitlementError);
+          } else {
+            console.log('Outbound Mastery entitlement granted');
           }
         }
         

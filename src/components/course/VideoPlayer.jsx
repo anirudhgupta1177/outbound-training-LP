@@ -41,8 +41,12 @@ export default function VideoPlayer({ loomUrl, title }) {
     return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0`;
   };
 
-  // Add Loom parameters to hide branding, title, and user info
+  // Add Loom parameters to hide branding, title, and user info.
+  // Loom's share links (what you get from the "Copy link" button) don't render
+  // inside an iframe — only /embed/ does — so normalise them first.
   const getCleanLoomUrl = (url) => {
+    const embedUrl = url.replace(/loom\.com\/share\//, 'loom.com/embed/');
+
     const cleanParams = [
       'hide_title=true',
       'hideEmbedTopBar=true',
@@ -50,10 +54,10 @@ export default function VideoPlayer({ loomUrl, title }) {
       'hide_share=true',
       'hideEmbedCaptions=true'
     ].join('&');
-    
+
     // Check if URL already has query parameters
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}${cleanParams}`;
+    const separator = embedUrl.includes('?') ? '&' : '?';
+    return `${embedUrl}${separator}${cleanParams}`;
   };
 
   const platform = getVideoPlatform(loomUrl);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 
@@ -16,6 +16,10 @@ export default function Login() {
   const [error, setError] = useState('');
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // ProtectedRoute stashes the page the member was trying to reach; otherwise
+  // land them on the vault so they can pick which offer to open.
+  const destination = location.state?.from?.pathname || '/portal';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +57,7 @@ export default function Login() {
         // #region agent log
         debugLog('Login:handleSubmit', 'Login successful, navigating', { hypothesisId: 'A-E' });
         // #endregion
-        navigate('/course');
+        navigate(destination, { replace: true });
       }
     } catch (err) {
       // #region agent log
@@ -76,11 +80,11 @@ export default function Login() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-3 mb-4">
             <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent">
-              Outbound Mastery
+              Intent Led Sales
             </span>
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-400">Sign in to access your course</p>
+          <p className="text-gray-400">Sign in to open your offer vault</p>
         </div>
 
         {/* Login Form */}

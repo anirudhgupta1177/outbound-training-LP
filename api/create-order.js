@@ -36,8 +36,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Rqg7fNmYIF1Bbb';
-    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AQToxDjz8WRYHvSbmcmzkgWo';
+    // Read Razorpay credentials from env ONLY (no hardcoded fallback — a stale
+    // hardcoded key_id is what breaks payments after a credential rotation).
+    // Accept either RAZORPAY_KEY_ID or the legacy VITE_RAZORPAY_KEY_ID name.
+    const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      console.error('Razorpay credentials missing — set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (server env).');
+      return res.status(500).json({
+        error: 'Payment gateway is not configured. Please contact support.',
+        details: 'Server is missing Razorpay credentials.'
+      });
+    }
 
     let bodyData = req.body;
     if (typeof bodyData === 'string') {

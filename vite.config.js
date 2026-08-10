@@ -2,13 +2,39 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// Local-dev plugin: routes /api/chat and /api/leads to the Vercel-style
-// serverless handlers in ./api/ instead of proxying them to production.
-// Every other /api/* call keeps its existing proxy behavior.
+// Local-dev plugin: routes selected endpoints to the Vercel-style serverless
+// handlers in ./api/ instead of proxying them to production. Every other
+// /api/* call keeps its existing proxy behavior.
 function chatbotDevApiPlugin() {
   const routes = {
     '/api/chat': './api/chat.js',
     '/api/leads': './api/leads.js',
+  };
+
+  // Everything below needs a service-role key to talk to Supabase. Without one
+  // the local handler would only ever return "Supabase not configured", so we
+  // leave the route unregistered and let it proxy to production instead.
+  const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (hasServiceKey) {
+    routes['/api/offers'] = './api/offers.js';
+  }
+
+  // Admin endpoints normally proxy to production. Set ADMIN_EMAIL/ADMIN_PASSWORD
+  // in .env.local to run the whole admin API locally instead — tokens minted by
+  // the local /api/admin-auth are signed with the local JWT_SECRET, which
+  // production would reject, so the two halves have to stay together.
+  const localAdmin = hasServiceKey && !!(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD);
+  if (localAdmin) {
+    routes['/api/admin-auth'] = './api/admin-auth.js';
+  }
+
+  const resolveHandler = (url) => {
+    if (routes[url]) return routes[url];
+    // /api/admin/members -> ./api/admin/members.js (dev only, creds required)
+    if (localAdmin && /^\/api\/admin\/[a-z0-9/-]+$/.test(url)) {
+      return `.${url}.js`;
+    }
+    return null;
   };
 
   return {
@@ -16,13 +42,16 @@ function chatbotDevApiPlugin() {
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        const url = (req.url || '').split('?')[0];
-        const handlerPath = routes[url];
+        const [url, search] = (req.url || '').split('?');
+        const handlerPath = resolveHandler(url);
         if (!handlerPath) return next();
 
         try {
           const mod = await server.ssrLoadModule(handlerPath);
           const handler = mod.default;
+
+          // Vercel populates req.query from the query string; Node does not.
+          req.query = Object.fromEntries(new URLSearchParams(search || ''));
 
           // Collect the body (Vite leaves `req` as a raw Node IncomingMessage).
           let raw = '';
