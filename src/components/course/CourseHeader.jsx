@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import logo from '../../assets/logo.png';
 
 export default function CourseHeader() {
-  const [logoError, setLogoError] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -16,9 +13,19 @@ export default function CourseHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-[#0a0a0a]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#0a0a0a]/80">
       <div className="container flex h-14 sm:h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-4 sm:space-x-6">
-          <Link to="/course" className="flex items-center space-x-3 group">
-            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-amber-300 transition-all">
+        <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+          <Link
+            to="/portal"
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors flex-shrink-0"
+            title="Back to your offer vault"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="hidden sm:inline">Vault</span>
+          </Link>
+          <Link to="/course" className="flex items-center space-x-3 group min-w-0">
+            <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-cyan-400 to-amber-400 bg-clip-text text-transparent group-hover:from-cyan-300 group-hover:to-amber-300 transition-all truncate">
               Outbound Mastery
             </h1>
           </Link>

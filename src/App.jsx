@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import LandingPage from './components/pages/LandingPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
+import { OffersProvider, OFFER_SLUGS } from './contexts/OffersContext';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,10 +41,15 @@ const Course = lazy(() => import('./components/pages/Course'));
 const Lesson = lazy(() => import('./components/pages/Lesson'));
 const Resources = lazy(() => import('./components/pages/Resources'));
 const ProtectedRoute = lazy(() => import('./components/auth/ProtectedRoute'));
+const OfferVault = lazy(() => import('./components/pages/OfferVault'));
+const MicroCourse = lazy(() => import('./components/pages/MicroCourse'));
+const OfferGate = lazy(() => import('./components/portal/OfferGate'));
 
 // Admin imports - lazy loaded
 const AdminLogin = lazy(() => import('./components/pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/pages/admin/AdminDashboard'));
+const OffersPage = lazy(() => import('./components/pages/admin/OffersPage'));
+const OfferEditor = lazy(() => import('./components/pages/admin/OfferEditor'));
 const MembersPage = lazy(() => import('./components/pages/admin/MembersPage'));
 const AnalyticsPage = lazy(() => import('./components/pages/admin/AnalyticsPage'));
 const CouponsPage = lazy(() => import('./components/pages/admin/CouponsPage'));
@@ -71,117 +77,161 @@ function App() {
   return (
     <AuthProvider>
       <AdminAuthProvider>
-        <ScrollToTop />
-        <PasswordRecoveryGate />
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public routes - Landing page not lazy loaded for speed */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/thank-you" element={<ThankYou />} />
+        <OffersProvider>
+          <ScrollToTop />
+          <PasswordRecoveryGate />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes - Landing page not lazy loaded for speed */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/thank-you" element={<ThankYou />} />
             
-            {/* DEV-only upsell modal preview */}
-            {DevUpsellPreview && (
-              <Route path="/dev/dfy-upsell" element={<DevUpsellPreview />} />
-            )}
+              {/* DEV-only upsell modal preview */}
+              {DevUpsellPreview && (
+                <Route path="/dev/dfy-upsell" element={<DevUpsellPreview />} />
+              )}
 
-            {/* Auth routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+              {/* Auth routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             
-            {/* Protected course routes */}
-            <Route
-              path="/course"
-              element={
-                <ProtectedRoute>
-                  <Course />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/course/resources"
-              element={
-                <ProtectedRoute>
-                  <Resources />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/course/:moduleId/:lessonId"
-              element={
-                <ProtectedRoute>
-                  <Lesson />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Admin routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminDashboard />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/members"
-              element={
-                <ProtectedAdminRoute>
-                  <MembersPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/analytics"
-              element={
-                <ProtectedAdminRoute>
-                  <AnalyticsPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/coupons"
-              element={
-                <ProtectedAdminRoute>
-                  <CouponsPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/pricing"
-              element={
-                <ProtectedAdminRoute>
-                  <PricingPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/modules/:id"
-              element={
-                <ProtectedAdminRoute>
-                  <ModuleEditor />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/lessons/:id"
-              element={
-                <ProtectedAdminRoute>
-                  <LessonEditor />
-                </ProtectedAdminRoute>
-              }
-            />
-          </Routes>
-        </Suspense>
+              {/* Offer vault — the landing page for every signed-in member */}
+              <Route
+                path="/portal"
+                element={
+                  <ProtectedRoute>
+                    <OfferVault />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/micro-course"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.microCourse}>
+                      <MicroCourse />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
 
-        {/* Floating chatbot (available on every page) */}
-        <Suspense fallback={null}>
-          <ChatWidget />
-        </Suspense>
-        <Toaster position="top-center" />
+              {/* Protected course routes (Outbound Mastery) */}
+              <Route
+                path="/course"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.mastery}>
+                      <Course />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/course/resources"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.mastery}>
+                      <Resources />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/course/:moduleId/:lessonId"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.mastery}>
+                      <Lesson />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+            
+              {/* Admin routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminDashboard />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/members"
+                element={
+                  <ProtectedAdminRoute>
+                    <MembersPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <ProtectedAdminRoute>
+                    <AnalyticsPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/coupons"
+                element={
+                  <ProtectedAdminRoute>
+                    <CouponsPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/pricing"
+                element={
+                  <ProtectedAdminRoute>
+                    <PricingPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/offers"
+                element={
+                  <ProtectedAdminRoute>
+                    <OffersPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/offers/:id"
+                element={
+                  <ProtectedAdminRoute>
+                    <OfferEditor />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/modules/:id"
+                element={
+                  <ProtectedAdminRoute>
+                    <ModuleEditor />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/lessons/:id"
+                element={
+                  <ProtectedAdminRoute>
+                    <LessonEditor />
+                  </ProtectedAdminRoute>
+                }
+              />
+            </Routes>
+          </Suspense>
+
+          {/* Floating chatbot (available on every page) */}
+          <Suspense fallback={null}>
+            <ChatWidget />
+          </Suspense>
+          <Toaster position="top-center" />
+        </OffersProvider>
       </AdminAuthProvider>
     </AuthProvider>
   );

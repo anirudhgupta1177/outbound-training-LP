@@ -191,6 +191,28 @@ export default async function handler(req, res) {
           } else {
             console.log('User progress record initialized');
           }
+
+          // Checkout only sells Outbound Mastery today, so that's what the
+          // purchase unlocks in the offer vault. Other offers are granted by
+          // the admin. Non-blocking: Outbound Mastery is also flagged
+          // unlocked-by-default, so a failure here can't lock the buyer out.
+          const { error: entitlementError } = await supabaseAdmin
+            .from('user_entitlements')
+            .upsert(
+              {
+                user_id: supabaseUser.id,
+                offer_slug: 'outbound-mastery',
+                source: 'purchase',
+                granted_by: razorpay_payment_id || 'checkout',
+              },
+              { onConflict: 'user_id,offer_slug' }
+            );
+
+          if (entitlementError) {
+            console.error('Error granting offer entitlement:', entitlementError);
+          } else {
+            console.log('Outbound Mastery entitlement granted');
+          }
         }
         
         // ============================================
