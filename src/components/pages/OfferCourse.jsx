@@ -3,6 +3,7 @@ import PortalHeader from '../portal/PortalHeader';
 import PhaseCard from '../portal/PhaseCard';
 import VideoPlayer from '../course/VideoPlayer';
 import { ResourceTile, ToolCard } from '../portal/OfferResources';
+import { getAccent } from '../portal/offerAccents';
 import { useOffers, OFFER_SLUGS } from '../../contexts/OffersContext';
 
 function StatTile({ value, label, accent, children }) {
@@ -17,12 +18,18 @@ function StatTile({ value, label, accent, children }) {
   );
 }
 
-export default function MicroCourse() {
+// Overview for any part-based program in the vault. Mirrors the Outbound
+// Mastery course page so members see one structure across every product.
+export default function OfferCourse({ slug }) {
   const { getOffer, settings } = useOffers();
-  const offer = getOffer(OFFER_SLUGS.microCourse);
+  const offer = getOffer(slug);
 
+  const theme = getAccent(offer?.accent);
+  const partNoun = offer?.part_noun || 'Part';
+  const basePath = offer?.portal_path || '';
   const parts = offer?.parts || [];
-  // Resources left unassigned to a phase belong to the offer as a whole.
+
+  // Resources left unassigned to a part belong to the program as a whole.
   const resources = offer?.resources || [];
   const tools = resources.filter((r) => r.type === 'tool');
   const materials = resources.filter((r) => r.type !== 'tool');
@@ -45,7 +52,7 @@ export default function MicroCourse() {
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             {offer?.badge && (
-              <span className="px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 text-[11px] font-semibold tracking-wider">
+              <span className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold tracking-wider ${theme.badge}`}>
                 {offer.badge}
               </span>
             )}
@@ -57,10 +64,10 @@ export default function MicroCourse() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-            {offer?.title || 'Outbound Micro-Course'}
+            {offer?.title || 'Program'}
           </h1>
           {offer?.subtitle && (
-            <p className="text-lg font-medium text-amber-400 mb-4">{offer.subtitle}</p>
+            <p className={`text-lg font-medium mb-4 ${theme.label}`}>{offer.subtitle}</p>
           )}
           {offer?.description && (
             <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-3xl">
@@ -71,7 +78,7 @@ export default function MicroCourse() {
 
         {/* Stats — same shape as the Outbound Mastery overview. */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <StatTile value={parts.length} label="Phases" accent="text-amber-400">
+          <StatTile value={parts.length} label={`${partNoun}s`} accent={theme.bullet}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
@@ -95,7 +102,7 @@ export default function MicroCourse() {
             <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
               {offer.highlights.map((highlight, index) => (
                 <li key={index} className="flex items-start gap-3 text-gray-300">
-                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-5 h-5 mt-0.5 flex-shrink-0 ${theme.bullet}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>{highlight}</span>
@@ -105,19 +112,26 @@ export default function MicroCourse() {
           </section>
         )}
 
-        {/* Phase cards — the equivalent of Mastery's module list. */}
+        {/* Part cards — the equivalent of Mastery's module list. */}
         {parts.length > 0 ? (
           <div className="space-y-6 mb-8">
-            <h2 className="text-2xl font-bold text-white">Course Phases</h2>
+            <h2 className="text-2xl font-bold text-white">Course {partNoun}s</h2>
             <div className="grid gap-6">
               {parts.map((part, index) => (
-                <PhaseCard key={part.id} part={part} index={index} />
+                <PhaseCard
+                  key={part.id}
+                  part={part}
+                  index={index}
+                  basePath={basePath}
+                  accent={offer?.accent}
+                  partNoun={partNoun}
+                />
               ))}
             </div>
           </div>
         ) : (
           offer?.primary_video_url && (
-            // Fallback for an offer with no phases: show its single main video.
+            // Fallback for a program with no parts: show its single main video.
             <section className="bg-[#111111] border border-gray-800 rounded-xl p-4 sm:p-6 mb-8">
               <h2 className="text-xl font-bold text-white mb-4">
                 {offer.primary_video_title || 'The Full Session'}
@@ -154,7 +168,7 @@ export default function MicroCourse() {
 
         {parts.length === 0 && materials.length === 0 && tools.length === 0 && (
           <section className="mb-8 p-6 rounded-xl border border-gray-800 bg-[#111111] text-center">
-            <p className="text-gray-400">Content for this session is being added shortly.</p>
+            <p className="text-gray-400">Content for this program is being added shortly.</p>
           </section>
         )}
 

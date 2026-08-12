@@ -120,6 +120,7 @@ export default function OfferEditor() {
         badge: offer.badge || '',
         duration_label: offer.duration_label || '',
         accent: offer.accent || 'cyan',
+        part_noun: offer.part_noun || 'Part',
         highlights: (offer.highlights || []).join('\n'),
         portal_path: offer.portal_path || '',
         landing_page_url: offer.landing_page_url || '',
@@ -706,11 +707,27 @@ export default function OfferEditor() {
         <section className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden mt-8">
           <div className="flex items-center justify-between p-6 border-b border-gray-800 gap-4 flex-wrap">
             <div>
-              <h2 className="text-lg font-semibold text-white">Phases</h2>
+              <h2 className="text-lg font-semibold text-white">{form.part_noun}s</h2>
               <p className="text-sm text-gray-400">
                 Split this offer into ordered parts, each with its own video. Members see them as a
                 numbered breakdown. Leave empty to show only the main video.
               </p>
+              <div className="mt-3 max-w-xs">
+                <label htmlFor="part_noun" className="block text-xs font-medium text-gray-400 mb-1.5">
+                  What to call each part
+                </label>
+                <input
+                  id="part_noun"
+                  type="text"
+                  value={form.part_noun}
+                  onChange={(e) => update('part_noun', e.target.value)}
+                  className={inputClass}
+                  placeholder="Phase / Lesson / Part"
+                />
+                <p className="text-xs text-gray-500 mt-1.5">
+                  Shown to members as &ldquo;{form.part_noun || 'Part'} 1&rdquo;. Save the offer to apply.
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setIsAddingPart(true)}

@@ -42,8 +42,8 @@ const Lesson = lazy(() => import('./components/pages/Lesson'));
 const Resources = lazy(() => import('./components/pages/Resources'));
 const ProtectedRoute = lazy(() => import('./components/auth/ProtectedRoute'));
 const OfferVault = lazy(() => import('./components/pages/OfferVault'));
-const MicroCourse = lazy(() => import('./components/pages/MicroCourse'));
-const MicroCoursePhase = lazy(() => import('./components/pages/MicroCoursePhase'));
+const OfferCourse = lazy(() => import('./components/pages/OfferCourse'));
+const OfferCoursePhase = lazy(() => import('./components/pages/OfferCoursePhase'));
 const OfferGate = lazy(() => import('./components/portal/OfferGate'));
 
 // Admin imports - lazy loaded
@@ -112,7 +112,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <OfferGate slug={OFFER_SLUGS.microCourse}>
-                      <MicroCourse />
+                      <OfferCourse slug={OFFER_SLUGS.microCourse} />
                     </OfferGate>
                   </ProtectedRoute>
                 }
@@ -122,7 +122,27 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <OfferGate slug={OFFER_SLUGS.microCourse}>
-                      <MicroCoursePhase />
+                      <OfferCoursePhase slug={OFFER_SLUGS.microCourse} />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/linkedin-mini-course"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.linkedinMiniCourse}>
+                      <OfferCourse slug={OFFER_SLUGS.linkedinMiniCourse} />
+                    </OfferGate>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/linkedin-mini-course/:partId"
+                element={
+                  <ProtectedRoute>
+                    <OfferGate slug={OFFER_SLUGS.linkedinMiniCourse}>
+                      <OfferCoursePhase slug={OFFER_SLUGS.linkedinMiniCourse} />
                     </OfferGate>
                   </ProtectedRoute>
                 }

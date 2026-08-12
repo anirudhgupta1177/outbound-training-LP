@@ -23,6 +23,7 @@ const PUBLIC_FIELDS = [
   'cta_label',
   'locked_cta_label',
   'accent',
+  'part_noun',
   'order_index',
 ];
 

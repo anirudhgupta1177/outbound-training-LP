@@ -126,3 +126,8 @@ INSERT INTO public.user_entitlements (user_id, offer_slug, source, granted_by)
 SELECT u.id, 'outbound-mastery', 'migration', 'backfill'
 FROM auth.users u
 ON CONFLICT (user_id, offer_slug) DO NOTHING;
+
+-- Offers label their parts differently ("Phase 1" for the marathon, "Lesson 1"
+-- for a mini-course), so the offer carries the word to use.
+ALTER TABLE public.portal_offers
+  ADD COLUMN IF NOT EXISTS part_noun text NOT NULL DEFAULT 'Part';

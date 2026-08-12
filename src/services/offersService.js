@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 
 export const OFFER_SLUGS = {
   microCourse: 'outbound-micro-course',
+  linkedinMiniCourse: 'linkedin-mini-course',
   mastery: 'outbound-mastery',
   expertCall: 'expert-call',
 };

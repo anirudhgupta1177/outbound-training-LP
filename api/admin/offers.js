@@ -27,6 +27,7 @@ const OFFER_FIELDS = [
   'primary_video_url',
   'primary_video_title',
   'accent',
+  'part_noun',
   'unlocked_by_default',
   'is_active',
 ];
