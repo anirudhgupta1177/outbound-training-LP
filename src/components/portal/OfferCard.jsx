@@ -107,6 +107,9 @@ export default function OfferCard({ offer }) {
             <HiExternalLink className="w-4 h-4" />
           </a>
         ) : (
+          // Only reachable if an offer has no landing_page_url — say "Locked"
+          // rather than "Opening soon", which implied the program did not exist
+          // yet when in fact it just had nowhere to send the buyer.
           <button
             type="button"
             disabled
@@ -114,7 +117,7 @@ export default function OfferCard({ offer }) {
             className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gray-800/60 text-gray-500 font-semibold cursor-not-allowed"
           >
             <HiLockClosed className="w-4 h-4" />
-            Opening soon
+            Locked
           </button>
         )}
       </div>
