@@ -7,98 +7,9 @@ import { validateCoupon, DEFAULT_COUPON } from '../../constants/coupons';
 import { usePricing } from '../../contexts/PricingContext';
 import { formatPrice } from '../../constants/pricing';
 import { videoTestimonials, VideoCard } from '../sections/Testimonials';
+import { loadRazorpayScript, RAZORPAY_UNAVAILABLE_MESSAGE } from '../../lib/razorpay';
+import { INDIAN_STATES } from '../../constants/indianStates';
 
-const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
-
-// How long to wait for Razorpay's script before giving up. Networks that drop
-// packets instead of refusing them (regional blocks, corporate firewalls, some
-// DNS filters) never fire `error` on a <script>, so without this the promise
-// would never settle and the pay button would spin forever.
-const RAZORPAY_LOAD_TIMEOUT_MS = 10000;
-
-// Load the Razorpay checkout script exactly once (deduped across mounts/clicks).
-// Resolves true when window.Razorpay is available, false on load failure or timeout.
-// On failure the cached promise AND the dead <script> tag are cleared, so a later
-// click retries from scratch rather than listening to an element whose error
-// event has already fired.
-let razorpayScriptPromise = null;
-const loadRazorpayScript = () => {
-  if (typeof window !== 'undefined' && window.Razorpay) return Promise.resolve(true);
-  if (razorpayScriptPromise) return razorpayScriptPromise;
-
-  razorpayScriptPromise = new Promise((resolve) => {
-    let settled = false;
-    let timeoutId = null;
-
-    const finish = (ok) => {
-      if (settled) return;
-      settled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-
-      const ready = ok && typeof window !== 'undefined' && !!window.Razorpay;
-      if (!ready) {
-        razorpayScriptPromise = null; // allow a retry on next attempt
-        // Drop the failed tag. Leaving it behind would make the next attempt
-        // attach listeners to an already-errored script that never fires again.
-        document.querySelectorAll(`script[src="${RAZORPAY_SRC}"]`).forEach((el) => el.remove());
-      }
-      resolve(ready);
-    };
-
-    timeoutId = setTimeout(() => finish(false), RAZORPAY_LOAD_TIMEOUT_MS);
-
-    const script = document.createElement('script');
-    script.src = RAZORPAY_SRC;
-    script.async = true;
-    script.onload = () => finish(true);
-    script.onerror = () => finish(false);
-    document.body.appendChild(script);
-  });
-
-  return razorpayScriptPromise;
-};
-
-// Indian states with GST codes
-const INDIAN_STATES = [
-  { code: '01', name: 'Jammu & Kashmir' },
-  { code: '02', name: 'Himachal Pradesh' },
-  { code: '03', name: 'Punjab' },
-  { code: '04', name: 'Chandigarh' },
-  { code: '05', name: 'Uttarakhand' },
-  { code: '06', name: 'Haryana' },
-  { code: '07', name: 'Delhi' },
-  { code: '08', name: 'Rajasthan' },
-  { code: '09', name: 'Uttar Pradesh' },
-  { code: '10', name: 'Bihar' },
-  { code: '11', name: 'Sikkim' },
-  { code: '12', name: 'Arunachal Pradesh' },
-  { code: '13', name: 'Nagaland' },
-  { code: '14', name: 'Manipur' },
-  { code: '15', name: 'Mizoram' },
-  { code: '16', name: 'Tripura' },
-  { code: '17', name: 'Meghalaya' },
-  { code: '18', name: 'Assam' },
-  { code: '19', name: 'West Bengal' },
-  { code: '20', name: 'Jharkhand' },
-  { code: '21', name: 'Odisha' },
-  { code: '22', name: 'Chhattisgarh' },
-  { code: '23', name: 'Madhya Pradesh' },
-  { code: '24', name: 'Gujarat' },
-  { code: '25', name: 'Daman & Diu' },
-  { code: '26', name: 'Dadra & Nagar Haveli' },
-  { code: '27', name: 'Maharashtra' },
-  { code: '28', name: 'Andhra Pradesh (Old)' },
-  { code: '29', name: 'Karnataka' },
-  { code: '30', name: 'Goa' },
-  { code: '31', name: 'Lakshadweep' },
-  { code: '32', name: 'Kerala' },
-  { code: '33', name: 'Tamil Nadu' },
-  { code: '34', name: 'Puducherry' },
-  { code: '35', name: 'Andaman & Nicobar Islands' },
-  { code: '36', name: 'Telangana' },
-  { code: '37', name: 'Andhra Pradesh (New)' },
-  { code: '38', name: 'Ladakh' },
-];
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -354,9 +265,7 @@ export default function Checkout() {
       await loadRazorpayScript();
       if (!window.Razorpay) {
         setIsSubmitting(false);
-        alert(
-          "We couldn't load the payment gateway. Please disable any ad blocker or VPN, check your internet connection, and try again. If the problem persists, try a different browser."
-        );
+        alert(RAZORPAY_UNAVAILABLE_MESSAGE);
         return;
       }
     }
