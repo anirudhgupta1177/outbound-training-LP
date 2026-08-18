@@ -2,13 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-
-// #region agent log
-const debugLog = (location, message, data) => {
-  fetch('http://127.0.0.1:7242/ingest/a3ca0b1c-20f2-45d3-8836-7eac2fdb4cb3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location,message,data,timestamp:Date.now(),runId:'auth-debug'})}).catch(()=>{});
-};
-// #endregion
-
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,25 +19,9 @@ export default function Login() {
     setError('');
     setIsLoading(true);
 
-    // #region agent log
-    debugLog('Login:handleSubmit', 'Form submitted', { 
-      emailDomain: email.split('@')[1],
-      userAgent: navigator.userAgent,
-      online: navigator.onLine,
-      hypothesisId: 'B-D'
-    });
-    // #endregion
-
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        // #region agent log
-        debugLog('Login:handleSubmit', 'signIn returned error', { 
-          errorMessage: error.message,
-          isFailToFetch: error.message?.toLowerCase().includes('fetch'),
-          hypothesisId: 'A-E'
-        });
-        // #endregion
         
         if (error.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please try again.');
@@ -54,19 +31,9 @@ export default function Login() {
           setError(error.message);
         }
       } else {
-        // #region agent log
-        debugLog('Login:handleSubmit', 'Login successful, navigating', { hypothesisId: 'A-E' });
-        // #endregion
         navigate(destination, { replace: true });
       }
-    } catch (err) {
-      // #region agent log
-      debugLog('Login:handleSubmit', 'Unexpected catch error', { 
-        errorName: err.name,
-        errorMessage: err.message,
-        hypothesisId: 'B-E'
-      });
-      // #endregion
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

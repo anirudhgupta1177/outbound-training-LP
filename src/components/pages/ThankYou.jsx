@@ -251,7 +251,7 @@ export default function ThankYou() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <a
-              href="https://chat.whatsapp.com/FLdWkFfBRVOIiQgPSqdO62"
+              href="https://chat.whatsapp.com/L3ht1NZZvqqEEBlT3XML0b?s=cl&p=i&mlu=0&amv=2"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#25D366] hover:bg-[#128C7E] text-white font-display font-bold rounded-xl px-8 py-4 text-lg transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2"

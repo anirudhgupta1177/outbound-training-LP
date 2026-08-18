@@ -139,7 +139,7 @@ export default function Course() {
                 <h2 className="text-xl font-bold text-white mb-2">Join the Student Community</h2>
                 <p className="text-gray-400 mb-4">Connect with fellow students, get support, and share your progress in our private WhatsApp group.</p>
                 <a
-                  href="https://chat.whatsapp.com/FLdWkFfBRVOIiQgPSqdO62"
+                  href="https://chat.whatsapp.com/L3ht1NZZvqqEEBlT3XML0b?s=cl&p=i&mlu=0&amv=2"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold transition-colors"

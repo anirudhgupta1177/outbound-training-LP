@@ -10,29 +10,42 @@ import { videoTestimonials, VideoCard } from '../sections/Testimonials';
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
+// How long to wait for Razorpay's script before giving up. Networks that drop
+// packets instead of refusing them (regional blocks, corporate firewalls, some
+// DNS filters) never fire `error` on a <script>, so without this the promise
+// would never settle and the pay button would spin forever.
+const RAZORPAY_LOAD_TIMEOUT_MS = 10000;
+
 // Load the Razorpay checkout script exactly once (deduped across mounts/clicks).
-// Resolves true when window.Razorpay is available, false on load failure.
-// On failure the cached promise is cleared so a later click can retry.
+// Resolves true when window.Razorpay is available, false on load failure or timeout.
+// On failure the cached promise AND the dead <script> tag are cleared, so a later
+// click retries from scratch rather than listening to an element whose error
+// event has already fired.
 let razorpayScriptPromise = null;
 const loadRazorpayScript = () => {
   if (typeof window !== 'undefined' && window.Razorpay) return Promise.resolve(true);
   if (razorpayScriptPromise) return razorpayScriptPromise;
 
   razorpayScriptPromise = new Promise((resolve) => {
+    let settled = false;
+    let timeoutId = null;
+
     const finish = (ok) => {
+      if (settled) return;
+      settled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+
       const ready = ok && typeof window !== 'undefined' && !!window.Razorpay;
-      if (!ready) razorpayScriptPromise = null; // allow a retry on next attempt
+      if (!ready) {
+        razorpayScriptPromise = null; // allow a retry on next attempt
+        // Drop the failed tag. Leaving it behind would make the next attempt
+        // attach listeners to an already-errored script that never fires again.
+        document.querySelectorAll(`script[src="${RAZORPAY_SRC}"]`).forEach((el) => el.remove());
+      }
       resolve(ready);
     };
 
-    // Reuse an existing tag if one is already in the DOM (e.g. after remount).
-    const existing = document.querySelector(`script[src="${RAZORPAY_SRC}"]`);
-    if (existing) {
-      if (window.Razorpay) return finish(true);
-      existing.addEventListener('load', () => finish(true), { once: true });
-      existing.addEventListener('error', () => finish(false), { once: true });
-      return;
-    }
+    timeoutId = setTimeout(() => finish(false), RAZORPAY_LOAD_TIMEOUT_MS);
 
     const script = document.createElement('script');
     script.src = RAZORPAY_SRC;
