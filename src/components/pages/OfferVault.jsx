@@ -1,88 +1,21 @@
 import { Link } from 'react-router-dom';
-import { HiCalendar, HiExternalLink, HiRefresh } from 'react-icons/hi';
+import { HiRefresh } from 'react-icons/hi';
 import PortalHeader from '../portal/PortalHeader';
 import OfferCard from '../portal/OfferCard';
-import { getAccent } from '../portal/offerAccents';
+import ConsultCallBanner from '../portal/ConsultCallBanner';
 import { useOffers } from '../../contexts/OffersContext';
 import { useAuth } from '../../contexts/AuthContext';
-
-function ExpertCallBanner({ offer }) {
-  const accent = getAccent(offer.accent);
-  const bookingUrl = offer.cta_url;
-
-  return (
-    <div
-      data-testid="offer-card-expert-call"
-      className="relative overflow-hidden rounded-2xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] via-[#111111] to-[#111111] p-6 sm:p-8"
-    >
-      <div className="absolute -top-24 -right-16 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
-
-      <div className="relative flex flex-col lg:flex-row lg:items-center gap-6">
-        <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
-          <HiCalendar className="w-7 h-7 text-purple-300" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          {offer.badge && (
-            <span className={`inline-block mb-2 px-2.5 py-1 rounded-full border text-[11px] font-semibold tracking-wider ${accent.badge}`}>
-              {offer.badge}
-            </span>
-          )}
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1.5">{offer.title}</h2>
-          {offer.subtitle && (
-            <p className="text-sm font-medium text-purple-300 mb-2">{offer.subtitle}</p>
-          )}
-          {offer.description && (
-            <p className="text-sm text-gray-400 leading-relaxed max-w-2xl">{offer.description}</p>
-          )}
-
-          {offer.highlights.length > 0 && (
-            <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2">
-              {offer.highlights.map((highlight, index) => (
-                <li key={index} className="flex items-start gap-2.5 text-sm text-gray-300">
-                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>{highlight}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="flex-shrink-0 w-full lg:w-auto">
-          {bookingUrl ? (
-            <a
-              href={bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-full lg:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold transition-all ${accent.button}`}
-            >
-              {offer.cta_label || 'Book Your Call'}
-              <HiExternalLink className="w-4 h-4" />
-            </a>
-          ) : (
-            <button
-              type="button"
-              disabled
-              title="Booking link not configured yet"
-              className="w-full lg:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gray-800/60 text-gray-500 font-semibold cursor-not-allowed"
-            >
-              Booking opens soon
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function OfferVault() {
   const { user } = useAuth();
   const { offers, settings, loading, loaded, error, refresh } = useOffers();
 
+  // Consult-kind rows are deliberately not rendered here any more: the 1:1 call
+  // is sold by <ConsultCallBanner />, which owns its own price and checkout.
+  // Filtering rather than trusting the row to be deactivated keeps a leftover
+  // (or re-enabled) consult offer from putting a second, free call CTA on the
+  // page next to the paid one.
   const productOffers = offers.filter((o) => o.kind !== 'consult');
-  const consultOffers = offers.filter((o) => o.kind === 'consult');
   const unlockedCount = productOffers.filter((o) => o.unlocked).length;
 
   if (loading && !loaded) {
@@ -157,9 +90,7 @@ export default function OfferVault() {
           </div>
         )}
 
-        {consultOffers.map((offer) => (
-          <ExpertCallBanner key={offer.id} offer={offer} />
-        ))}
+        <ConsultCallBanner />
       </main>
     </div>
   );

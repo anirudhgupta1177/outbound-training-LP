@@ -67,6 +67,7 @@ export function OffersProvider({ children }) {
     return {
       offers: state.offers,
       entitlements: state.entitlements,
+      consult: state.consult,
       settings: state.settings,
       loading,
       loaded,

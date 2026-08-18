@@ -308,8 +308,9 @@ export default function OffersPage() {
             <h3 className="text-lg font-semibold text-white">Portal Settings</h3>
           </div>
           <p className="text-sm text-gray-400 mb-5">
-            The call booking link powers the &ldquo;Book a Meeting With an Expert&rdquo; upsell in
-            the vault. Leave it empty and the button stays disabled instead of linking nowhere.
+            The call booking link is the calendar members land on after paying for the
+            &ldquo;1 Hour Consultation Call with Anirudh&rdquo; banner in the vault. Leave it
+            empty and they get the funnel&rsquo;s default booking calendar.
           </p>
 
           <div className="space-y-4">

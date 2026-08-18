@@ -46,7 +46,12 @@ export default function MembersPage() {
   const navigate = useNavigate();
 
   // Offers that require an explicit grant — the ones worth showing a toggle for.
-  const grantableOffers = offers.filter((o) => o.kind !== 'consult');
+  // Consult offers used to be excluded outright, back when the only one was the
+  // free "meet an expert" link that needed no grant. The paid consultation is a
+  // consult offer that members buy, so support has to be able to grant it (a
+  // payment that didn't record) and revoke it (a refund) from here. Free-for-all
+  // consult offers stay out: there is nothing to toggle.
+  const grantableOffers = offers.filter((o) => o.kind !== 'consult' || !o.unlocked_by_default);
 
   useEffect(() => {
     fetchMembers();

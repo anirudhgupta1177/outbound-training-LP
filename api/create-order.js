@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { validateCouponAgainstDb } from './validate-coupon.js';
+import { CONSULT_PRODUCT, consultQuote } from '../src/constants/consultCall.js';
+import { resolveConsultRegion } from './_geo.js';
 
 const VALID_TIERS = new Set(['INDIA', 'SAARC', 'INTERNATIONAL']);
 
@@ -63,6 +65,8 @@ export default async function handler(req, res) {
     }
 
     let {
+      product,        // 'consult-call' for the vault's 1:1 upsell; absent = the course
+      country,        // consult only: the browser's own geo guess, used only as a fallback
       tier,           // 'INDIA' | 'SAARC' | 'INTERNATIONAL' — preferred, server looks up canonical price
       basePrice,      // major units, pre-discount, pre-GST (legacy / fallback if tier lookup fails)
       gstRate,        // decimal, e.g. 0.18 for India, 0 otherwise (ignored when tier resolves)
@@ -72,10 +76,30 @@ export default async function handler(req, res) {
       receipt
     } = bodyData || {};
 
+    // The 1:1 consultation is priced here and nowhere else: two fixed prices,
+    // no coupons, and nothing in the request body can raise or lower them —
+    // not even which region applies.
+    const isConsult = product === CONSULT_PRODUCT;
+    let consultRegion = null;
+    if (isConsult) {
+      // Region comes from Vercel's edge header, not from the request body —
+      // the same resolution /api/consult-quote used to draw the banner, so the
+      // buyer is charged the figure they were shown.
+      const resolved = resolveConsultRegion(req, country);
+      consultRegion = resolved.region;
+      console.log('Consult region resolved:', resolved);
+      const quote = consultQuote(consultRegion);
+      currency = quote.currency;
+      basePrice = quote.basePrice;
+      gstRate = quote.gstRate;
+      couponCode = null; // course coupons must not discount an hour of time
+      amount = undefined; // ignore any client-supplied smallest-unit amount
+    }
+
     // When the client sends a tier, the server is the source of truth for
     // basePrice + gstRate + currency. This prevents a tampered client from
     // lowering the charged amount via the basePrice field.
-    if (tier) {
+    if (tier && !isConsult) {
       const canonical = await fetchCanonicalTier(tier);
       if (canonical) {
         basePrice = canonical.basePrice;
@@ -157,6 +181,16 @@ export default async function handler(req, res) {
       };
     }
 
+    // Tags the payment in the Razorpay dashboard so consultation revenue can be
+    // told apart from course revenue without cross-referencing amounts.
+    if (isConsult) {
+      orderPayload.notes = {
+        ...(orderPayload.notes || {}),
+        product: CONSULT_PRODUCT,
+        region: consultRegion,
+      };
+    }
+
     const razorpayAuth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
 
     const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
@@ -220,7 +254,8 @@ export default async function handler(req, res) {
       order_id: orderData.id,
       key_id: RAZORPAY_KEY_ID,
       amount: orderData.amount,
-      currency: orderData.currency
+      currency: orderData.currency,
+      product: isConsult ? CONSULT_PRODUCT : null
     });
 
   } catch (error) {

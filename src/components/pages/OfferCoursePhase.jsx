@@ -5,12 +5,14 @@ import VideoPlayer from '../course/VideoPlayer';
 import { ResourceTile, ToolCard } from '../portal/OfferResources';
 import { getAccent } from '../portal/offerAccents';
 import { stripPartPrefix } from '../portal/partLabel';
-import { useOffers, OFFER_SLUGS } from '../../contexts/OffersContext';
+import { useConsultCallLink } from '../portal/consultCallLink';
+import { useOffers } from '../../contexts/OffersContext';
 
 // A single part of a program — the counterpart of a Mastery lesson page.
 export default function OfferCoursePhase({ slug }) {
   const { partId } = useParams();
-  const { getOffer, settings } = useOffers();
+  const { getOffer } = useOffers();
+  const consultCall = useConsultCallLink();
   const offer = getOffer(slug);
 
   const theme = getAccent(offer?.accent);
@@ -44,7 +46,6 @@ export default function OfferCoursePhase({ slug }) {
   const materials = resources.filter((r) => r.type !== 'tool');
   const prev = index > 0 ? parts[index - 1] : null;
   const next = index < parts.length - 1 ? parts[index + 1] : null;
-  const bookingUrl = getOffer(OFFER_SLUGS.expertCall)?.cta_url || settings.booking_url;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -143,23 +144,36 @@ export default function OfferCoursePhase({ slug }) {
               </span>
               <HiArrowRight className="w-5 h-5 text-gray-500 flex-shrink-0" />
             </Link>
-          ) : (
-            bookingUrl && (
-              <a
-                href={bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 min-w-0 flex items-center justify-end gap-3 p-4 rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] hover:border-purple-500/50 transition-all text-right"
-              >
-                <span className="min-w-0">
-                  <span className="block text-xs text-gray-500">Finished the training?</span>
-                  <span className="block text-sm font-medium text-white truncate">
-                    Book a call with an expert
-                  </span>
+          ) : consultCall.external ? (
+            <a
+              href={consultCall.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 min-w-0 flex items-center justify-end gap-3 p-4 rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] hover:border-purple-500/50 transition-all text-right"
+            >
+              <span className="min-w-0">
+                <span className="block text-xs text-gray-500">Finished the training?</span>
+                <span className="block text-sm font-medium text-white truncate">
+                  {consultCall.label}
                 </span>
-                <HiExternalLink className="w-5 h-5 text-purple-400 flex-shrink-0" />
-              </a>
-            )
+              </span>
+              <HiExternalLink className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            </a>
+          ) : (
+            /* Not bought yet — the vault banner is the only place that charges
+               for this, so send them there rather than straight to Cal.com. */
+            <Link
+              to={consultCall.href}
+              className="flex-1 min-w-0 flex items-center justify-end gap-3 p-4 rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] hover:border-purple-500/50 transition-all text-right"
+            >
+              <span className="min-w-0">
+                <span className="block text-xs text-gray-500">Finished the training?</span>
+                <span className="block text-sm font-medium text-white truncate">
+                  {consultCall.label}
+                </span>
+              </span>
+              <HiArrowRight className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            </Link>
           )}
         </nav>
       </main>

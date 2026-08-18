@@ -7,12 +7,12 @@ export const OFFER_SLUGS = {
   microCourse: 'outbound-micro-course',
   linkedinMiniCourse: 'linkedin-mini-course',
   mastery: 'outbound-mastery',
-  expertCall: 'expert-call',
 };
 
 const EMPTY = {
   offers: [],
   entitlements: [],
+  consult: { sessions_purchased: 0 },
   settings: { booking_url: null, vault_heading: 'Your Offer Vault', vault_subheading: '' },
 };
 
@@ -43,6 +43,7 @@ export async function fetchOffers() {
       parts: (offer.parts || []).map((part) => ({ ...part, resources: part.resources || [] })),
     })),
     entitlements: data.entitlements || [],
+    consult: { ...EMPTY.consult, ...(data.consult || {}) },
     settings: { ...EMPTY.settings, ...(data.settings || {}) },
   };
 }

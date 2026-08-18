@@ -1,6 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdminToken } from '../admin-auth.js';
 
+// Split an order into base + GST for the invoice.
+//
+// Orders written since the consultation shipped carry the exact split we
+// charged, so use it. Older rows (and the Razorpay fallback path) only have the
+// gross, and dividing it back out never lands on the advertised price — ₹3,539
+// / 1.18 is ₹2,999.15, not ₹2,999 — so those keep the old approximation.
+function splitAmount(order) {
+  const amountInRupees = (order.amount || 0) / 100;
+
+  if (typeof order.base_amount === 'number' && typeof order.gst_amount === 'number') {
+    return {
+      amountInRupees,
+      baseAmount: order.base_amount / 100,
+      gstAmount: order.gst_amount / 100,
+    };
+  }
+
+  const gstRate = 18;
+  const baseAmount = amountInRupees / (1 + gstRate / 100);
+  return { amountInRupees, baseAmount, gstAmount: amountInRupees - baseAmount };
+}
+
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -128,10 +150,7 @@ export default async function handler(req, res) {
     // Generate individual invoices for B2C orders
     b2cOrders.forEach((order, index) => {
       const invoiceNumber = `INV-B2C-${month.replace('-', '')}-${String(index + 1).padStart(3, '0')}`;
-      const amountInRupees = (order.amount || 0) / 100;
-      const gstRate = 18;
-      const baseAmount = amountInRupees / (1 + gstRate / 100);
-      const gstAmount = amountInRupees - baseAmount;
+      const { amountInRupees, baseAmount, gstAmount } = splitAmount(order);
       const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
       
@@ -163,10 +182,7 @@ export default async function handler(req, res) {
     // Generate individual invoices for B2B orders
     b2bOrders.forEach((order, index) => {
       const invoiceNumber = `INV-B2B-${month.replace('-', '')}-${String(index + 1).padStart(3, '0')}`;
-      const amountInRupees = (order.amount || 0) / 100;
-      const gstRate = 18;
-      const baseAmount = amountInRupees / (1 + gstRate / 100);
-      const gstAmount = amountInRupees - baseAmount;
+      const { amountInRupees, baseAmount, gstAmount } = splitAmount(order);
 
       // Determine if inter-state (IGST) or intra-state (CGST+SGST)
       const buyerStateCode = order.business_state_code || '';

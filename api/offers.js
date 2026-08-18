@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { CONSULT_PRODUCT } from '../src/constants/consultCall.js';
 
 // Member-facing read for the Offer Vault.
 //
@@ -80,6 +81,23 @@ export default async function handler(req, res) {
     const partCounts = {};
     for (const p of partCountResult.data || []) {
       partCounts[p.offer_id] = (partCounts[p.offer_id] || 0) + 1;
+    }
+
+    // How many consultations this member has actually paid for. The entitlement
+    // is a yes/no, so without this a second purchase would be invisible — the
+    // banner would look identical after charging again.
+    let consultSessions = 0;
+    if (user) {
+      const { count, error: sessionError } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('product', CONSULT_PRODUCT);
+      if (sessionError) {
+        console.error('Consult session count failed:', sessionError);
+      } else {
+        consultSessions = count || 0;
+      }
     }
 
     let entitlements = [];
@@ -171,17 +189,13 @@ export default async function handler(req, res) {
       // Part count is safe to advertise on a locked card — it sells the offer.
       base.part_count = partCounts[offer.id] || 0;
 
-      // The consult upsell always points at the booking link the admin set.
-      if (offer.kind === 'consult') {
-        base.cta_url = offer.cta_url || settings.booking_url || null;
-      }
-
       return base;
     });
 
     return res.status(200).json({
       authenticated: !!user,
       entitlements,
+      consult: { sessions_purchased: consultSessions },
       offers: payload,
       settings: {
         booking_url: settings.booking_url || null,

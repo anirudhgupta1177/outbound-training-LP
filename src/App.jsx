@@ -7,10 +7,15 @@ import { AdminAuthProvider } from './contexts/AdminAuthContext';
 import { OffersProvider, OFFER_SLUGS } from './contexts/OffersContext';
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
+    // A hash means the link is aiming at a specific section (e.g. the vault's
+    // consultation banner). Client-side navigation doesn't honour it the way a
+    // full page load does, and scrolling to the top here would fight the target
+    // element's own scrollIntoView — so leave the scrolling to it.
+    if (hash) return;
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, hash]);
   return null;
 }
 

@@ -1,10 +1,12 @@
-import { HiExternalLink } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
+import { HiArrowRight, HiExternalLink } from 'react-icons/hi';
 import PortalHeader from '../portal/PortalHeader';
 import PhaseCard from '../portal/PhaseCard';
 import VideoPlayer from '../course/VideoPlayer';
 import { ResourceTile, ToolCard } from '../portal/OfferResources';
 import { getAccent } from '../portal/offerAccents';
-import { useOffers, OFFER_SLUGS } from '../../contexts/OffersContext';
+import { useConsultCallLink } from '../portal/consultCallLink';
+import { useOffers } from '../../contexts/OffersContext';
 
 function StatTile({ value, label, accent, children }) {
   return (
@@ -21,7 +23,8 @@ function StatTile({ value, label, accent, children }) {
 // Overview for any part-based program in the vault. Mirrors the Outbound
 // Mastery course page so members see one structure across every product.
 export default function OfferCourse({ slug }) {
-  const { getOffer, settings } = useOffers();
+  const { getOffer } = useOffers();
+  const consultCall = useConsultCallLink();
   const offer = getOffer(slug);
 
   const theme = getAccent(offer?.accent);
@@ -33,8 +36,6 @@ export default function OfferCourse({ slug }) {
   const resources = offer?.resources || [];
   const tools = resources.filter((r) => r.type === 'tool');
   const materials = resources.filter((r) => r.type !== 'tool');
-  const bookingUrl = getOffer(OFFER_SLUGS.expertCall)?.cta_url || settings.booking_url;
-
   const totalTools = parts.reduce(
     (sum, p) => sum + (p.resources || []).filter((r) => r.type === 'tool').length,
     tools.length
@@ -172,25 +173,37 @@ export default function OfferCourse({ slug }) {
           </section>
         )}
 
-        {bookingUrl && (
-          <section className="rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="flex-1">
-              <h2 className="text-lg font-bold text-white mb-1.5">Want this reviewed live?</h2>
-              <p className="text-sm text-gray-400">
-                Book a 1-on-1 with an expert and get your campaign pulled apart and rebuilt.
-              </p>
-            </div>
+        {/* Members who have paid get the calendar; everyone else is sent to the
+            vault banner, which is where the session is actually bought. */}
+        <section className="rounded-xl border border-purple-500/25 bg-gradient-to-br from-[#15101f] to-[#111111] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
+          <div className="flex-1">
+            <h2 className="text-lg font-bold text-white mb-1.5">Want this reviewed live?</h2>
+            <p className="text-sm text-gray-400">
+              {consultCall.purchased
+                ? 'Your 1:1 session with Anirudh is paid for — pick a time and get your campaign pulled apart and rebuilt.'
+                : 'Book a 60-minute 1:1 with Anirudh and get your campaign pulled apart and rebuilt.'}
+            </p>
+          </div>
+          {consultCall.external ? (
             <a
-              href={bookingUrl}
+              href={consultCall.href}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:from-purple-400 hover:to-indigo-400 transition-all"
             >
-              Book Your Call
+              {consultCall.label}
               <HiExternalLink className="w-4 h-4" />
             </a>
-          </section>
-        )}
+          ) : (
+            <Link
+              to={consultCall.href}
+              className="flex-shrink-0 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:from-purple-400 hover:to-indigo-400 transition-all"
+            >
+              {consultCall.label}
+              <HiArrowRight className="w-4 h-4" />
+            </Link>
+          )}
+        </section>
       </main>
     </div>
   );
