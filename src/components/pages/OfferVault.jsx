@@ -15,7 +15,14 @@ export default function OfferVault() {
   // Filtering rather than trusting the row to be deactivated keeps a leftover
   // (or re-enabled) consult offer from putting a second, free call CTA on the
   // page next to the paid one.
-  const productOffers = offers.filter((o) => o.kind !== 'consult');
+  // A locked course card is an advert — that is why locked offers are shown at
+  // all. A locked order bump is not: the bumps are only ever sold alongside a
+  // checkout, so there is nothing for a member to click. Showing them a
+  // permanent, unbuyable "Locked" card is just noise, so resources appear only
+  // once they are owned.
+  const productOffers = offers.filter(
+    (o) => o.kind !== 'consult' && !(o.kind === 'resource' && !o.unlocked)
+  );
   const unlockedCount = productOffers.filter((o) => o.unlocked).length;
 
   if (loading && !loaded) {
