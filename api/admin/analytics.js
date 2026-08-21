@@ -43,7 +43,14 @@ export default async function handler(req, res) {
 
   try {
     // Parse query parameters
-    const { month, region } = req.query;
+    const { month, region, scope } = req.query;
+
+    // Which product line to report on. The orders table tags every row with the
+    // checkout that wrote it, so this is a straight filter:
+    //   course -> the main Outbound Mastery checkout
+    //   micro  -> the micro-offer funnel (front end, bumps and the 1:1 OTO)
+    const SCOPE_SOURCES = { course: 'course', micro: 'micro-offer-funnel' };
+    const scopeSource = SCOPE_SOURCES[scope] || null;
     
     // Build date range for the month filter
     let startDate, endDate;
@@ -79,6 +86,10 @@ export default async function handler(req, res) {
             .gte('created_at', startDate.toISOString())
             .lte('created_at', endDate.toISOString());
         }
+
+        // Product-line filter. Only the database knows which checkout a payment
+        // came from, so a scoped view is database-only — see the merge below.
+        if (scopeSource) query = query.eq('source', scopeSource);
 
         // Region filter: INDIA or INTERNATIONAL (SAARC counts as INTERNATIONAL)
         if (region && region !== 'all') {
@@ -199,8 +210,16 @@ export default async function handler(req, res) {
     
     // Merge local orders with Razorpay orders (deduplicate by payment_id)
     const localPaymentIds = new Set(localOrders.map(o => o.razorpay_payment_id));
-    const razorpayOnly = orders.filter(o => !localPaymentIds.has(o.razorpay_payment_id));
-    
+    let razorpayOnly = orders.filter(o => !localPaymentIds.has(o.razorpay_payment_id));
+
+    // A payment that exists only at Razorpay carries no record of which
+    // checkout produced it, so it cannot be attributed to a product line.
+    // Counting it under whichever tab happened to be open would overstate that
+    // line; it is dropped instead, and the response says how many were dropped
+    // so the UI can be honest about it.
+    const unattributed = razorpayOnly.length;
+    if (scopeSource) razorpayOnly = [];
+
     // Combine: local orders first (they have more data like GST info), then Razorpay-only
     orders = [...localOrders, ...razorpayOnly];
     
@@ -271,7 +290,11 @@ export default async function handler(req, res) {
         month: month || null,
         region: region || 'all'
       },
-      source: localOrdersExist ? 'database' : 'razorpay'
+      source: localOrdersExist ? 'database' : 'razorpay',
+      scope: scope || 'all',
+      // Razorpay-only payments excluded because this view is scoped to one
+      // product line. Zero on the unscoped view, which still includes them.
+      unattributedExcluded: scopeSource ? unattributed : 0
     });
 
   } catch (error) {

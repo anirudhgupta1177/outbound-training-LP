@@ -19,6 +19,12 @@ import {
   HiPrinter
 } from 'react-icons/hi';
 
+const SCOPES = [
+  { value: 'all', label: 'All products' },
+  { value: 'course', label: 'Outbound Mastery' },
+  { value: 'micro', label: 'Micro-offer funnel' },
+];
+
 export default function AnalyticsPage() {
   const [orders, setOrders] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -29,6 +35,9 @@ export default function AnalyticsPage() {
   // Filters
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('all');
+  // Which product line the page is reporting on: everything, the main course
+  // checkout, or the micro-offer funnel.
+  const [scope, setScope] = useState('all');
   
   // Invoice generation
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -41,7 +50,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [selectedMonth, selectedRegion]);
+  }, [selectedMonth, selectedRegion, scope]);
 
   const fetchAnalytics = async () => {
     setIsLoading(true);
@@ -51,6 +60,7 @@ export default function AnalyticsPage() {
       const params = new URLSearchParams();
       if (selectedMonth) params.append('month', selectedMonth);
       if (selectedRegion !== 'all') params.append('region', selectedRegion);
+      if (scope !== 'all') params.append('scope', scope);
 
       const response = await fetch(`/api/admin/analytics?${params.toString()}`, {
         headers: {
@@ -427,6 +437,35 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
+        {/* Product line — which checkout the numbers below come from. */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {SCOPES.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setScope(s.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                scope === s.value
+                  ? 'bg-gold/15 border-gold/40 text-gold'
+                  : 'bg-[#111] border-gray-800 text-gray-400 hover:text-white hover:border-gray-700'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* A payment that exists only at Razorpay has no record of which
+            checkout produced it, so it cannot be counted under either tab.
+            Saying so beats quietly reporting a smaller number. */}
+        {scope !== 'all' && summary?.unattributedExcluded > 0 && (
+          <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-300">
+            {summary.unattributedExcluded} payment
+            {summary.unattributedExcluded === 1 ? '' : 's'} found only in Razorpay
+            {summary.unattributedExcluded === 1 ? ' is' : ' are'} not shown here — they carry no
+            record of which checkout produced them. Switch to All products to include them.
+          </div>
+        )}
+
         {/* Filters */}
         <div className="mb-6 flex flex-wrap items-center gap-4 p-4 bg-[#111] border border-gray-800 rounded-xl">
           <div className="flex items-center gap-2 text-gray-400">
@@ -463,11 +502,12 @@ export default function AnalyticsPage() {
             </select>
           </div>
 
-          {(selectedMonth || selectedRegion !== 'all') && (
+          {(selectedMonth || selectedRegion !== 'all' || scope !== 'all') && (
             <button
               onClick={() => {
                 setSelectedMonth('');
                 setSelectedRegion('all');
+                setScope('all');
               }}
               className="text-sm text-gray-400 hover:text-white underline"
             >
