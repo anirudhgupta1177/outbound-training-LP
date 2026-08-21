@@ -6,6 +6,11 @@ export default function OfferCard({ offer }) {
   const accent = getAccent(offer.accent);
   const unlocked = offer.unlocked;
   const hasInternalDestination = unlocked && offer.portal_path;
+  // Some things a member buys live outside the portal — the swipe file and the
+  // implementation guide are hosted documents. Without this they matched none
+  // of the branches below and rendered as "Content coming soon", which is a
+  // strange thing to tell someone about a file they have already paid for.
+  const externalDestination = unlocked && !offer.portal_path ? offer.cta_url : null;
   const lockedUrl = offer.landing_page_url;
 
   return (
@@ -92,6 +97,16 @@ export default function OfferCard({ offer }) {
             {offer.cta_label || 'Open'}
             <HiArrowRight className="w-4 h-4" />
           </Link>
+        ) : externalDestination ? (
+          <a
+            href={externalDestination}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${accent.button}`}
+          >
+            {offer.cta_label || 'Open'}
+            <HiExternalLink className="w-4 h-4" />
+          </a>
         ) : unlocked ? (
           <div className="w-full text-center px-5 py-3 rounded-xl bg-gray-800/60 text-gray-400 text-sm font-medium">
             Content coming soon
