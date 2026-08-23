@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../../contexts/AdminAuthContext';
 import {
@@ -38,6 +38,12 @@ export default function AnalyticsPage() {
   // Which product line the page is reporting on: everything, the main course
   // checkout, or the micro-offer funnel.
   const [scope, setScope] = useState('all');
+  const [breakdown, setBreakdown] = useState({ byProduct: [], byTicketPrice: [] });
+  // This endpoint pages through Razorpay on every call, so it is slow and its
+  // latency varies. Switching tabs therefore leaves two requests in flight, and
+  // whichever answers last wins — which is how the Micro-offer tab ended up
+  // showing the course's numbers. Only the newest request may write state.
+  const requestSeq = useRef(0);
   
   // Invoice generation
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -53,6 +59,7 @@ export default function AnalyticsPage() {
   }, [selectedMonth, selectedRegion, scope]);
 
   const fetchAnalytics = async () => {
+    const seq = ++requestSeq.current;
     setIsLoading(true);
     setError(null);
 
@@ -73,13 +80,18 @@ export default function AnalyticsPage() {
       }
 
       const data = await response.json();
+      if (seq !== requestSeq.current) return; // superseded by a newer request
       setOrders(data.orders || []);
       setSummary(data.summary || null);
+      setBreakdown({
+        byProduct: data.byProduct || [],
+        byTicketPrice: data.byTicketPrice || [],
+      });
       setAvailableMonths(data.availableMonths || []);
     } catch (err) {
-      setError(err.message);
+      if (seq === requestSeq.current) setError(err.message);
     } finally {
-      setIsLoading(false);
+      if (seq === requestSeq.current) setIsLoading(false);
     }
   };
 
@@ -632,7 +644,94 @@ export default function AnalyticsPage() {
               </div>
             )}
 
-            {/* Orders Table */}
+            {/* What was sold, and at what price. The cards above answer "how
+            much"; these answer "of what" — the question the admin could not
+            previously ask at all. Revenue is allocated across an order's line
+            items in proportion to their list prices, so a course-plus-bumps
+            sale is attributed to each product it actually contained, and the
+            column still sums to the headline figure. */}
+        {breakdown.byProduct.length > 0 && (
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-800">
+                <h3 className="text-lg font-semibold text-white">Revenue by product</h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Order value split across the items each sale contained
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-800 bg-[#0a0a0a] text-xs uppercase tracking-wider text-gray-400">
+                      <th className="px-5 py-3 text-left font-medium">Product</th>
+                      <th className="px-5 py-3 text-right font-medium">Sold</th>
+                      <th className="px-5 py-3 text-right font-medium">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {breakdown.byProduct.map((p) => (
+                      <tr key={p.key} className="border-b border-gray-800/60 last:border-0">
+                        <td className="px-5 py-3 text-gray-200">
+                          {p.label}
+                          <span className="block text-xs text-gray-600">{p.key}</span>
+                        </td>
+                        <td className="px-5 py-3 text-right text-gray-300 tabular-nums">{p.units}</td>
+                        <td className="px-5 py-3 text-right tabular-nums">
+                          {p.revenue.INR > 0 && (
+                            <span className="text-emerald-400">₹{p.revenue.INR.toLocaleString('en-IN')}</span>
+                          )}
+                          {p.revenue.USD > 0 && (
+                            <span className="block text-blue-400">${p.revenue.USD.toLocaleString('en-US')}</span>
+                          )}
+                          {p.revenue.INR === 0 && p.revenue.USD === 0 && (
+                            <span className="text-gray-600">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-800">
+                <h3 className="text-lg font-semibold text-white">Ticket prices</h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  What customers actually paid, per order
+                </p>
+              </div>
+              <div className="overflow-x-auto max-h-[420px]">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0">
+                    <tr className="border-b border-gray-800 bg-[#0a0a0a] text-xs uppercase tracking-wider text-gray-400">
+                      <th className="px-5 py-3 text-left font-medium">Price paid</th>
+                      <th className="px-5 py-3 text-right font-medium">Orders</th>
+                      <th className="px-5 py-3 text-right font-medium">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {breakdown.byTicketPrice.map((t) => (
+                      <tr key={`${t.currency}-${t.price}`} className="border-b border-gray-800/60 last:border-0">
+                        <td className="px-5 py-3 text-gray-200 tabular-nums">
+                          {t.currency === 'INR' ? '₹' : '$'}
+                          {t.price.toLocaleString(t.currency === 'INR' ? 'en-IN' : 'en-US')}
+                        </td>
+                        <td className="px-5 py-3 text-right text-gray-300 tabular-nums">{t.orders}</td>
+                        <td className="px-5 py-3 text-right text-gray-400 tabular-nums">
+                          {t.currency === 'INR' ? '₹' : '$'}
+                          {(t.price * t.orders).toLocaleString(t.currency === 'INR' ? 'en-IN' : 'en-US')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Table */}
             <div className="bg-[#111] border border-gray-800 rounded-xl overflow-hidden">
               <div className="p-4 border-b border-gray-800">
                 <h3 className="text-lg font-semibold text-white">

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdminToken } from '../admin-auth.js';
+import { buildBreakdown } from './_breakdown.js';
 
 export default async function handler(req, res) {
   // CORS headers
@@ -292,6 +293,9 @@ export default async function handler(req, res) {
       },
       source: localOrdersExist ? 'database' : 'razorpay',
       scope: scope || 'all',
+      // What was actually sold, and at what price. The headline figures answer
+      // "how much"; these answer "of what".
+      ...buildBreakdown(orders),
       // Razorpay-only payments excluded because this view is scoped to one
       // product line. Zero on the unscoped view, which still includes them.
       unattributedExcluded: scopeSource ? unattributed : 0
