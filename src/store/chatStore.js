@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+// How long a restored transcript may be replayed to the model. Anything older
+// is dropped on rehydrate: the visitor still gets a fresh chat, but a price or
+// policy answered weeks ago can no longer be fed back as current context.
+const TRANSCRIPT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 let messageCounter = 0;
 function generateId() {
   messageCounter += 1;
@@ -92,13 +97,31 @@ export const useChatStore = create(persist((set, get) => ({
     messages: state.messages,
     chatEnded: state.chatEnded,
   }),
+  // Bump this whenever stored transcripts could contain facts that have since
+  // changed — a price, a module count, a policy. Bumping DROPS every stored
+  // transcript so no browser can replay an out-of-date answer back into the
+  // model as if it were current. v2: the ₹7,999 → ₹39,999 price change of
+  // 2026-08-18 left correct-at-the-time price answers sitting in visitors'
+  // localStorage, and ChatInput replays them to /api/chat on the next visit.
+  version: 2,
+  migrate: (persisted) => ({
+    ...(persisted || {}),
+    messages: [],
+    chatEnded: false,
+  }),
   // Timestamps get JSON-serialized to ISO strings; rehydrate them back to
-  // Date objects so getRelativeTime() works without extra wrapping.
+  // Date objects so getRelativeTime() works without extra wrapping. Messages
+  // older than the cutoff are dropped rather than restored: an unbounded
+  // transcript is a store of stale facts that gets fed back to the model.
   onRehydrateStorage: () => (state) => {
     if (!state?.messages) return;
-    state.messages = state.messages.map((m) => ({
-      ...m,
-      timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
-    }));
+    const cutoff = Date.now() - TRANSCRIPT_MAX_AGE_MS;
+    state.messages = state.messages
+      .map((m) => ({
+        ...m,
+        timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+      }))
+      .filter((m) => m.timestamp.getTime() >= cutoff);
+    if (state.messages.length === 0) state.chatEnded = false;
   },
 }));

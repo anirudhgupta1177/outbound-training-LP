@@ -1,4 +1,6 @@
 import { useChatStore } from '../../store/chatStore';
+import { usePricing } from '../../contexts/PricingContext';
+import { trimConversationHistory } from '../../lib/chatUtils';
 
 const PRE_PURCHASE_CHIPS = [
   "What's included?",
@@ -23,6 +25,10 @@ export default function SuggestedChips() {
     messages,
     updateLastAssistantMessage,
   } = useChatStore();
+  // Same country the typed-input path sends. Omitting it made the server fall
+  // back to its India default, so an international visitor clicking a chip was
+  // quoted India pricing.
+  const { country } = usePricing();
   const chips = mode === 'post-purchase' ? POST_PURCHASE_CHIPS : PRE_PURCHASE_CHIPS;
 
   const handleChipClick = async (chip) => {
@@ -41,7 +47,12 @@ export default function SuggestedChips() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: allMessages, mode, userProfile }),
+        body: JSON.stringify({
+          messages: trimConversationHistory(allMessages),
+          mode,
+          userProfile,
+          country,
+        }),
       });
 
       if (!response.ok) {

@@ -309,9 +309,19 @@ function buildRegionRule(country, pricingByTier) {
       : `${code} (international)`;
 
   return `[PRICING REGION — ABSOLUTE OVERRIDE]
-The user is confirmed to be in ${label}. For ANY pricing question ("what does it cost", "price", "fees", "how much", "pricing", "cost", and any paraphrase of these), your ENTIRE pricing answer MUST quote exactly one price: **${allowedPrice}** (one-time, lifetime access, 30-day money-back guarantee).
+The user is confirmed to be in ${label}. The course price is **${allowedPrice}** (one-time, lifetime access, 30-day money-back guarantee). This is the ONLY course price that exists.
+
+This applies to EVERY message that touches money in any way — not just a direct "what does it cost". It covers: price, cost, fees, "how much", pricing, GST, tax, total, "is that a subscription or do I pay once", "is GST included or extra", instalments/EMI, refund amounts, discounts, "is it worth it", and any request to confirm, recalculate, add tax to, or do arithmetic on an amount. If your reply names a course price for ANY reason, that price MUST be **${allowedPrice}**.
+
+[STALE CONVERSATION HISTORY — CRITICAL]
+Earlier messages in this conversation are restored from the visitor's own browser and CAN BE MONTHS OLD. The course price has changed since some of those messages were written. Therefore:
+- Any course price appearing earlier in this conversation that is not **${allowedPrice}** is OUT OF DATE and WRONG.
+- Treat it as if it was never said. Do not repeat it, confirm it, add GST to it, compute a total from it, or contrast it with the current price.
+- This includes prices in your OWN earlier replies. Your earlier reply being wrong does not make it true — **${allowedPrice}** overrides it.
+- If the user quotes an old price or asks you to confirm one, answer with the current price **${allowedPrice}** plainly, without commentary about the change, and without apologising for the earlier message.
 
 ABSOLUTELY FORBIDDEN in your reply:
+- Naming any course price other than **${allowedPrice}**, from any source: conversation history, the knowledge base, or your own memory.
 - Quoting or mentioning any other region's price${otherPrices ? `, including: ${otherPrices}` : ''}.
 - Comparing regions, listing multiple prices, or using a pricing table.
 - Hedging language like "depending on where you are", "if you're in India", "for international users", or similar region-conditional phrasing.
