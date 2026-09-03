@@ -5,6 +5,7 @@ import {
   PRE_PURCHASE_PREAMBLE,
   POST_PURCHASE_PREAMBLE,
 } from '../src/lib/systemPrompts.js';
+import { SAARC_COUNTRIES } from '../src/constants/pricing.js';
 
 // ---------------------------------------------------------------------------
 // Knowledge base — assembled DYNAMICALLY from Supabase at answer time so the
@@ -43,6 +44,13 @@ function getSupabase() {
 let kbCache = null; // { kbText, pricingByTier, at, ttl }
 const KB_TTL_OK = 60 * 1000; // refresh live data at most once per minute
 const KB_TTL_ERR = 10 * 1000; // after a failure, retry sooner
+
+// Last pricing map we successfully read from Supabase, kept OUTSIDE kbCache so it
+// survives cache expiry, failures and the static-KB path. There are no hardcoded
+// prices anywhere in this file on purpose: a wrong-but-confident price is far more
+// damaging than no price, so the only two things the bot may ever quote are (a) a
+// price that came from `pricing_tiers`, or (b) nothing at all.
+let lastGoodPricing = null; // { map, at }
 
 function formatCurriculum(modules, lessons) {
   if (!modules?.length) return '';
@@ -94,16 +102,52 @@ function toPricingMap(tiers) {
   return Object.keys(map).length ? map : null;
 }
 
+// Read `pricing_tiers` with one retry. Pricing is the single most damaging thing
+// to get wrong, so a lone transient PostgREST/network blip must not be enough to
+// lose it — the retry costs ~250ms on a path that otherwise runs once a minute.
+async function fetchPricingTiers(supabase) {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const { data, error } = await supabase
+        .from('pricing_tiers')
+        .select('tier,currency,symbol,base_price,gst_rate');
+      if (!error) {
+        const map = toPricingMap(data);
+        if (map) return { map, error: null };
+        lastErr = new Error('pricing_tiers returned no usable rows');
+      } else {
+        lastErr = error;
+      }
+    } catch (err) {
+      lastErr = err;
+    }
+    console.error(
+      `[api/chat] pricing_tiers read failed (attempt ${attempt}/2):`,
+      lastErr?.message || lastErr
+    );
+    if (attempt === 1) await new Promise((r) => setTimeout(r, 250));
+  }
+  return { map: null, error: lastErr };
+}
+
 // Fetch + assemble the full knowledge base and pricing from Supabase, cached.
 // Degrades per-section: a failure on one table never discards the others (so a
 // transient error on, say, `resources` can't cause the bot to quote stale
-// fallback prices). Only a total outage drops to the bundled static KB.
+// fallback prices). Only a total outage drops to the bundled static KB — and even
+// then pricing falls back to the last value actually read from the DB, never to a
+// number written in this file.
 async function getKnowledgeData() {
   const now = Date.now();
   if (kbCache && now - kbCache.at < kbCache.ttl) return kbCache;
 
   const staticFallback = () => {
-    kbCache = { kbText: STATIC_KB_FALLBACK, pricingByTier: null, at: now, ttl: KB_TTL_ERR };
+    kbCache = {
+      kbText: STATIC_KB_FALLBACK,
+      pricingByTier: lastGoodPricing?.map || null,
+      at: now,
+      ttl: KB_TTL_ERR,
+    };
     return kbCache;
   };
 
@@ -111,37 +155,50 @@ async function getKnowledgeData() {
   try {
     supabase = getSupabase();
   } catch (err) {
-    console.error('[api/chat] Supabase not configured, using static KB:', err.message);
+    console.error(
+      '[api/chat] SUPABASE NOT CONFIGURED — no live pricing this request:',
+      err.message
+    );
     return staticFallback();
   }
 
   // allSettled so one rejecting query never discards the others (per-section
   // degradation). supabase-js normally resolves with { data, error }; a hard
-  // rejection is normalized to an error object below.
-  const settled = await Promise.allSettled([
-    supabase.from('chatbot_kb').select('content').order('updated_at', { ascending: false }).limit(1),
-    supabase.from('modules').select('id,title,order_index').eq('is_published', true).order('order_index'),
-    supabase.from('lessons').select('module_id,title,status,order_index').eq('is_published', true).order('order_index'),
-    supabase.from('resources').select('title,type,is_global,order_index').order('order_index'),
-    supabase.from('pricing_tiers').select('tier,currency,symbol,base_price,gst_rate'),
+  // rejection is normalized to an error object below. Pricing runs alongside on
+  // its own retrying path so it is never coupled to the KB queries.
+  const [settled, priceResult] = await Promise.all([
+    Promise.allSettled([
+      supabase.from('chatbot_kb').select('content').order('updated_at', { ascending: false }).limit(1),
+      supabase.from('modules').select('id,title,order_index').eq('is_published', true).order('order_index'),
+      supabase.from('lessons').select('module_id,title,status,order_index').eq('is_published', true).order('order_index'),
+      supabase.from('resources').select('title,type,is_global,order_index').order('order_index'),
+    ]),
+    fetchPricingTiers(supabase),
   ]);
-  const [kbRes, modRes, lesRes, resRes, priceRes] = settled.map((s) =>
+  const [kbRes, modRes, lesRes, resRes] = settled.map((s) =>
     s.status === 'fulfilled' ? s.value : { data: null, error: s.reason || new Error('query rejected') }
   );
 
   const anyError =
-    kbRes.error || modRes.error || lesRes.error || resRes.error || priceRes.error;
+    kbRes.error || modRes.error || lesRes.error || resRes.error || priceResult.error;
   if (anyError) {
     console.error('[api/chat] KB partial fetch issue:', anyError.message || anyError);
   }
 
-  // Pricing is computed OUTSIDE the assembly try/catch so a formatter throwing
-  // on malformed curriculum/resource rows can never discard live prices.
-  let pricingByTier = null;
-  try {
-    if (!priceRes.error) pricingByTier = toPricingMap(priceRes.data);
-  } catch (err) {
-    console.error('[api/chat] pricing map failed:', err.message);
+  // Pricing resolution order: fresh DB read → last value actually read from the
+  // DB → nothing (the region rule then forbids quoting a price at all).
+  let pricingByTier = priceResult.map;
+  if (pricingByTier) {
+    lastGoodPricing = { map: pricingByTier, at: now };
+  } else if (lastGoodPricing) {
+    pricingByTier = lastGoodPricing.map;
+    console.error(
+      `[api/chat] PRICING DEGRADED — serving last DB read from ${new Date(
+        lastGoodPricing.at
+      ).toISOString()}`
+    );
+  } else {
+    console.error('[api/chat] PRICING UNAVAILABLE — bot will decline to quote a price.');
   }
 
   let kbText = STATIC_KB_FALLBACK;
@@ -187,8 +244,9 @@ function checkRateLimit(ip) {
   return true;
 }
 
-// Render a pricing_tiers row as a human price string, e.g. "₹7,999 + 18% GST".
-// Returns null if the row lacks a usable numeric price (caller then falls back).
+// Render a pricing_tiers row as a human price string, e.g. "₹39,999 + 18% GST".
+// Returns null if the row lacks a usable numeric price (caller then declines to
+// quote rather than substituting a guess).
 function formatTierPrice(tier) {
   const amount = Number(tier?.base_price);
   if (!Number.isFinite(amount)) return null;
@@ -199,16 +257,23 @@ function formatTierPrice(tier) {
   return `${priceStr}${gst}`;
 }
 
-// Static prices used ONLY if pricing_tiers can't be fetched from Supabase. Kept
-// roughly in sync with the live tiers so a degraded answer is never wildly stale.
-const FALLBACK_PRICES = {
-  INDIA: '₹7,999 + 18% GST',
-  SAARC: '$47',
-  INTERNATIONAL: '$169',
-};
+// Rule used when `pricing_tiers` could not be read even once on this instance.
+// The bot must say it can't confirm the price rather than recall one — the KB
+// prose, the model's memory and any earlier turn in the thread are all suspect.
+const NO_PRICE_RULE = `[PRICING — ABSOLUTE OVERRIDE]
+Live pricing could not be loaded for this reply. You therefore DO NOT KNOW the course price right now.
+
+ABSOLUTELY FORBIDDEN in your reply:
+- Stating, guessing, approximating, rounding or "recalling" ANY course price or GST amount.
+- Repeating a price from the knowledge base prose, from an earlier message in this conversation, or from memory.
+- Implying a price range, a discount amount, or what the price "used to be".
+
+If the user asks about price, cost, fees, EMI or anything similar, reply that the current price is shown live on the course page and the checkout button at **https://course.intentledsales.com**, invite them to check it there, and offer to help with anything else about the course (curriculum, resources, support, guarantee). You may still confirm non-numeric facts: it is a one-time payment with lifetime access and a 30-day money-back guarantee.`;
 
 function buildRegionRule(country, pricingByTier) {
-  const NEIGHBORS = new Set(['NP', 'BD', 'LK', 'PK', 'BT', 'MV']); // SAARC neighbors
+  // Same list the landing page and checkout use, imported rather than retyped so
+  // the bot can never quote a tier different from the one the user is charged.
+  const NEIGHBORS = new Set(SAARC_COUNTRIES);
   const code = typeof country === 'string' ? country.toUpperCase() : '';
 
   // ISO country code → pricing tier.
@@ -218,12 +283,13 @@ function buildRegionRule(country, pricingByTier) {
   else if (code) region = 'INTERNATIONAL';
   else region = 'INDIA'; // country not detected → default to the primary market
 
-  const priceFor = (key) => {
-    const live = pricingByTier?.[key] ? formatTierPrice(pricingByTier[key]) : null;
-    return live || FALLBACK_PRICES[key];
-  };
+  // Live DB value or nothing. No hardcoded fallback: quoting a price this file
+  // invented is exactly the bug this guards against.
+  const priceFor = (key) =>
+    pricingByTier?.[key] ? formatTierPrice(pricingByTier[key]) : null;
 
   const allowedPrice = priceFor(region);
+  if (!allowedPrice) return NO_PRICE_RULE;
   // Forbid the OTHER regions' prices — but never a value equal to the allowed
   // price (two tiers can format identically on live data).
   const otherPrices = ['INDIA', 'SAARC', 'INTERNATIONAL']
@@ -356,6 +422,16 @@ export default async function handler(req, res) {
     const model = process.env.DEEPINFRA_MODEL || 'deepseek-ai/DeepSeek-V4-Flash';
 
     const { kbText, pricingByTier } = await getKnowledgeData();
+
+    // Log the exact price the model is allowed to quote. If a user ever reports a
+    // wrong price again, this line says immediately whether the DB read worked.
+    const quotedTiers = pricingByTier
+      ? Object.entries(pricingByTier)
+          .map(([k, v]) => `${k}=${formatTierPrice(v) ?? 'n/a'}`)
+          .join(' ')
+      : 'NONE (bot will decline to quote)';
+    console.log(`[api/chat] pricing: ${quotedTiers}`);
+
     const systemPrompt = buildSystemPrompt(mode, userProfile, country, kbText, pricingByTier);
 
     // Send a proper OpenAI-style messages array (system + the validated

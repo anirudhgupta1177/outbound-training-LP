@@ -3,13 +3,17 @@ export const SAARC_COUNTRIES = ['BD', 'PK', 'NP', 'LK', 'BT']; // Bangladesh, Pa
 
 export const TIER_KEYS = ['INDIA', 'SAARC', 'INTERNATIONAL'];
 
-// Static fallback used when /api/pricing is unreachable. Admins should keep
-// these aligned with the seeded `pricing_tiers` rows in supabase/pricing-schema.sql,
-// but the DB is the source of truth at runtime.
+// Last-resort static fallback, used only when /api/pricing is unreachable after a
+// retry. `pricing_tiers` in Supabase is the source of truth at runtime — these
+// numbers exist so a network blip renders *a* price rather than a broken page.
+//
+// ⚠️ THESE GO STALE SILENTLY. Whenever `pricing_tiers` is edited in Supabase,
+// update these to match (they drifted to a 5x-wrong ₹7,999 once and the chatbot
+// started quoting it). Last synced with the DB: 2026-09-03.
 export const FALLBACK_TIERS = {
-  INDIA:         { tier: 'INDIA',         currency: 'INR', symbol: '₹', basePrice: 7999, originalPrice: 49999, gstRate: 0.18 },
-  SAARC:         { tier: 'SAARC',         currency: 'USD', symbol: '$', basePrice:   47, originalPrice:  1499, gstRate: 0    },
-  INTERNATIONAL: { tier: 'INTERNATIONAL', currency: 'USD', symbol: '$', basePrice:  129, originalPrice:  3999, gstRate: 0    },
+  INDIA:         { tier: 'INDIA',         currency: 'INR', symbol: '₹', basePrice: 39999, originalPrice: 149999, gstRate: 0.18 },
+  SAARC:         { tier: 'SAARC',         currency: 'USD', symbol: '$', basePrice:   400, originalPrice:   1499, gstRate: 0    },
+  INTERNATIONAL: { tier: 'INTERNATIONAL', currency: 'USD', symbol: '$', basePrice:   699, originalPrice:   1999, gstRate: 0    },
 };
 
 /**

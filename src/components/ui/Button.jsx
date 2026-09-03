@@ -42,7 +42,11 @@ export default function Button({
       try {
         const text = (e.currentTarget?.innerText || '').trim();
         const priceMatch = text.match(/([₹$])\s?([\d,]+)/);
-        const displayedPrice = priceMatch ? parseInt(priceMatch[2].replace(/,/g, ''), 10) : 7999;
+        // No hardcoded default: a CTA without a visible price reports no value
+        // rather than a stale guess, which would corrupt GA4 revenue reporting.
+        const displayedPrice = priceMatch
+          ? parseInt(priceMatch[2].replace(/,/g, ''), 10)
+          : undefined;
         const currency = priceMatch && priceMatch[1] === '$' ? 'USD' : 'INR';
 
         window.gtag('event', 'course_checkout', {
@@ -50,7 +54,7 @@ export default function Button({
           event_label: 'course_checkout_click',
           value: displayedPrice,
           currency,
-          base_price: 7999,
+          base_price: displayedPrice,
           offer_type: 'course',
           cta_location: window.location.pathname,
           cta_text: text.substring(0, 100),

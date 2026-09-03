@@ -29,17 +29,26 @@ const detectCountryWithTimeout = (ms = 2500) =>
     new Promise((resolve) => setTimeout(() => resolve(null), ms)),
   ]);
 
+// Fetch the canonical tiers, retrying once. Note that /api/pricing answers 200
+// with `tiers: null` when its own Supabase read fails, so a "successful" response
+// is not proof of live data — only a non-empty `tiers` object is.
 const fetchTiersFromApi = async () => {
-  try {
-    const res = await fetch('/api/pricing', { headers: { Accept: 'application/json' } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data || !data.tiers) return null;
-    return data.tiers;
-  } catch (err) {
-    console.warn('Failed to fetch /api/pricing, falling back to static defaults:', err);
-    return null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const res = await fetch('/api/pricing', { headers: { Accept: 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.tiers && Object.keys(data.tiers).length) return data.tiers;
+      }
+    } catch (err) {
+      console.warn(`/api/pricing attempt ${attempt} failed:`, err);
+    }
+    if (attempt === 1) await new Promise((r) => setTimeout(r, 400));
   }
+  console.error(
+    '⚠️ /api/pricing unavailable — showing STATIC FALLBACK prices, which may be out of date.'
+  );
+  return null;
 };
 
 const pricingFromTiers = (country, tiers) => {
