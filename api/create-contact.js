@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import { verifyCoursePayment } from './_course-payment.js';
 
 // Generate a random password
 function generatePassword(length = 12) {
@@ -36,7 +37,9 @@ export default async function handler(req, res) {
       }
     }
     
-    const {
+    // `let`: amount, currency and coupon_code are replaced below with the
+    // values Razorpay reports once the payment is verified.
+    let {
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature,
@@ -90,46 +93,52 @@ export default async function handler(req, res) {
     const SELLER_STATE_CODE = process.env.SELLER_STATE_CODE || '';
     const SELLER_SAC_CODE = process.env.SELLER_SAC_CODE || '999293';
     
+    // Nothing below may run for a payment that isn't proven: this endpoint
+    // creates the account, grants the course and emails the login. It used to
+    // log a failed check and carry on, so any made-up payment id got access.
+    const verification = await verifyCoursePayment({
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      signature: razorpay_signature,
+      keyId: RAZORPAY_KEY_ID,
+      keySecret: RAZORPAY_KEY_SECRET,
+    });
+    if (!verification.ok) {
+      console.error('Payment verification failed:', razorpay_payment_id, verification.error);
+      return res.status(verification.status).json({ error: verification.error });
+    }
+
+    // Record what Razorpay says was charged, not what the browser reported.
+    amount = verification.amount;
+    currency = verification.currency;
+    coupon_code = verification.couponCode;
+    console.log('Payment verified:', razorpay_payment_id, amount, currency);
+
     // Determine region from currency (simplified: India vs International)
     const region = currency === 'INR' ? 'INDIA' : 'INTERNATIONAL';
-    
-    // Verify payment with Razorpay API
-    if (razorpay_payment_id) {
-      try {
-        console.log('Verifying payment with Razorpay API:', razorpay_payment_id);
-        const razorpayAuth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
-        
-        const verifyResponse = await fetch(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Basic ${razorpayAuth}`,
-          }
-        });
-        
-        if (verifyResponse.ok) {
-          const paymentData = await verifyResponse.json();
-          console.log('Payment verification successful:', {
-            status: paymentData.status,
-            amount: paymentData.amount,
-            currency: paymentData.currency
-          });
-          
-          if (paymentData.status !== 'captured') {
-            console.error('Payment status is not captured:', paymentData.status);
-            return res.status(400).json({
-              error: 'Payment not captured',
-              status: paymentData.status,
-              message: 'Payment must be captured before granting course access.'
-            });
-          }
-        } else {
-          const errorText = await verifyResponse.text();
-          console.error('Payment verification failed:', errorText);
-          console.warn('Proceeding with contact creation despite verification failure');
-        }
-      } catch (verifyError) {
-        console.error('Error verifying payment:', verifyError);
-        console.warn('Proceeding with contact creation despite verification error');
+
+    // A genuine payment can still be replayed by someone else to get a second
+    // account. A retry by the same buyer is fine; a different email is not.
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const supabaseCheck = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+      const { data: priorOrder, error: priorError } = await supabaseCheck
+        .from('orders')
+        .select('customer_email')
+        .eq('razorpay_payment_id', razorpay_payment_id)
+        .maybeSingle();
+      if (priorError) {
+        console.error('Could not check for a prior claim on', razorpay_payment_id, priorError);
+        return res.status(503).json({ error: 'Could not confirm this payment is unclaimed. Please retry.' });
+      }
+      if (
+        priorOrder &&
+        String(priorOrder.customer_email || '').trim().toLowerCase() !==
+          String(customer_email).trim().toLowerCase()
+      ) {
+        console.error('Payment already claimed by another email:', razorpay_payment_id);
+        return res.status(409).json({ error: 'This payment has already been used.' });
       }
     }
 
