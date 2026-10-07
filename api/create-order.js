@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { validateCouponAgainstDb } from './validate-coupon.js';
 import { CONSULT_PRODUCT, consultQuote } from '../src/constants/consultCall.js';
 import { resolveConsultRegion } from './_geo.js';
+import { COURSE_PRODUCT } from './_course-payment.js';
 
 const VALID_TIERS = new Set(['INDIA', 'SAARC', 'INTERNATIONAL']);
 
@@ -188,6 +189,14 @@ export default async function handler(req, res) {
         ...(orderPayload.notes || {}),
         product: CONSULT_PRODUCT,
         region: consultRegion,
+      };
+    } else {
+      // create-contact only provisions a course account for an order carrying
+      // this marker, so a payment for anything else on the account can't be
+      // replayed into course access.
+      orderPayload.notes = {
+        ...(orderPayload.notes || {}),
+        product: COURSE_PRODUCT,
       };
     }
 
